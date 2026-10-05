@@ -1,0 +1,10 @@
+{
+    "name": "Hello",
+    "alias": "Hello",
+    "description": "Engine smoke test",
+    "priority": 99,
+    "version": 1.0,
+    "monthly_price": 0,
+    "yearly_price": 0,
+    "package_name": "hello"
+}
