@@ -6,6 +6,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -16,6 +17,21 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, HasRoles, Notifiable;
+
+    /**
+     * Mirror the DB column defaults so a freshly created (not yet reloaded) model behaves like a stored one.
+     * Without this e.g. `is_enable_login` is null on User::create() and the account looks disabled.
+     */
+    protected $attributes = [
+        'type' => 'company',
+        'lang' => 'en',
+        'active_plan' => 0,
+        'total_user' => 0,
+        'is_trial_done' => false,
+        'is_disable' => false,
+        'is_enable_login' => true,
+        'active_status' => false,
+    ];
 
     protected $fillable = [
         'name',
@@ -79,6 +95,12 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $slug;
+    }
+
+    /** Users created by this company (staff, clients, vendors). */
+    public function members(): HasMany
+    {
+        return $this->hasMany(self::class, 'created_by');
     }
 
     /** The company (tenant owner) that created this user. */

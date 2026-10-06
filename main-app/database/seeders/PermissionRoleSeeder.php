@@ -40,6 +40,11 @@ class PermissionRoleSeeder extends Seeder
         ['name' => 'manage-add-ons', 'module' => 'add-ons', 'label' => 'Manage Add-ons'],
         ['name' => 'edit-add-ons', 'module' => 'add-ons', 'label' => 'Edit Add-ons'],
 
+        ['name' => 'manage-companies', 'module' => 'companies', 'label' => 'Manage Companies'],
+        ['name' => 'create-companies', 'module' => 'companies', 'label' => 'Create Companies'],
+        ['name' => 'edit-companies', 'module' => 'companies', 'label' => 'Edit Companies'],
+        ['name' => 'delete-companies', 'module' => 'companies', 'label' => 'Delete Companies'],
+
         ['name' => 'manage-roles', 'module' => 'roles', 'label' => 'Manage Roles'],
         ['name' => 'create-roles', 'module' => 'roles', 'label' => 'Create Roles'],
         ['name' => 'edit-roles', 'module' => 'roles', 'label' => 'Edit Roles'],
@@ -51,6 +56,7 @@ class PermissionRoleSeeder extends Seeder
         'create-plans', 'edit-plans', 'delete-plans',
         'manage-coupons', 'create-coupons', 'edit-coupons', 'delete-coupons',
         'manage-bank-transfers', 'manage-add-ons', 'edit-add-ons',
+        'manage-companies', 'create-companies', 'edit-companies', 'delete-companies',
     ];
 
     public function run(): void
@@ -77,10 +83,13 @@ class PermissionRoleSeeder extends Seeder
             Role::firstOrCreate(['name' => $name, 'guard_name' => 'web'], ['label' => $label]);
         }
 
+        // give/revoke ONLY core permissions: add-on modules grant their own to the company role (package:seed),
+        // and re-running this seeder must never wipe those.
         $all = array_column(self::PERMISSIONS, 'name');
-        Role::findByName('superadmin')->syncPermissions(Permission::whereIn('name', $all)->get());
-        Role::findByName('company')->syncPermissions(Permission::whereIn('name', array_diff($all, self::ADMIN_ONLY))->get());
-        Role::findByName('staff')->syncPermissions(['manage-dashboard']);
+        Role::findByName('superadmin')->givePermissionTo($all);
+        Role::findByName('company')->givePermissionTo(array_diff($all, self::ADMIN_ONLY));
+        Role::findByName('company')->revokePermissionTo(self::ADMIN_ONLY);
+        Role::findByName('staff')->givePermissionTo('manage-dashboard');
 
         // Default accounts (DEV ONLY – change before production)
         $superAdmin = User::firstOrCreate(

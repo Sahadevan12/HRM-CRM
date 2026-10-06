@@ -35,6 +35,15 @@ class PlanModuleCheck
         if ($user->type !== 'superadmin') {
             $company = companyOf($user);
 
+            // Superadmin can block a whole company (and its staff) or a single user.
+            if (!$user->is_enable_login || ($company && !$company->is_enable_login)) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->with('status', __('Your account has been disabled. Please contact the administrator.'));
+            }
+
             if ($user->type === 'company') {
                 if ($this->plans->isExpired($user) && !$request->routeIs(self::ALLOWED_WHEN_EXPIRED)) {
                     return redirect()->route('plans.index')

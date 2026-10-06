@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BankTransferPaymentController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\ModuleController;
@@ -62,6 +63,14 @@ Route::middleware(['auth', 'verified', 'PlanModuleCheck'])->group(function () {
     Route::post('bank-transfers/{payment}/approve', [BankTransferPaymentController::class, 'approve'])->name('bank-transfers.approve');
     Route::post('bank-transfers/{payment}/reject', [BankTransferPaymentController::class, 'reject'])->name('bank-transfers.reject');
     Route::get('bank-transfers/{payment}/attachment', [BankTransferPaymentController::class, 'attachment'])->name('bank-transfers.attachment');
+
+    // Companies (superadmin)
+    Route::get('companies', [CompanyController::class, 'index'])->name('companies.index');
+    Route::post('companies', [CompanyController::class, 'store'])->name('companies.store');
+    Route::put('companies/{company}', [CompanyController::class, 'update'])->name('companies.update');
+    Route::post('companies/{company}/toggle-login', [CompanyController::class, 'toggleLogin'])->name('companies.toggle-login');
+    Route::post('companies/{company}/plan', [CompanyController::class, 'assignPlan'])->name('companies.assign-plan');
+    Route::delete('companies/{company}', [CompanyController::class, 'destroy'])->name('companies.destroy');
 
     // Add-on modules (superadmin)
     Route::get('add-ons', [ModuleController::class, 'index'])->name('add-ons.index');

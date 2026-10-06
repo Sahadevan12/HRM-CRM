@@ -34,7 +34,8 @@ class PlanController extends Controller
         if ($user->isSuperadmin()) {
             return Inertia::render('Plans/Index', [
                 'plans' => Plan::withCount(['companies'])->orderBy('monthly_price')->get(),
-                'modules' => AddOn::where('for_admin', false)->orderBy('priority')->get(['module', 'name']),
+                // always-active modules are free for everyone, so they are not part of any plan
+                'modules' => AddOn::where('for_admin', false)->whereNotIn('module', PlanService::ALWAYS_ACTIVE)->orderBy('priority')->get(['module', 'name']),
             ]);
         }
 

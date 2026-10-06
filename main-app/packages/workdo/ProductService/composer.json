@@ -1,0 +1,19 @@
+{
+    "name": "workdo/product-service",
+    "description": "Products & Services add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\ProductService\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\ProductService\\Providers\\ProductServiceServiceProvider"
+            ]
+        }
+    }
+}

@@ -83,8 +83,29 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         `NotesSampleModuleTest` guards generator output (tenant isolation, validation, plan gating, events). Delete Notes + that test before shipping.
       - Tests: `PackageGeneratorTest` (21: files, lint, markers, invalid names/fields, no overwrite)
 
+- [x] Phase 3.5: Companies page (superadmin): list/search, create (free plan), edit, assign plan (month/year/trial/lifetime),
+      enable/disable login (blocks the company AND its staff via PlanModuleCheck; single users too via users.is_enable_login), delete (cascade).
+      Permissions manage/create/edit/delete-companies are ADMIN_ONLY. `User::$attributes` mirrors DB defaults (needed for fresh models).
+- [x] Phase 5: ProductService module (120 tests pass) - generated with make:crud, then customised
+      - `PlanService::ALWAYS_ACTIVE = ['ProductService']`: every company gets it regardless of plan (hidden from the plan editor)
+      - Entities (tables): ProductCategory(name,color #hex), ProductUnit, ProductTax(rate 0-100), Warehouse(address,city,phone,email,is_active),
+        Product(name, sku unique per company, type product|service, sale/purchase price, category_id, unit_id, tax_ids json, is_active),
+        ProductStock(product_id, warehouse_id, quantity>=0, unique pair), StockTransfer(product, from, to, quantity, date, notes)
+      - Routes `product-service/*`, names `productservice.*` (products, product-categories, product-units, product-taxes, warehouses, stock-transfers;
+        products/{product}/stock GET json + POST set quantity)
+      - `Workdo\ProductService\Services\StockService` = the ONLY place stock changes: adjust(+/-), set, transfer (transaction + row lock,
+        never below 0, throws InsufficientStockException). Sales/purchase/POS must call it.
+      - Tenant safety: relation ids validated with Rule::exists(...)->where('created_by', tenant); unique sku per tenant
+      - Transfers: atomic, services refused, same-warehouse refused, delete = reverse (refused if destination already spent the stock);
+        warehouse with stock or transfer history cannot be deleted; deleting a product cascades its stock rows
+      - Extra permissions: manage-product-stock, manage/create/delete-transfers. Events: Create/Update/DestroyProduct..., Create/DestroyStockTransfer
+      - Pages: Products (filters, relation selects, tax checkboxes, per-warehouse stock dialog), StockTransfers, + generated master-data pages
+      - BUG FIXED: re-running `PermissionRoleSeeder` used syncPermissions and wiped add-on permissions from the company role.
+        Now it only gives/revokes core permissions; `php artisan db:seed` also runs every installed module's PermissionTableSeeder.
+
 ## TODO (next)
-- [ ] Companies page for superadmin (list companies, assign plan, enable/disable login) - not built yet
+- [ ] Phase 6: Sales/Purchase documents (proposal -> invoice -> post -> returns) using StockService; item taxes; print pages
+- [ ] Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 
