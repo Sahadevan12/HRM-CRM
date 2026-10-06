@@ -96,11 +96,12 @@ class DocumentService
         DB::transaction(function () use ($document) {
             $this->moveStock($document, DocumentType::get($document->type)['stock']);
             $document->update(['status' => 'posted', 'posted_at' => now()]);
-        });
 
-        $document->type === DocumentType::SALES_INVOICE
-            ? PostSalesInvoice::dispatch($document)
-            : PostPurchaseInvoice::dispatch($document);
+            // dispatched INSIDE the transaction: listeners (e.g. the ledger) are part of the posting, a failure rolls everything back
+            $document->type === DocumentType::SALES_INVOICE
+                ? PostSalesInvoice::dispatch($document)
+                : PostPurchaseInvoice::dispatch($document);
+        });
 
         return $document;
     }
@@ -181,11 +182,11 @@ class DocumentService
         DB::transaction(function () use ($return) {
             $this->moveStock($return, DocumentType::get($return->type)['stock']);
             $return->update(['status' => 'approved', 'posted_at' => now()]);
-        });
 
-        $return->type === DocumentType::SALES_RETURN
-            ? ApproveSalesReturn::dispatch($return)
-            : ApprovePurchaseReturn::dispatch($return);
+            $return->type === DocumentType::SALES_RETURN
+                ? ApproveSalesReturn::dispatch($return)
+                : ApprovePurchaseReturn::dispatch($return);
+        });
 
         return $return;
     }

@@ -39,14 +39,14 @@ class PermissionTableSeeder extends Seeder
         $company = Role::where('name', 'company')->first();
 
         foreach ($permissions as $perm) {
-            $permission = Permission::firstOrCreate(
+            Permission::firstOrCreate(
                 ['name' => $perm['name'], 'guard_name' => 'web'],
                 ['module' => $perm['module'], 'label' => $perm['label'], 'add_on' => 'SalesPurchase']
             );
-
-            if ($company && !$company->hasPermissionTo($permission)) {
-                $company->givePermissionTo($permission);
-            }
         }
+
+        // ONE call for all of them: givePermissionTo flushes spatie's permission cache every time,
+        // so granting one by one gets very slow as the number of permissions grows
+        $company?->givePermissionTo(array_column($permissions, 'name'));
     }
 }

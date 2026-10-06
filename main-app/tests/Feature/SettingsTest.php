@@ -4,19 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Database\Seeders\PermissionRoleSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class SettingsTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\PermissionRoleSeeder::class);
-        $this->seed(\Database\Seeders\PlanSeeder::class);
         Cache::flush();
     }
 

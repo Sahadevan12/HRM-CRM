@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\PlanService;
 use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use Workdo\ProductService\Database\Seeders\PermissionTableSeeder;
@@ -25,16 +24,11 @@ use Workdo\ProductService\Services\StockService;
 
 class ProductServiceTest extends TestCase
 {
-    use RefreshDatabase;
-
     private const BASE = 'product-service';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
-        $this->seed(PlanSeeder::class);
-        $this->seed(PermissionTableSeeder::class);
     }
 
     private function company(string $email = 'a@test.com'): User

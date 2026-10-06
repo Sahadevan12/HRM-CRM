@@ -12,7 +12,6 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
 use Database\Seeders\DatabaseSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 use Workdo\ProductService\Models\Product;
@@ -25,14 +24,11 @@ use Workdo\SalesPurchase\Support\DocumentType;
 
 class SalesPurchaseTest extends TestCase
 {
-    use RefreshDatabase;
-
     private const BASE = 'sales-purchase';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(DatabaseSeeder::class);
     }
 
     // ───────────── fixtures ─────────────

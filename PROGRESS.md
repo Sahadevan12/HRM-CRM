@@ -126,8 +126,34 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Verified in browser: invoice 5 x 25 - 10 discount + 18% GST = $135.70 -> post (stock 30->25) -> return 2 pro rata $54.28 -> approve (stock 27)
       - Tests: `SalesPurchaseTest` (25): maths, numbering, tenant isolation, role mismatch, atomic posting, proposals, returns (cumulative qty), permissions, guards
 
+- [x] Phase 7: Account module "Accounting" (175 tests pass; NOT always-active: it is part of the Pro plan)
+      - Tables: chart_of_accounts (code unique per company, type asset|liability|equity|revenue|expense, is_bank, is_system, is_active),
+        journal_entries (+items; number JE-00001, entry_type manual|automatic, reference_type/id UNIQUE per company = one entry per source document),
+        account_payments (kind customer|vendor, one invoice per payment, bank/cash account)
+      - Default chart (12 system accounts: 1000 Cash, 1010 Bank, 1100 AR, 1200 Inventory, 1300 Tax Receivable, 2000 AP, 2210 Tax Payable,
+        3000 Equity, 4100 Sales, 4200 Sales Returns, 5000 COGS, 5200 Services/Other) is created lazily per company (`AccountService::ensureDefaults`);
+        system accounts can be renamed only (no delete / code / type / deactivate); accounts with bookings cannot be deleted or change type
+      - `JournalService::record()` = the only way to write the books: >= 2 lines, debit == credit (0.005), active accounts of the company, idempotent per reference.
+        Balances are NEVER stored, always summed from journal lines.
+      - Automatic bookings (listener `PostDocumentToLedger` on PostSalesInvoice / PostPurchaseInvoice / ApproveSalesReturn / ApprovePurchaseReturn, dated on the
+        DOCUMENT date): sales invoice Dr AR / Cr Sales(net) + Cr Tax Payable, plus Dr COGS / Cr Inventory at the product's purchase price; purchase invoice
+        Dr Inventory (products) + Dr Services expense + Dr Tax Receivable / Cr AP; returns reverse pro rata.
+        The events are now dispatched INSIDE the posting transaction in DocumentService, so a failing booking rolls back stock + status too.
+        Companies without the Account module are skipped; `php artisan account:backfill [company]` books older documents later (idempotent).
+      - Payments (`PaymentService`): customer Dr Bank / Cr AR, vendor Dr AP / Cr Bank; amount <= outstanding (= total - paid - approved returns, row lock);
+        updates documents.paid_amount; delete reverses booking + paid_amount
+      - Manual journal entries (balanced form, delete only manual), reports: trial balance, profit & loss, balance sheet (with "current earnings", always balances),
+        general ledger (opening + running balance), all per company
+      - Pages: ChartOfAccounts, JournalEntries (Index/Form/Show), Payments (customer + vendor, one controller with route default `kind`), Reports (4 tabs, print)
+      - KNOWN LIMITS: manual stock counts / warehouse transfers are not booked (opening stock must come from a purchase invoice or a manual journal
+        Dr Inventory / Cr Equity, otherwise Inventory can go negative); no bank reconciliation, no credit/debit note documents, no period closing / locking,
+        one invoice per payment, no multi-currency
+      - Tests: `AccountingTest` (30). Test infra: `tests/TestCase.php` migrates + seeds ONCE per run (file sqlite `database/testing.sqlite`); never `use RefreshDatabase`
+        in a test class; module PermissionTableSeeders grant permissions in ONE givePermissionTo call (per-permission calls were very slow)
+
 ## TODO (next)
-- [ ] Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
+- [ ] Phase 8: POS (uses StockService + SalesPurchase documents/Account events), then HRM (H1-H7), CRM (C1-C5)
+- [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 

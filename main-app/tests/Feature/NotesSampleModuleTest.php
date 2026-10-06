@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\PlanService;
 use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Workdo\Notes\Database\Seeders\PermissionTableSeeder;
 use Workdo\Notes\Models\Note;
@@ -19,16 +18,11 @@ use Workdo\Notes\Models\Note;
  */
 class NotesSampleModuleTest extends TestCase
 {
-    use RefreshDatabase;
-
     private Plan $pro;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
-        $this->seed(PlanSeeder::class);
-        $this->seed(PermissionTableSeeder::class);
         $this->pro = Plan::where('name', 'Pro')->firstOrFail();
         $this->pro->update(['modules' => ['Hello', 'Notes']]);
     }

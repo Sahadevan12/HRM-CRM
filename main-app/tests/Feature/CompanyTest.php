@@ -7,13 +7,10 @@ use App\Models\User;
 use App\Services\PlanService;
 use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CompanyTest extends TestCase
 {
-    use RefreshDatabase;
-
     private User $admin;
     private Plan $free;
     private Plan $pro;
@@ -21,8 +18,6 @@ class CompanyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
-        $this->seed(PlanSeeder::class);
 
         $this->admin = User::where('type', 'superadmin')->firstOrFail();
         $this->free = Plan::where('free_plan', true)->firstOrFail();

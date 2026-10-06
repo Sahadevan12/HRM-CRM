@@ -13,15 +13,12 @@ use App\Models\UserCoupon;
 use App\Services\PlanService;
 use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\PlanSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SaasTest extends TestCase
 {
-    use RefreshDatabase;
-
     private Plan $free;
     private Plan $pro;
     private User $admin;
@@ -29,8 +26,6 @@ class SaasTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
-        $this->seed(PlanSeeder::class);
 
         $this->free = Plan::where('free_plan', true)->firstOrFail();
         $this->pro = Plan::where('name', 'Pro')->firstOrFail();

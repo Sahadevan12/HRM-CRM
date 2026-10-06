@@ -1,0 +1,19 @@
+{
+    "name": "workdo/account",
+    "description": "Accounting add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\Account\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\Account\\Providers\\AccountServiceProvider"
+            ]
+        }
+    }
+}

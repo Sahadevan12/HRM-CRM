@@ -4,19 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Database\Seeders\PermissionRoleSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class TenancyTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\PermissionRoleSeeder::class);
-        $this->seed(\Database\Seeders\PlanSeeder::class);
     }
 
     private function makeCompany(string $email, int $limit = 10): User
