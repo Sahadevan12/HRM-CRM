@@ -1,6 +1,6 @@
 # PROGRESS (paste this into Claude chats as "CURRENT STATE")
 
-Project: ERPGo clone – Laravel 12 + Inertia v2 + React 18 + TypeScript (Option 1)
+Project: ERPGo clone - Laravel 12 + Inertia v2 + React 18 + TypeScript (Option 1)
 Location: `S:\kishro freelancer\erpgo-clone\main-app`
 Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (copied from original project root)
 
@@ -28,15 +28,30 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         roles: label/description/creator_id/created_by; permissions: module/label/add_on)
       - `User` model (HasRoles, HasApiTokens, MustVerifyEmail, createdBy()), `creatorId()` helper
       - `PermissionRoleSeeder` (core permissions, roles superadmin/company/staff/client/vendor, 2 dev accounts:
-        superadmin@example.com, company@example.com – dev password is in the seeder)
+        superadmin@example.com, company@example.com - dev password is in the seeder)
       - Self-registration => new company tenant (role company, created_by = superadmin)
       - `UserController` + `RoleController` (tenant scoped, permission checks, plan user-limit, role/permission whitelist)
       - Pages `Users/Index`, `Roles/Index` (table, search, dialog form, delete confirm, permission matrix), nav gated by permission
       - `HandleInertiaRequests` shares auth.user.permissions/roles + flash
       - Tests: `tests/Feature/TenancyTest.php` (8 tests: tenant isolation, perms, limit, role whitelist) -> `php artisan test` = 33 pass
 
+- [x] Phase 2: settings + layout + i18n (41 tests pass)
+      - `settings` table (key, value, is_public, created_by; unique key+tenant) + `Setting` model
+      - Helpers (Helper.php): `setSetting`, `admin_setting`, `company_setting`, `getAdminAllSetting`, `getCompanyAllSetting`
+        (cached per tenant, cache cleared on save; staff read their company's settings), `formatCurrency`, `availableLanguages`,
+        `ActivatedModule` (PLACEHOLDER = all folders in packages/workdo with module.json -> replace in Phase 3)
+      - `SettingController` (Brand / System / Currency, permissions manage-settings + edit-settings), `LanguageController`
+      - i18n: `lang/{en,ta,languages}.json` (keys = English strings), server shares `translations` + `languages` + `auth.lang`;
+        `resources/js/i18n.ts` `syncTranslations()` called in the layout. Add a language = drop `lang/<code>.json` + entry in languages.json
+      - Shared props: adminAllSetting (public only for guests), companyAllSetting, auth.user.activatedPackages
+      - Sidebar layout: `AppSidebar` + `AuthenticatedLayout` (mobile drawer, language switch, theme cycle light/dark/system, user menu)
+      - Menu engine `utils/menu.ts`: core menu (`menus/core-menu.ts`) + add-on menus auto-loaded from
+        `packages/workdo/<Module>/src/Resources/js/menus/company-menu.ts` (or superadmin-menu.ts) for activated packages,
+        `parent` nesting, `order` sorting, permission filtering. Hello module proves it (nested under Dashboard)
+      - Theme: company primary colour presets + per-user light/dark/system (`utils/theme.ts`, `hooks/useAppearance.ts`)
+      - Tests: `SettingsTest` (8): tenant isolation, cache refresh, permissions, validation, currency, language, guest-public-only
+
 ## TODO (next)
-- [ ] Phase 2: settings table + helpers + authenticated layout + menu engine
 - [ ] Phase 3: add_ons / user_active_modules, Module class, PlanModuleCheck, plans/coupons/orders
 - [ ] Phase 4: `make:package` generator
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
@@ -45,3 +60,4 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
 - Breeze `npm install` conflict: `@types/node` must be ^22 and `@tailwindcss/vite` removed (Tailwind 3 is used).
 - Never write package.json with PowerShell `Set-Content -Encoding utf8` (BOM breaks Vite/PostCSS).
 - Claude Code preview tool is anchored to the ORIGINAL project's launch.json; run the clone's server manually.
+

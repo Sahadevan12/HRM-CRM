@@ -21,6 +21,9 @@ class PermissionRoleSeeder extends Seeder
         ['name' => 'delete-users', 'module' => 'users', 'label' => 'Delete Users'],
         ['name' => 'change-password-users', 'module' => 'users', 'label' => 'Change Password Users'],
 
+        ['name' => 'manage-settings', 'module' => 'settings', 'label' => 'Manage Settings'],
+        ['name' => 'edit-settings', 'module' => 'settings', 'label' => 'Edit Settings'],
+
         ['name' => 'manage-roles', 'module' => 'roles', 'label' => 'Manage Roles'],
         ['name' => 'create-roles', 'module' => 'roles', 'label' => 'Create Roles'],
         ['name' => 'edit-roles', 'module' => 'roles', 'label' => 'Edit Roles'],

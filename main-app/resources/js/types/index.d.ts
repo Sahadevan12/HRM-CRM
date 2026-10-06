@@ -1,3 +1,5 @@
+import { LucideIcon } from 'lucide-react';
+
 export interface User {
     id: number;
     name: string;
@@ -9,6 +11,7 @@ export interface User {
     created_at?: string;
     permissions?: string[];
     roles?: string[];
+    activatedPackages?: string[];
 }
 
 export interface Paginated<T> {
@@ -20,14 +23,39 @@ export interface Paginated<T> {
     links: { url: string | null; label: string; active: boolean }[];
 }
 
+/**
+ * Sidebar item. Add-on modules export these from
+ * packages/workdo/<Module>/src/Resources/js/menus/company-menu.ts
+ *  - `name`   : lets other items attach to this one via `parent`
+ *  - `parent` : name of the core item to nest under
+ *  - `order`  : sort position (lower = higher up)
+ */
+export interface NavItem {
+    name?: string;
+    title: string;
+    href?: string;
+    icon?: LucideIcon;
+    permission?: string;
+    order?: number;
+    parent?: string;
+    children?: NavItem[];
+}
+
+export type Settings = Record<string, string | null | undefined>;
+
 export type PageProps<
     T extends Record<string, unknown> = Record<string, unknown>,
 > = T & {
     auth: {
         user: User;
+        lang: string;
     };
     flash: {
         success?: string | null;
         error?: string | null;
     };
+    adminAllSetting: Settings;
+    companyAllSetting: Settings;
+    languages: Record<string, string>;
+    translations: Record<string, string>;
 };

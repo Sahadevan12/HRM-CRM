@@ -1,5 +1,6 @@
 import '../css/app.css';
 import './bootstrap';
+import './i18n';
 
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
@@ -8,7 +9,12 @@ import { createRoot } from 'react-dom/client';
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        // Brand title chosen in Settings (company first, then platform), else VITE_APP_NAME
+        const props = JSON.parse(document.getElementById('app')?.dataset.page ?? '{}')?.props ?? {};
+        const brand = props.companyAllSetting?.titleText || props.adminAllSetting?.titleText || appName;
+        return `${title} - ${brand}`;
+    },
     resolve: (name) => {
         const allPages = {
             ...import.meta.glob('./Pages/**/*.tsx'),
