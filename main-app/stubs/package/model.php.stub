@@ -1,0 +1,30 @@
+<?php
+
+namespace Workdo\%%Module%%\Models;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class %%Entity%% extends Model
+{
+    protected $table = '%%table%%';
+
+    protected $fillable = [
+%%fillable%%
+        'creator_id',
+        'created_by',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+%%casts%%
+        ];
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'creator_id');
+    }
+}

@@ -1,0 +1,179 @@
+import Pagination from '@/Components/Pagination';
+import { Button } from '@/Components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/Components/ui/alert-dialog';
+import { Card, CardContent } from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
+import { Textarea } from '@/Components/ui/textarea';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { PageProps, Paginated } from '@/types';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { FormEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+interface %%Entity%%Row {
+    id: number;
+%%tsFields%%
+}
+
+interface Props {
+    %%entityVarPlural%%: Paginated<%%Entity%%Row>;
+    filters: { search?: string };
+}
+
+const emptyForm = {
+%%tsDefaults%%
+};
+
+export default function %%Entities%%Index({ %%entityVarPlural%%, filters }: Props) {
+    const { t } = useTranslation();
+    const { auth } = usePage<PageProps>().props;
+    const can = (permission: string) => auth.user.permissions?.includes(permission);
+
+    const [search, setSearch] = useState(filters.search ?? '');
+    const [editing, setEditing] = useState<%%Entity%%Row | null>(null);
+    const [open, setOpen] = useState(false);
+    const [deleting, setDeleting] = useState<%%Entity%%Row | null>(null);
+    const form = useForm(emptyForm);
+
+    const openCreate = () => {
+        setEditing(null);
+        form.setData(emptyForm);
+        form.clearErrors();
+        setOpen(true);
+    };
+
+    const openEdit = (row: %%Entity%%Row) => {
+        setEditing(row);
+        form.setData({
+%%tsEditAssign%%
+        });
+        form.clearErrors();
+        setOpen(true);
+    };
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+        const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
+        if (editing) form.put(route('%%module%%.%%entities%%.update', editing.id), options);
+        else form.post(route('%%module%%.%%entities%%.store'), options);
+    };
+
+    return (
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('%%EntitiesLabel%%')}</h2>}>
+            <Head title={t('%%EntitiesLabel%%')} />
+
+            <div className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            router.get(route('%%module%%.%%entities%%.index'), { search }, { preserveState: true, replace: true });
+                        }}
+                        className="flex gap-2"
+                    >
+                        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('Search...')} className="w-64" />
+                        <Button type="submit" variant="outline">{t('Search')}</Button>
+                    </form>
+                    {can('create-%%entities%%') && (
+                        <Button onClick={openCreate}>
+                            <Plus className="mr-1 h-4 w-4" /> {t('Add %%EntityLabel%%')}
+                        </Button>
+                    )}
+                </div>
+
+                <Card>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+%%tsHeaders%%
+                                    <TableHead className="text-right">{t('Actions')}</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {%%entityVarPlural%%.data.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={%%colSpan%%} className="py-8 text-center text-muted-foreground">
+                                            {t('No records found.')}
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                                {%%entityVarPlural%%.data.map((row) => (
+                                    <TableRow key={row.id}>
+%%tsCells%%
+                                        <TableCell className="text-right">
+                                            {can('edit-%%entities%%') && (
+                                                <Button size="icon" variant="ghost" onClick={() => openEdit(row)}>
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {can('delete-%%entities%%') && (
+                                                <Button size="icon" variant="ghost" onClick={() => setDeleting(row)}>
+                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                </Button>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+
+                <Pagination meta={%%entityVarPlural%%} />
+            </div>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editing ? t('Edit %%EntityLabel%%') : t('Add %%EntityLabel%%')}</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={submit} className="space-y-4">
+%%tsInputs%%
+                        <DialogFooter>
+                            <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t('Cancel')}</Button>
+                            <Button type="submit" disabled={form.processing}>{editing ? t('Update') : t('Create')}</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t('Delete %%EntityLabel%%?')}</AlertDialogTitle>
+                        <AlertDialogDescription>{t('This action cannot be undone.')}</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('Cancel')}</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() =>
+                                deleting &&
+                                router.delete(route('%%module%%.%%entities%%.destroy', deleting.id), {
+                                    preserveScroll: true,
+                                    onFinish: () => setDeleting(null),
+                                })
+                            }
+                        >
+                            {t('Delete')}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </AuthenticatedLayout>
+    );
+}

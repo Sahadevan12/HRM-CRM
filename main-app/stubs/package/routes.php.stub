@@ -1,0 +1,8 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+// <use-statements>
+
+Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:%%Module%%'])->group(function () {
+    // <crud-routes>
+});

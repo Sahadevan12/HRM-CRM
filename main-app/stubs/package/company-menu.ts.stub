@@ -1,0 +1,14 @@
+import { NavItem } from '@/types';
+import { Puzzle } from 'lucide-react';
+
+// Auto-loaded by resources/js/utils/menu.ts for companies that have the %%Module%% module.
+export const %%moduleVar%%CompanyMenu = (t: (key: string) => string): NavItem[] => [
+    {
+        title: t('%%Alias%%'),
+        icon: Puzzle,
+        order: %%menuOrder%%,
+        children: [
+            // <menu-items>
+        ],
+    },
+];

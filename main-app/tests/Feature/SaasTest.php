@@ -132,8 +132,12 @@ class SaasTest extends TestCase
     {
         $pro = $this->company('p@test.com', $this->pro);
 
+        // whatever modules are installed, a Pro company gets exactly the ones its plan lists
+        $expected = array_values(array_intersect((new Module())->allEnabled(), $this->pro->modules));
+        $this->assertContains('Hello', $expected);
+
         $this->actingAs($pro)->get('/dashboard')
-            ->assertInertia(fn ($page) => $page->where('auth.user.activatedPackages', ['Hello']));
+            ->assertInertia(fn ($page) => $page->where('auth.user.activatedPackages', $expected));
 
         $free = $this->company('f@test.com', $this->free);
         $this->actingAs($free)->get('/dashboard')

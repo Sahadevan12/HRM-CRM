@@ -68,14 +68,31 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Pages: Plans/Index (admin), Plans/Browse + Plans/Subscribe (company), Coupons, Orders, BankTransfers, AddOns
       - Tests: `SaasTest` (24) + `tests/TestCase.php` uses `withoutVite()`; UserFactory = company with plan 1, unlimited users
 
+- [x] Phase 4: module generator (92 tests pass)
+      - `php artisan make:package <Module> [--alias=] [--priority=] [--entity=Name ...]` -> composer.json, module.json, providers,
+        Routes/web.php (PlanModuleCheck:<Module>), PermissionTableSeeder, menus/company-menu.ts (marker comments `// <use-statements>`,
+        `// <crud-routes>`, `// <permissions>`, `// <menu-items>` - DO NOT delete them, make:crud inserts above them)
+      - `php artisan make:crud <Module> <Entity> --fields="title:string,qty:integer,price:decimal?,due:date?,notes:text?,is_active:boolean"`
+        (`?` = nullable; types string,text,integer,decimal,boolean,date) -> Model, Controller (tenant scope, can() checks, search/sort whitelist,
+        pagination, Create/Update/Destroy events), SaveXRequest, migration, routes `<module>/<entities>` named `<module>.<entities>.*`,
+        4 permissions (manage/create/edit/delete-<entities>) given to company role, menu item, React Pages/<Entities>/Index.tsx
+        (table + search + create/edit dialog + delete confirm + i18n). No fields given => name:string, description:text?, is_active:boolean
+      - After generating: `php artisan migrate && php artisan package:sync && php artisan package:seed <Module>`, add module to a plan, `npm run build`
+      - Code: `App\Services\PackageGenerator`, stubs in `stubs/package/*.stub` (tokens look like %%Entity%%)
+      - Sample modules: `Hello` (engine smoke test) and `Notes` (generated; Note fields above + Notebook defaults).
+        `NotesSampleModuleTest` guards generator output (tenant isolation, validation, plan gating, events). Delete Notes + that test before shipping.
+      - Tests: `PackageGeneratorTest` (21: files, lint, markers, invalid names/fields, no overwrite)
+
 ## TODO (next)
 - [ ] Companies page for superadmin (list companies, assign plan, enable/disable login) - not built yet
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
-- [ ] Phase 4: `make:package` generator
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 
 ## Gotchas learned
 - Breeze `npm install` conflict: `@types/node` must be ^22 and `@tailwindcss/vite` removed (Tailwind 3 is used).
 - Never write package.json with PowerShell `Set-Content -Encoding utf8` (BOM breaks Vite/PostCSS).
+- Inertia test helper `->component('Mod/Folder/Page')` needs `, false` for module pages (it only looks in resources/js/Pages).
+- Settings are cached forever per tenant: editing the `settings` table by hand needs `php artisan cache:clear`.
+- Radix dialogs stay in the DOM (data-state=closed) while the Browser pane is hidden - animation never ends; not a bug.
 - Claude Code preview tool is anchored to the ORIGINAL project's launch.json; run the clone's server manually.
 

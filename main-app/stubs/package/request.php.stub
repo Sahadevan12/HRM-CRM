@@ -1,0 +1,22 @@
+<?php
+
+namespace Workdo\%%Module%%\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class Save%%Entity%%Request extends FormRequest
+{
+    /** Permission checks live in the controller (create-/edit-%%entities%%). */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /** @return array<string, mixed> */
+    public function rules(): array
+    {
+        return [
+%%rules%%
+        ];
+    }
+}

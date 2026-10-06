@@ -1,0 +1,91 @@
+<?php
+
+namespace Workdo\%%Module%%\Http\Controllers;
+
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response;
+use Workdo\%%Module%%\Events\Create%%Entity%%;
+use Workdo\%%Module%%\Events\Destroy%%Entity%%;
+use Workdo\%%Module%%\Events\Update%%Entity%%;
+use Workdo\%%Module%%\Http\Requests\Save%%Entity%%Request;
+use Workdo\%%Module%%\Models\%%Entity%%;
+
+class %%Entity%%Controller extends Controller
+{
+    private const SORTABLE = [%%sortable%%];
+
+    private const SEARCHABLE = [%%searchable%%];
+
+    public function index(Request $request): Response|RedirectResponse
+    {
+        if (!Auth::user()->can('manage-%%entities%%')) {
+            return redirect()->route('dashboard')->with('error', __('Permission denied'));
+        }
+
+        $query = %%Entity%%::where('created_by', creatorId());
+
+        if ($request->filled('search') && self::SEARCHABLE) {
+            $term = '%' . $request->get('search') . '%';
+            $query->where(function ($q) use ($term) {
+                foreach (self::SEARCHABLE as $column) {
+                    $q->orWhere($column, 'like', $term);
+                }
+            });
+        }
+
+        $sortField = in_array($request->get('sort'), self::SORTABLE, true) ? $request->get('sort') : 'created_at';
+        $sortDirection = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+
+        return Inertia::render('%%Module%%/%%Entities%%/Index', [
+            '%%entityVarPlural%%' => $query->orderBy($sortField, $sortDirection)
+                ->paginate((int) $request->get('per_page', 10))
+                ->withQueryString(),
+            'filters' => $request->only(['search', 'sort', 'direction', 'per_page']),
+        ]);
+    }
+
+    public function store(Save%%Entity%%Request $request): RedirectResponse
+    {
+        if (!Auth::user()->can('create-%%entities%%')) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        $%%entityVar%% = %%Entity%%::create($request->validated() + [
+            'creator_id' => Auth::id(),
+            'created_by' => creatorId(),
+        ]);
+
+        Create%%Entity%%::dispatch($request, $%%entityVar%%);
+
+        return back()->with('success', __('The %%entityLabel%% has been created successfully.'));
+    }
+
+    public function update(Save%%Entity%%Request $request, %%Entity%% $%%entityVar%%): RedirectResponse
+    {
+        if (!Auth::user()->can('edit-%%entities%%') || $%%entityVar%%->created_by !== creatorId()) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        $%%entityVar%%->update($request->validated());
+
+        Update%%Entity%%::dispatch($request, $%%entityVar%%);
+
+        return back()->with('success', __('The %%entityLabel%% details are updated successfully.'));
+    }
+
+    public function destroy(Request $request, %%Entity%% $%%entityVar%%): RedirectResponse
+    {
+        if (!Auth::user()->can('delete-%%entities%%') || $%%entityVar%%->created_by !== creatorId()) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        Destroy%%Entity%%::dispatch($request, $%%entityVar%%);
+        $%%entityVar%%->delete();
+
+        return back()->with('success', __('The %%entityLabel%% has been deleted.'));
+    }
+}
