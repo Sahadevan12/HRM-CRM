@@ -26,7 +26,8 @@ class UserController extends Controller
 
         $query = User::with('roles:id,name,label')
             ->where('created_by', creatorId())
-            ->where('id', '!=', Auth::id());
+            ->where('id', '!=', Auth::id())
+            ->when((int) (tenantSettings(creatorId())['walkInCustomerId'] ?? 0), fn ($q, $walkIn) => $q->where('id', '!=', $walkIn)); // POS walk-in customer is internal
 
         if ($request->filled('search')) {
             $search = $request->get('search');

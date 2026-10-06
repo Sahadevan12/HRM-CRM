@@ -1,0 +1,19 @@
+{
+    "name": "workdo/pos",
+    "description": "Point of Sale add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\Pos\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\Pos\\Providers\\PosServiceProvider"
+            ]
+        }
+    }
+}

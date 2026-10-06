@@ -151,8 +151,27 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Tests: `AccountingTest` (30). Test infra: `tests/TestCase.php` migrates + seeds ONCE per run (file sqlite `database/testing.sqlite`); never `use RefreshDatabase`
         in a test class; module PermissionTableSeeders grant permissions in ONE givePermissionTo call (per-permission calls were very slow)
 
+- [x] Phase 8: Pos module "Point of Sale" (199 tests pass; part of the Pro plan, needs ProductService + SalesPurchase, Account optional)
+      - A POS sale IS a posted sales invoice in `documents` (+ one `pos_sales` row: cashier, payment_method cash|card|bank_transfer|credit,
+        amount_paid, amount_tendered, change_due). So stock, taxes, numbering (SI-xxxxx), returns (SalesPurchase "Create return" on the invoice) and the
+        ledger all work unchanged.
+      - `Services\PosService::checkout` = ONE transaction: price the cart from the DB (cashier only chooses qty + line discount; client prices/taxes ignored),
+        create invoice, post it (stock out + PostSalesInvoice -> ledger), take payment, rollback on ANY failure (stock, ledger...).
+      - Payment: core event `App\Events\PosPaymentReceived`; Account's `RecordPosPayment` listener books a customer payment (cash -> 1000, card/transfer -> 1010).
+        If nobody handles it (company has no Accounting) the invoice's paid_amount is set directly. `credit` = sale on account (needs a real customer).
+      - Walk-in customer: `Support\WalkInCustomer` creates ONE reserved client user per company (no login, setting `walkInCustomerId`); hidden from the Users list,
+        excluded from the plan seat count (`canCreateUser`)
+      - Routes `pos/*`, names `pos.*`: terminal, products (JSON search by text/category/exact SKU + stock of the chosen warehouse), checkout, receipts.show,
+        orders.index (filters + total), reports.index (summary net of returns, by method / cashier / day, top products)
+      - Permissions: manage-pos (look), create-pos (sell), manage-pos-orders, manage-pos-reports
+      - UI: Terminal (product grid, barcode/SKU Enter, cart with qty/discount, stock limit, customer, payment buttons, quick cash, change), 80mm-style Receipt (print),
+        Orders, Reports. Verified in the browser: 2 x 25 + 18% GST = $59.00, cash $100, change $41, stock 27 -> 25, JE for invoice + payment.
+      - Tests: `PosTest` (24)
+      - NOT built: held/parked carts, shift open/close + cash drawer count, refunds directly from the POS screen (use the invoice's "Create return"), barcode printing,
+        customer-facing display, offline mode
+
 ## TODO (next)
-- [ ] Phase 8: POS (uses StockService + SalesPurchase documents/Account events), then HRM (H1-H7), CRM (C1-C5)
+- [ ] Phase 9: HRM (H1-H7 in ERPGO_HRM_CRM_MASTER_PROMPTS.md), then CRM (C1-C5)
 - [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)

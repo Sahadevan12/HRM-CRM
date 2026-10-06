@@ -169,7 +169,11 @@ if (!function_exists('canCreateUser')) {
         $company = companyOf(Auth::user());
         $limit = (int) ($company->total_user ?? 0);
 
-        if ($limit === -1 || User::where('created_by', $company->id)->count() < $limit) {
+        // the reserved POS walk-in customer is not a real user and does not use a seat
+        $walkIn = (int) (tenantSettings($company->id)['walkInCustomerId'] ?? 0);
+        $used = User::where('created_by', $company->id)->when($walkIn, fn ($q) => $q->where('id', '!=', $walkIn))->count();
+
+        if ($limit === -1 || $used < $limit) {
             return ['can_create' => true, 'message' => ''];
         }
 
