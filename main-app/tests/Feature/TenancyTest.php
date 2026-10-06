@@ -15,7 +15,8 @@ class TenancyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
+        $this->seed(\Database\Seeders\PermissionRoleSeeder::class);
+        $this->seed(\Database\Seeders\PlanSeeder::class);
     }
 
     private function makeCompany(string $email, int $limit = 10): User
@@ -24,7 +25,7 @@ class TenancyTest extends TestCase
 
         $company = User::create([
             'name' => $email, 'email' => $email, 'password' => 'secret-pass-1',
-            'type' => 'company', 'total_user' => $limit, 'email_verified_at' => now(),
+            'type' => 'company', 'total_user' => $limit, 'active_plan' => \App\Models\Plan::where('free_plan', true)->value('id'), 'email_verified_at' => now(),
             'creator_id' => $admin->id, 'created_by' => $admin->id,
         ]);
         $company->assignRole('company');

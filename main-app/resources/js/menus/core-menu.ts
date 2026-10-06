@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { KeyRound, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { Banknote, KeyRound, LayoutDashboard, Package, Puzzle, Receipt, Settings, Ticket, Users } from 'lucide-react';
 
 /** Core (always available) sidebar items. Titles go through t() so they are translatable. */
 export const coreMenu = (t: (key: string) => string): NavItem[] => [
@@ -24,6 +24,41 @@ export const coreMenu = (t: (key: string) => string): NavItem[] => [
         icon: KeyRound,
         permission: 'manage-roles',
         order: 110,
+    },
+    {
+        title: t('Plans'),
+        href: route('plans.index'),
+        icon: Package,
+        permission: 'manage-plans',
+        order: 300,
+    },
+    {
+        title: t('Orders'),
+        href: route('orders.index'),
+        icon: Receipt,
+        permission: 'manage-orders',
+        order: 310,
+    },
+    {
+        title: t('Bank Transfers'),
+        href: route('bank-transfers.index'),
+        icon: Banknote,
+        permission: 'manage-bank-transfers',
+        order: 320,
+    },
+    {
+        title: t('Coupons'),
+        href: route('coupons.index'),
+        icon: Ticket,
+        permission: 'manage-coupons',
+        order: 330,
+    },
+    {
+        title: t('Add-ons'),
+        href: route('add-ons.index'),
+        icon: Puzzle,
+        permission: 'manage-add-ons',
+        order: 340,
     },
     {
         title: t('Settings'),

@@ -15,7 +15,8 @@ class SettingsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionRoleSeeder::class);
+        $this->seed(\Database\Seeders\PermissionRoleSeeder::class);
+        $this->seed(\Database\Seeders\PlanSeeder::class);
         Cache::flush();
     }
 
@@ -23,7 +24,7 @@ class SettingsTest extends TestCase
     {
         $admin = User::where('type', 'superadmin')->first();
         $company = User::create([
-            'name' => $email, 'email' => $email, 'password' => 'secret-pass-1', 'type' => 'company',
+            'name' => $email, 'email' => $email, 'password' => 'secret-pass-1', 'type' => 'company', 'active_plan' => \App\Models\Plan::where('free_plan', true)->value('id'),
             'total_user' => 5, 'email_verified_at' => now(), 'creator_id' => $admin->id, 'created_by' => $admin->id,
         ]);
         $company->assignRole('company');

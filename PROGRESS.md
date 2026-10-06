@@ -51,8 +51,26 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Theme: company primary colour presets + per-user light/dark/system (`utils/theme.ts`, `hooks/useAppearance.ts`)
       - Tests: `SettingsTest` (8): tenant isolation, cache refresh, permissions, validation, currency, language, guest-public-only
 
+- [x] Phase 3: SaaS engine (65 tests pass)
+      - Tables: add_ons, user_active_modules, plans, coupons, user_coupons, orders, bank_transfer_payments
+      - `App\Classes\Module`: installed() from module.json, sync() -> add_ons, allEnabled() (cached), setEnabled()
+      - `App\Services\PlanService`: isExpired (no plan / plan_expire_date / trial_expire_date passed; free = no expiry),
+        assign() (limits, expiry, replaces user_active_modules), activeModules(), validateCoupon(), quote(), completeOrder()
+      - Helpers: companyOf, ActivatedModule (real), Module_is_active, assignPlan, canCreateUser
+      - `PlanModuleCheck` middleware (alias) on the whole auth group: expired company -> only plans.*, bank-transfers.store, profile.*,
+        languages.change, logout; expired company's sub-users are logged out; `PlanModuleCheck:Hello` (or `A-B` = any) gates module routes
+      - Controllers: Plan (superadmin CRUD / company browse+subscribe+coupon+trial+free), Coupon, Order, BankTransferPayment
+        (company submits -> pending order; superadmin approve/reject; proof download), Module (add-ons list/enable/disable)
+      - Permissions: superadmin gets all; `PermissionRoleSeeder::ADMIN_ONLY` never goes to companies; company gets manage-plans,
+        subscribe-plans, manage-orders. `PlanSeeder`: Free (3 users) + Pro (25 users, 14d trial, all modules); demo company on Free
+      - Commands: `php artisan package:sync`, `php artisan package:seed <Module>` (runs Workdo\<Module>\Database\Seeders\PermissionTableSeeder)
+      - Registration auto-assigns the free plan. Settings has a Payment tab (bankTransferDetails shown on Subscribe page)
+      - Pages: Plans/Index (admin), Plans/Browse + Plans/Subscribe (company), Coupons, Orders, BankTransfers, AddOns
+      - Tests: `SaasTest` (24) + `tests/TestCase.php` uses `withoutVite()`; UserFactory = company with plan 1, unlimited users
+
 ## TODO (next)
-- [ ] Phase 3: add_ons / user_active_modules, Module class, PlanModuleCheck, plans/coupons/orders
+- [ ] Companies page for superadmin (list companies, assign plan, enable/disable login) - not built yet
+- [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Phase 4: `make:package` generator
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 

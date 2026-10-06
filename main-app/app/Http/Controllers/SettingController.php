@@ -79,6 +79,20 @@ class SettingController extends Controller
         return back()->with('success', __('Currency settings updated successfully.'));
     }
 
+    /** Instructions shown to companies paying by bank transfer (platform setting, set by superadmin). */
+    public function updatePayment(Request $request): RedirectResponse
+    {
+        if (!Auth::user()->can('edit-settings')) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        $validated = $request->validate(['bankTransferDetails' => 'nullable|string|max:2000']);
+
+        $this->save($validated);
+
+        return back()->with('success', __('Payment settings updated successfully.'));
+    }
+
     private function save(array $values): void
     {
         foreach ($values as $key => $value) {

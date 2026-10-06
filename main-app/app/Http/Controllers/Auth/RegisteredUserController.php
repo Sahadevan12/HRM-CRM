@@ -50,6 +50,9 @@ class RegisteredUserController extends Controller
         ]);
         $user->assignRole('company');
 
+        // New tenants start on the free plan (if one exists); otherwise they must pick a plan first.
+        assignPlan(userId: $user->id);
+
         event(new Registered($user));
 
         Auth::login($user);

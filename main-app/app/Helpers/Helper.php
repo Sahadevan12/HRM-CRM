@@ -102,22 +102,80 @@ if (!function_exists('company_setting')) {
     }
 }
 
-if (!function_exists('ActivatedModule')) {
-    /**
-     * Names of add-on modules available to the user.
-     * PHASE 2 PLACEHOLDER: every folder in packages/workdo that has a module.json.
-     * Phase 3 replaces this with add_ons + user_active_modules (plans).
-     */
-    function ActivatedModule($userId = null): array
+if (!function_exists('companyOf')) {
+    /** The company (tenant owner) a user belongs to: company/superadmin => itself, sub-user => creator. */
+    function companyOf(?User $user): ?User
     {
-        return collect(File::directories(base_path('packages/workdo')))
-            ->filter(fn ($dir) => File::exists($dir . '/module.json'))
-            ->map(fn ($dir) => basename($dir))
-            ->values()
-            ->all();
+        if (!$user) {
+            return null;
+        }
+
+        return in_array($user->type, ['company', 'superadmin']) ? $user : User::find($user->created_by);
     }
 }
 
+if (!function_exists('ActivatedModule')) {
+    /**
+     * Names of add-on modules usable by the user (default: logged-in user).
+     * superadmin => every platform-enabled module; others => their company's plan modules.
+     */
+    function ActivatedModule($userId = null): array
+    {
+        $user = $userId ? User::find($userId) : Auth::user();
+
+        if (!$user) {
+            return [];
+        }
+
+        if ($user->type === 'superadmin') {
+            return (new App\Classes\Module())->allEnabled();
+        }
+
+        $company = companyOf($user);
+
+        return $company ? app(App\Services\PlanService::class)->activeModules($company) : [];
+    }
+}
+
+if (!function_exists('Module_is_active')) {
+    /** Is the module installed, enabled platform-wide AND granted to the user's company? */
+    function Module_is_active(string $module, $userId = null): bool
+    {
+        return in_array($module, ActivatedModule($userId), true);
+    }
+}
+
+if (!function_exists('assignPlan')) {
+    /** Put a company on a plan (default plan = the free plan). Returns false when no plan/user exists. */
+    function assignPlan($planId = null, ?string $duration = null, $userId = null): bool
+    {
+        $company = $userId ? User::find($userId) : Auth::user();
+        $plan = $planId ? App\Models\Plan::find($planId) : App\Models\Plan::where('free_plan', true)->first();
+
+        if (!$company || !$plan) {
+            return false;
+        }
+
+        app(App\Services\PlanService::class)->assign($company, $plan, $duration);
+
+        return true;
+    }
+}
+
+if (!function_exists('canCreateUser')) {
+    /** Plan user-limit check for the current tenant (total_user: -1 = unlimited). */
+    function canCreateUser(): array
+    {
+        $company = companyOf(Auth::user());
+        $limit = (int) ($company->total_user ?? 0);
+
+        if ($limit === -1 || User::where('created_by', $company->id)->count() < $limit) {
+            return ['can_create' => true, 'message' => ''];
+        }
+
+        return ['can_create' => false, 'message' => __('User limit reached for your plan.')];
+    }
+}
 if (!function_exists('availableLanguages')) {
     /** [code => name] for every lang/<code>.json file. Names come from lang/languages.json. */
     function availableLanguages(): array

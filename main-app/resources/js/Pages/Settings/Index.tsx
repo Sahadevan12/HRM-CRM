@@ -2,6 +2,7 @@ import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { cn } from '@/lib/utils';
@@ -17,7 +18,7 @@ interface Props {
     themeColors: string[];
 }
 
-const TABS = ['Brand', 'System', 'Currency'] as const;
+const TABS = ['Brand', 'System', 'Currency', 'Payment'] as const;
 type Tab = (typeof TABS)[number];
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
@@ -187,6 +188,25 @@ function CurrencyForm({ settings }: Props) {
     );
 }
 
+function PaymentForm({ settings }: Props) {
+    const { t } = useTranslation();
+    const form = useForm({ bankTransferDetails: settings.bankTransferDetails ?? '' });
+
+    const submit = (e: FormEvent) => {
+        e.preventDefault();
+        form.post(route('settings.payment.update'), { preserveScroll: true });
+    };
+
+    return (
+        <form onSubmit={submit} className="space-y-5">
+            <Field label="Bank transfer instructions (shown to companies when they subscribe)" error={form.errors.bankTransferDetails}>
+                <Textarea rows={6} value={form.data.bankTransferDetails} onChange={(e) => form.setData('bankTransferDetails', e.target.value)} />
+            </Field>
+            <Button type="submit" disabled={form.processing}>{t('Save')}</Button>
+        </form>
+    );
+}
+
 export default function SettingsIndex({ settings, themeColors }: Props) {
     const { t } = useTranslation();
     const [tab, setTab] = useState<Tab>('Brand');
@@ -220,6 +240,7 @@ export default function SettingsIndex({ settings, themeColors }: Props) {
                         {tab === 'Brand' && <BrandForm settings={settings} themeColors={themeColors} />}
                         {tab === 'System' && <SystemForm settings={settings} themeColors={themeColors} />}
                         {tab === 'Currency' && <CurrencyForm settings={settings} themeColors={themeColors} />}
+                        {tab === 'Payment' && <PaymentForm settings={settings} themeColors={themeColors} />}
                     </CardContent>
                 </Card>
             </div>

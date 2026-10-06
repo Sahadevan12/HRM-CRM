@@ -24,10 +24,33 @@ class PermissionRoleSeeder extends Seeder
         ['name' => 'manage-settings', 'module' => 'settings', 'label' => 'Manage Settings'],
         ['name' => 'edit-settings', 'module' => 'settings', 'label' => 'Edit Settings'],
 
+        ['name' => 'manage-plans', 'module' => 'plans', 'label' => 'Manage Plans'],
+        ['name' => 'create-plans', 'module' => 'plans', 'label' => 'Create Plans'],
+        ['name' => 'edit-plans', 'module' => 'plans', 'label' => 'Edit Plans'],
+        ['name' => 'delete-plans', 'module' => 'plans', 'label' => 'Delete Plans'],
+        ['name' => 'subscribe-plans', 'module' => 'plans', 'label' => 'Subscribe Plans'],
+
+        ['name' => 'manage-coupons', 'module' => 'coupons', 'label' => 'Manage Coupons'],
+        ['name' => 'create-coupons', 'module' => 'coupons', 'label' => 'Create Coupons'],
+        ['name' => 'edit-coupons', 'module' => 'coupons', 'label' => 'Edit Coupons'],
+        ['name' => 'delete-coupons', 'module' => 'coupons', 'label' => 'Delete Coupons'],
+
+        ['name' => 'manage-orders', 'module' => 'orders', 'label' => 'Manage Orders'],
+        ['name' => 'manage-bank-transfers', 'module' => 'bank-transfers', 'label' => 'Manage Bank Transfers'],
+        ['name' => 'manage-add-ons', 'module' => 'add-ons', 'label' => 'Manage Add-ons'],
+        ['name' => 'edit-add-ons', 'module' => 'add-ons', 'label' => 'Edit Add-ons'],
+
         ['name' => 'manage-roles', 'module' => 'roles', 'label' => 'Manage Roles'],
         ['name' => 'create-roles', 'module' => 'roles', 'label' => 'Create Roles'],
         ['name' => 'edit-roles', 'module' => 'roles', 'label' => 'Edit Roles'],
         ['name' => 'delete-roles', 'module' => 'roles', 'label' => 'Delete Roles'],
+    ];
+
+    /** Platform-level permissions: only the superadmin holds them (companies never get them). */
+    public const ADMIN_ONLY = [
+        'create-plans', 'edit-plans', 'delete-plans',
+        'manage-coupons', 'create-coupons', 'edit-coupons', 'delete-coupons',
+        'manage-bank-transfers', 'manage-add-ons', 'edit-add-ons',
     ];
 
     public function run(): void
@@ -54,7 +77,9 @@ class PermissionRoleSeeder extends Seeder
             Role::firstOrCreate(['name' => $name, 'guard_name' => 'web'], ['label' => $label]);
         }
 
-        Role::findByName('company')->syncPermissions(Permission::whereIn('name', array_column(self::PERMISSIONS, 'name'))->get());
+        $all = array_column(self::PERMISSIONS, 'name');
+        Role::findByName('superadmin')->syncPermissions(Permission::whereIn('name', $all)->get());
+        Role::findByName('company')->syncPermissions(Permission::whereIn('name', array_diff($all, self::ADMIN_ONLY))->get());
         Role::findByName('staff')->syncPermissions(['manage-dashboard']);
 
         // Default accounts (DEV ONLY – change before production)

@@ -67,7 +67,7 @@ class UserController extends Controller
             return back()->with('error', __('Invalid role'));
         }
 
-        $limit = $this->canCreateUser();
+        $limit = canCreateUser();
         if (!$limit['can_create']) {
             return back()->with('error', $limit['message']);
         }
@@ -148,22 +148,5 @@ class UserController extends Controller
     private function findAssignableRole(string $name): ?Role
     {
         return $this->assignableRoles()->firstWhere('name', $name);
-    }
-
-    /** Plan user-limit check (total_user: -1 = unlimited, 0 = none). */
-    private function canCreateUser(): array
-    {
-        $company = Auth::user()->isCompany() || Auth::user()->isSuperadmin() ? Auth::user() : Auth::user()->createdBy;
-        $limit = (int) ($company->total_user ?? 0);
-
-        if ($limit === -1) {
-            return ['can_create' => true, 'message' => ''];
-        }
-
-        $current = User::where('created_by', $company->id)->count();
-
-        return $current < $limit
-            ? ['can_create' => true, 'message' => '']
-            : ['can_create' => false, 'message' => __('User limit reached for your plan.')];
     }
 }
