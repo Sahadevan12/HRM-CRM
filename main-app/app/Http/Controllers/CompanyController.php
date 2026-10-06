@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CompanyDeleting;
 use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
@@ -143,6 +144,7 @@ class CompanyController extends Controller
             return back()->with('error', __('Permission denied'));
         }
 
+        CompanyDeleting::dispatch($company); // modules clear data that has restrictive foreign keys
         $company->delete(); // staff, settings, orders ... cascade via created_by / user_id foreign keys
 
         return back()->with('success', __('The company has been deleted.'));

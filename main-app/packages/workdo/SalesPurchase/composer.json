@@ -1,0 +1,19 @@
+{
+    "name": "workdo/sales-purchase",
+    "description": "Sales & Purchases add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\SalesPurchase\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\SalesPurchase\\Providers\\SalesPurchaseServiceProvider"
+            ]
+        }
+    }
+}

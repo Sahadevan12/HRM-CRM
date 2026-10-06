@@ -103,8 +103,30 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - BUG FIXED: re-running `PermissionRoleSeeder` used syncPermissions and wiped add-on permissions from the company role.
         Now it only gives/revokes core permissions; `php artisan db:seed` also runs every installed module's PermissionTableSeeder.
 
+- [x] Phase 6: SalesPurchase module (145 tests pass), ALWAYS_ACTIVE like ProductService
+      - ONE table family for all 5 trade documents: `documents` (type sales_invoice|purchase_invoice|sales_proposal|sales_return|purchase_return,
+        number unique per company+type e.g. SI-00001, party_id = users of type client/vendor, warehouse_id, parent_id, status, subtotal,
+        discount_amount, tax_amount, total_amount, paid_amount (Account module will maintain), posted_at), `document_items`
+        (name snapshot, qty, unit_price, discount_amount, tax_amount, total_amount, source_item_id for return lines), `document_item_taxes` (snapshot)
+      - `Support\DocumentType` registry (labels, prefix, slug, party role, stock direction, statuses). Routes `sales-purchase/<slug>` named
+        `salespurchase.<slug>.<action>` are generated in a loop with the route default `type` (ONE `DocumentController` for all types)
+      - `Services\DocumentCalculator` = all money maths (gross=qty*price, net=gross-discount, tax per tax rounded to 2dp, totals) - client totals are ignored;
+        returns are priced pro rata from the invoice line; `returnableQuantities()` adds up across returns
+      - `Services\DocumentService` lifecycle: invoice draft --post--> posted (stock out for sales / in for purchase, via StockService, in a transaction,
+        immutable afterwards); proposal draft->sent->accepted->converted (creates draft invoice, deleting that draft gives the proposal back) | rejected;
+        return draft --approve--> approved (stock back in / out again) --complete--> completed. Only drafts can be edited/deleted.
+      - Core events (App\Events, so Account/POS can listen without importing the module): PostSalesInvoice, PostPurchaseInvoice, ApproveSalesReturn,
+        ApprovePurchaseReturn, CompleteSalesReturn, CompletePurchaseReturn, ConvertSalesProposal (payload: Document model) + CompanyDeleting
+      - Permissions per type: manage/create/edit/delete (+post for invoices, +approve for returns, returns have no edit). Customers/vendors are Users of
+        type client/vendor created on the Users page.
+      - Deleting a product/warehouse/customer that is used by a document is refused (restrictive FKs); deleting a company clears its documents first
+        (SalesPurchase listens to CompanyDeleting).
+      - Pages: Documents/Index, Form (live line-item editor with tax checkboxes; return mode with per-line returnable qty), Show (status-dependent
+        buttons from server `can`, print via window.print + `print:hidden` in the layout, related documents), `useMoney()` hook (company currency)
+      - Verified in browser: invoice 5 x 25 - 10 discount + 18% GST = $135.70 -> post (stock 30->25) -> return 2 pro rata $54.28 -> approve (stock 27)
+      - Tests: `SalesPurchaseTest` (25): maths, numbering, tenant isolation, role mismatch, atomic posting, proposals, returns (cumulative qty), permissions, guards
+
 ## TODO (next)
-- [ ] Phase 6: Sales/Purchase documents (proposal -> invoice -> post -> returns) using StockService; item taxes; print pages
 - [ ] Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
@@ -115,5 +137,9 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
 - Inertia test helper `->component('Mod/Folder/Page')` needs `, false` for module pages (it only looks in resources/js/Pages).
 - Settings are cached forever per tenant: editing the `settings` table by hand needs `php artisan cache:clear`.
 - Radix dialogs stay in the DOM (data-state=closed) while the Browser pane is hidden - animation never ends; not a bug.
+- Laravel passes route parameters to controller methods IN URL ORDER (route defaults come last): with `{document}` in the URL and a `type` default,
+  the method must be `(Document $document, string $type)`, not the other way round (otherwise "Argument must be of type Document, string given").
+- Model instances built with `User::create()` do not have DB column defaults loaded (e.g. is_enable_login null) -> keep `$attributes` in sync.
+- Browser pane: Inertia XHR calls need `Accept: application/json` (no X-Inertia header) when scripting axios from the console.
 - Claude Code preview tool is anchored to the ORIGINAL project's launch.json; run the clone's server manually.
 

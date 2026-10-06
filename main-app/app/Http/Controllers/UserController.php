@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -129,6 +131,11 @@ class UserController extends Controller
     {
         if (!Auth::user()->can('delete-users') || $user->created_by !== creatorId() || $user->id === Auth::id()) {
             return back()->with('error', __('Permission denied'));
+        }
+
+        // customers/vendors referenced by trade documents must stay (restrictive FK)
+        if (Schema::hasTable('documents') && DB::table('documents')->where('party_id', $user->id)->exists()) {
+            return back()->with('error', __('This user has invoices or proposals and cannot be deleted. Disable the login instead.'));
         }
 
         $user->delete();

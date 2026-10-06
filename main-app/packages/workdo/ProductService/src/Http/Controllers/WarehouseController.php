@@ -91,6 +91,10 @@ class WarehouseController extends Controller
             return back()->with('error', __('This warehouse has stock transfers and cannot be deleted. Disable it instead.'));
         }
 
+        if (\Illuminate\Support\Facades\Schema::hasTable('documents') && \Illuminate\Support\Facades\DB::table('documents')->where('warehouse_id', $warehouse->id)->exists()) {
+            return back()->with('error', __('This warehouse is used by invoices or proposals and cannot be deleted. Disable it instead.'));
+        }
+
         DestroyWarehouse::dispatch($request, $warehouse);
         $warehouse->delete();
 

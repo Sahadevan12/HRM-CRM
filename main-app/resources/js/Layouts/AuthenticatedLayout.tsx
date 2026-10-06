@@ -38,7 +38,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     return (
         <div className="min-h-screen bg-background text-foreground">
             {/* desktop sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r bg-card lg:block">
+            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r bg-card print:hidden lg:block">
                 <AppSidebar items={menu} title={appTitle} />
             </aside>
 
@@ -60,8 +60,8 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 </div>
             )}
 
-            <div className="lg:pl-64">
-                <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-card px-4 sm:px-6">
+            <div className="lg:pl-64 print:pl-0">
+                <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-card px-4 print:hidden sm:px-6">
                     <button
                         type="button"
                         className="rounded p-2 text-muted-foreground hover:bg-accent lg:hidden"
@@ -124,7 +124,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                 </header>
 
                 {header && (
-                    <div className="border-b bg-card/50">
+                    <div className="border-b bg-card/50 print:hidden">
                         <div className="px-4 py-5 sm:px-6">{header}</div>
                     </div>
                 )}

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class PlanService
 {
     /** Modules every company gets regardless of plan (e.g. shared catalogue modules). Extend as modules appear. */
-    public const ALWAYS_ACTIVE = ['ProductService'];
+    public const ALWAYS_ACTIVE = ['ProductService', 'SalesPurchase'];
 
     /** Plan state of a company user: no plan / past expiry date / past trial end => expired. */
     public function isExpired(User $company): bool

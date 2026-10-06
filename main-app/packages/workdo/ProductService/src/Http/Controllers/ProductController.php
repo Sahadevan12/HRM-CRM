@@ -7,6 +7,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -86,6 +88,11 @@ class ProductController extends Controller
     {
         if (!Auth::user()->can('delete-products') || $product->created_by !== creatorId()) {
             return back()->with('error', __('Permission denied'));
+        }
+
+        // trade documents keep their lines for good (restrictive FK): a used product can only be deactivated
+        if (Schema::hasTable('document_items') && DB::table('document_items')->where('product_id', $product->id)->exists()) {
+            return back()->with('error', __('This product is used in invoices or proposals and cannot be deleted. Deactivate it instead.'));
         }
 
         DestroyProduct::dispatch($request, $product);
