@@ -3,13 +3,22 @@ import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { Toaster } from '@/Components/ui/sonner';
+import { PropsWithChildren, ReactNode, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Authenticated({
     header,
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
-    const user = usePage().props.auth.user;
+    const { auth, flash } = usePage().props;
+    const user = auth.user;
+    const can = (permission: string) => user.permissions?.includes(permission);
+
+    useEffect(() => {
+        if (flash?.success) toast.success(flash.success);
+        if (flash?.error) toast.error(flash.error);
+    }, [flash?.success, flash?.error]);
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -33,6 +42,22 @@ export default function Authenticated({
                                 >
                                     Dashboard
                                 </NavLink>
+                                {can('manage-users') && (
+                                    <NavLink
+                                        href={route('users.index')}
+                                        active={route().current('users.*')}
+                                    >
+                                        Users
+                                    </NavLink>
+                                )}
+                                {can('manage-roles') && (
+                                    <NavLink
+                                        href={route('roles.index')}
+                                        active={route().current('roles.*')}
+                                    >
+                                        Roles
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -174,6 +199,7 @@ export default function Authenticated({
             )}
 
             <main>{children}</main>
+            <Toaster position="top-center" richColors />
         </div>
     );
 }

@@ -20,10 +20,22 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
 - [x] `tailwind.config.js` scans `packages/workdo/**`
 - [x] Smoke-test module `packages/workdo/Hello` (route `/hello-module`) renders -> engine verified. Delete after Phase 4 generator.
 
+- [x] Phase 0b: shadcn/ui (v2.3 for Tailwind 3) components in `resources/js/Components/ui`, `lib/utils.ts` (cn),
+      CSS variables + Tailwind theme, lucide, sonner toasts (shown from `flash` in AuthenticatedLayout),
+      i18next + react-i18next installed (NOT wired yet -> do in Phase 2)
+- [x] Phase 1: MySQL DB `erpgo_clone` (XAMPP mysqld, root, no password; start: `C:\xampp\mysql\bin\mysqld.exe --defaults-file=C:\xampp\mysql\bin\my.ini --standalone`)
+      - migration `add_tenancy_columns_to_users_roles_permissions` (users: type/slug/lang/plan fields/creator_id/created_by...;
+        roles: label/description/creator_id/created_by; permissions: module/label/add_on)
+      - `User` model (HasRoles, HasApiTokens, MustVerifyEmail, createdBy()), `creatorId()` helper
+      - `PermissionRoleSeeder` (core permissions, roles superadmin/company/staff/client/vendor, 2 dev accounts:
+        superadmin@example.com, company@example.com – dev password is in the seeder)
+      - Self-registration => new company tenant (role company, created_by = superadmin)
+      - `UserController` + `RoleController` (tenant scoped, permission checks, plan user-limit, role/permission whitelist)
+      - Pages `Users/Index`, `Roles/Index` (table, search, dialog form, delete confirm, permission matrix), nav gated by permission
+      - `HandleInertiaRequests` shares auth.user.permissions/roles + flash
+      - Tests: `tests/Feature/TenancyTest.php` (8 tests: tenant isolation, perms, limit, role whitelist) -> `php artisan test` = 33 pass
+
 ## TODO (next)
-- [ ] Phase 0b: shadcn/ui setup (`@/components/ui`), tsconfig alias for packages, i18next
-- [ ] Phase 1: users migration columns (type, creator_id, created_by, lang, active_plan, plan_expire_date, ...),
-      MySQL DB `erpgo_clone`, roles/permission seeder, Users + Roles CRUD scoped by created_by
 - [ ] Phase 2: settings table + helpers + authenticated layout + menu engine
 - [ ] Phase 3: add_ons / user_active_modules, Module class, PlanModuleCheck, plans/coupons/orders
 - [ ] Phase 4: `make:package` generator

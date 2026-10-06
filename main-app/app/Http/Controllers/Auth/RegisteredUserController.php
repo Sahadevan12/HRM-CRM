@@ -37,11 +37,18 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Self-registration creates a new tenant (company) owned by the platform superadmin.
+        $superAdmin = User::where('type', 'superadmin')->first();
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'type' => 'company',
+            'creator_id' => $superAdmin?->id,
+            'created_by' => $superAdmin?->id,
         ]);
+        $user->assignRole('company');
 
         event(new Registered($user));
 
