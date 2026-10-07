@@ -89,6 +89,24 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
                     { title: t('My Payslips'), href: route('hrm.payslips.my'), permission: 'view-payslips' },
                 ],
             },
+            {
+                title: t('Awards & Discipline'),
+                children: [
+                    { title: t('Award Types'), href: route('hrm.award-types.index'), permission: 'manage-award-types' },
+                    { title: t('Awards'), href: route('hrm.awards.index'), permission: 'manage-awards' },
+                    { title: t('Warnings'), href: route('hrm.warnings.index'), permission: 'manage-warnings' },
+                    { title: t('Complaints'), href: route('hrm.complaints.index'), permission: 'manage-complaints' },
+                ],
+            },
+            {
+                title: t('Employee Lifecycle'),
+                children: [
+                    { title: t('Promotions'), href: route('hrm.lifecycle.index', 'promotions'), permission: 'manage-promotions' },
+                    { title: t('Transfers'), href: route('hrm.lifecycle.index', 'transfers'), permission: 'manage-transfers' },
+                    { title: t('Resignations'), href: route('hrm.lifecycle.index', 'resignations'), permission: 'manage-resignations' },
+                    { title: t('Terminations'), href: route('hrm.lifecycle.index', 'terminations'), permission: 'manage-terminations' },
+                ],
+            },
             // <menu-items>
         ],
     },

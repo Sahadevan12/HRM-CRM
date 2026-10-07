@@ -213,6 +213,16 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Payslips: HR sees all; staff (`view-payslips`) only their own, only once the payroll is approved/paid; printable page.
       - An employee with payslips/loans cannot be deleted (terminate instead).
       - Known limits: loan disbursement itself is not booked (only the recovery credits 1400); a paid payroll cannot be reversed; no tax slabs / bonuses.
+- [x] Phase 9d: HRM H6 (lifecycle) - 294 tests (HrmLifecycleTest = 13, generator test for two refs to one entity)
+      - Generated CRUD: AwardType, Award, Warning (severity low|medium|high), Complaint (from / against, open|resolved, from != against).
+        Generator fix: two ref fields to the SAME entity now share one import / options prop / argument (was a fatal duplicate `use`).
+        Generated pages show employees as `EMP-0001 · Name` (Employee has no name column - the name lives on the user).
+      - Promotions: applied at once (designation changes), previous designation kept, no delete.
+      - Resignations / Terminations / Transfers: pending -> approved | rejected; one pending request per employee and kind; an approved request is
+        APPLIED on its effective date (immediately when due, else by `php artisan hrm:apply-lifecycle`, scheduled daily 00:10): resigned/terminated
+        status + login switched off, or branch/department changed. Approved requests are history (cannot be deleted). Resigned/terminated employees get no payslip.
+      - One controller + one React page (`Hrm/Lifecycle/Index`) serve the four kinds: the server describes fields/columns (`LifecycleController`).
+      - Menu: HRM -> Awards & Discipline (4 pages), Employee Lifecycle (4 pages). Self-service resignation by staff is NOT built (HR enters it).
 
 ## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,

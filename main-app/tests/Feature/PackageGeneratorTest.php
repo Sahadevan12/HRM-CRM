@@ -213,6 +213,23 @@ class PackageGeneratorTest extends TestCase
         $this->assertPhpIsValid();
     }
 
+    public function test_two_refs_to_the_same_entity_share_one_import_prop_and_argument(): void
+    {
+        $g = $this->generator();
+        $g->makePackage('Dup');
+        $g->makeCrud('Dup', 'Person', 'name:string');
+        $g->makeCrud('Dup', 'Complaint', 'from_id:ref=Person,against_id:ref=Person?');
+
+        $controller = $this->read('Dup/src/Http/Controllers/ComplaintController.php');
+        $this->assertSame(1, substr_count($controller, 'use Workdo\Dup\Models\Person;'));
+        $this->assertSame(1, substr_count($controller, "'personOptions' =>"));
+
+        $page = $this->read('Dup/src/Resources/js/Pages/Complaints/Index.tsx');
+        $this->assertSame(1, substr_count($page, 'personOptions: {'));
+        $this->assertStringContainsString('personOptions }: Props', $page);
+        $this->assertPhpIsValid();
+    }
+
     public function test_invalid_ref_specs_are_rejected(): void
     {
         foreach (['branch:ref=Branch', 'branch_id:ref', 'branch_id:ref=branch', 'name:string=Branch'] as $spec) {

@@ -18,6 +18,11 @@ use Workdo\Hrm\Http\Controllers\SalaryComponentController;
 use Workdo\Hrm\Http\Controllers\PayrollController;
 use Workdo\Hrm\Http\Controllers\SalarySetupController;
 use Workdo\Hrm\Http\Controllers\LoanController;
+use Workdo\Hrm\Http\Controllers\AwardTypeController;
+use Workdo\Hrm\Http\Controllers\AwardController;
+use Workdo\Hrm\Http\Controllers\WarningController;
+use Workdo\Hrm\Http\Controllers\ComplaintController;
+use Workdo\Hrm\Http\Controllers\LifecycleController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(function () {
@@ -61,5 +66,17 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(fun
     Route::post('hrm/payrolls/{payroll}/reopen', [PayrollController::class, 'reopen'])->name('hrm.payrolls.reopen');
     Route::post('hrm/payrolls/{payroll}/pay', [PayrollController::class, 'pay'])->name('hrm.payrolls.pay');
     Route::resource('hrm/payrolls', PayrollController::class)->only(['index', 'store', 'show', 'destroy'])->names('hrm.payrolls');
+    Route::resource('hrm/award-types', AwardTypeController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.award-types');
+    Route::resource('hrm/awards', AwardController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.awards');
+    Route::resource('hrm/warnings', WarningController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.warnings');
+    Route::resource('hrm/complaints', ComplaintController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.complaints');
+
+    Route::prefix('hrm/lifecycle/{kind}')->where(['kind' => 'promotions|resignations|terminations|transfers'])->name('hrm.lifecycle.')->group(function () {
+        Route::get('/', [LifecycleController::class, 'index'])->name('index');
+        Route::post('/', [LifecycleController::class, 'store'])->name('store');
+        Route::post('{id}/approve', [LifecycleController::class, 'approve'])->whereNumber('id')->name('approve');
+        Route::post('{id}/reject', [LifecycleController::class, 'reject'])->whereNumber('id')->name('reject');
+        Route::delete('{id}', [LifecycleController::class, 'destroy'])->whereNumber('id')->name('destroy');
+    });
     // <crud-routes>
 });

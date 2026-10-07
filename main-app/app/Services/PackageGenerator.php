@@ -230,10 +230,10 @@ class PackageGenerator
             // references (foreign keys to other entities of the module)
             '%%relations%%' => $this->lines($this->refs($fields), fn ($f) => "\n    public function {$this->relationName($f)}(): BelongsTo\n    {\n        return \$this->belongsTo({$f['ref']}::class, '{$f['name']}');\n    }"),
             '%%withList%%' => implode(', ', array_map(fn ($f) => "'{$this->relationName($f)}:id,name'", $this->refs($fields))),
-            '%%refProps%%' => $this->lines($this->refs($fields), fn ($f) => "            '{$this->refOptionsName($f)}' => {$f['ref']}::where('created_by', creatorId())->orderBy('name')->get(['id', 'name']),"),
-            '%%refImports%%' => $this->lines($this->refs($fields), fn ($f) => "use Workdo\\{$module}\\Models\\{$f['ref']};"),
-            '%%refPropTypes%%' => $this->lines($this->refs($fields), fn ($f) => "    {$this->refOptionsName($f)}: { id: number; name: string }[];"),
-            '%%refArgs%%' => implode('', array_map(fn ($f) => ', ' . $this->refOptionsName($f), $this->refs($fields))),
+            '%%refProps%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "            '{$this->refOptionsName($f)}' => {$f['ref']}::where('created_by', creatorId())->orderBy('name')->get(['id', 'name']),"),
+            '%%refImports%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "use Workdo\\{$module}\\Models\\{$f['ref']};"),
+            '%%refPropTypes%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "    {$this->refOptionsName($f)}: { id: number; name: string }[];"),
+            '%%refArgs%%' => implode('', array_map(fn ($f) => ', ' . $this->refOptionsName($f), $this->uniqueRefs($fields))),
             '%%tsTransform%%' => implode(' ', array_map(fn ($f) => "{$f['name']}: data.{$f['name']} === 'none' ? null : data.{$f['name']},", $this->refs($fields))),
             '%%tsRelationTypes%%' => $this->lines($this->refs($fields), fn ($f) => "    {$this->relationName($f)}?: { id: number; name: string } | null;"),
             '%%tsHeaders%%' => $this->lines($this->listFields($fields), fn ($f) => "                                    <TableHead>{t('" . Str::headline($f['type'] === 'ref' ? substr($f['name'], 0, -3) : $f['name']) . "')}</TableHead>"),
@@ -301,6 +301,16 @@ class PackageGenerator
     }
 
     /** @param array<int, array<string, mixed>> $fields */
+    /** one entry per referenced entity: two fields pointing at the same entity share one import, one options list and one prop */
+    private function uniqueRefs(array $fields): array
+    {
+        $seen = [];
+
+        return array_values(array_filter($this->refs($fields), function ($f) use (&$seen) {
+            return !isset($seen[$f['ref']]) && ($seen[$f['ref']] = true);
+        }));
+    }
+
     private function refs(array $fields): array
     {
         return array_values(array_filter($fields, fn ($f) => $f['type'] === 'ref'));

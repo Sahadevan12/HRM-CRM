@@ -2,7 +2,9 @@
 
 namespace Workdo\Hrm\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
+use Workdo\Hrm\Console\Commands\ApplyLifecycle;
 
 class HrmServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,12 @@ class HrmServiceProvider extends ServiceProvider
         $migrationsPath = __DIR__ . '/../Database/Migrations';
         if (is_dir($migrationsPath)) {
             $this->loadMigrationsFrom($migrationsPath);
+        }
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([ApplyLifecycle::class]);
+
+            $this->callAfterResolving(Schedule::class, fn (Schedule $schedule) => $schedule->command('hrm:apply-lifecycle')->dailyAt('00:10')->withoutOverlapping());
         }
     }
 
