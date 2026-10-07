@@ -34,6 +34,12 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'create-sources', 'module' => 'sources', 'label' => 'Create Sources'],
             ['name' => 'edit-sources', 'module' => 'sources', 'label' => 'Edit Sources'],
             ['name' => 'delete-sources', 'module' => 'sources', 'label' => 'Delete Sources'],
+            ['name' => 'manage-leads', 'module' => 'leads', 'label' => 'Manage Leads'],
+            ['name' => 'create-leads', 'module' => 'leads', 'label' => 'Create Leads'],
+            ['name' => 'edit-leads', 'module' => 'leads', 'label' => 'Edit Leads'],
+            ['name' => 'delete-leads', 'module' => 'leads', 'label' => 'Delete Leads'],
+            ['name' => 'move-leads', 'module' => 'leads', 'label' => 'Move Leads'],
+            ['name' => 'view-all-leads', 'module' => 'leads', 'label' => 'View All Leads'],
             // <permissions>
         ];
 

@@ -8,6 +8,7 @@ export const leadCompanyMenu = (t: (key: string) => string): NavItem[] => [
         icon: Handshake,
         order: 460,
         children: [
+            { title: t('Leads'), href: route('crm.leads.index'), permission: 'manage-leads' },
             { title: t('CRM Setup'), href: route('crm.setup.index'), permission: 'manage-pipelines' },
             // <menu-items>
         ],

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Workdo\Lead\Http\Controllers\SetupController;
+use Workdo\Lead\Http\Controllers\LeadController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(function () {
@@ -14,5 +15,7 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(fu
             Route::delete('{id}', [SetupController::class, 'destroy'])->whereNumber('id')->name('destroy');
         });
     });
+    Route::post('crm/leads/move', [LeadController::class, 'move'])->name('crm.leads.move');
+    Route::resource('crm/leads', LeadController::class)->only(['index', 'store', 'update', 'destroy'])->names('crm.leads');
     // <crud-routes>
 });

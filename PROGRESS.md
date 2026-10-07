@@ -245,7 +245,19 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         deal stages Initial Contact/Qualification/Meeting/Proposal/Negotiation, labels Hot/Warm/Cold, six sources.
       - TODO in C2/C4: `SetupController::inUse()` is the hook that must refuse deleting a stage / source / label that leads or deals still use.
       - Verified in the browser incl. keyboard drag and drop (order persists after reload).
-## TODO (next)
+- [x] Phase 10b: CRM C2 (leads + board) - 332 tests (CrmLeadsTest = 11)
+      - Tables: leads (pipeline + stage restrict FKs, `order` inside a column, is_active, is_converted for C4), user_leads (assignees),
+        lead_activity_logs, crm_preferences (last pipeline of a user). The other lead children (calls, emails, discussions, files, tasks) come with C3.
+      - `LeadService`: create (first stage unless one of THAT pipeline is given, appended last), update (assignee changes and edits are logged; the stage
+        never changes here), move (stage of the lead's own pipeline only, converted leads are frozen, the posted id list must be the destination column
+        plus the moved lead, positions rewritten, a stage change is logged as "Moved from X to Y").
+      - Visibility: the company owner and users with `view-all-leads` see every lead, others only leads they created or are assigned to (also enforced
+        on update / delete / move). Assignees must be the owner or staff of the same company.
+      - Page `Lead/Leads/Index`: Kanban board (drag between and inside columns, optimistic update, reloads on error) / list view (search, stage filter,
+        pagination), pipeline switcher that is remembered per user, add / edit / delete dialog with assignees.
+      - Setup guards: a lead stage or pipeline that still holds leads cannot be deleted.
+      - Not built (yet): the "Lead Move" e-mail template - there is no e-mail template system in the core yet.
+      - Verified in the browser: created a lead through the form, dragged it to Contacted by keyboard, order survives a reload.## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
       overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
       transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.

@@ -13,6 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Workdo\Lead\Models\DealStage;
 use Workdo\Lead\Models\Label;
+use Workdo\Lead\Models\Lead;
 use Workdo\Lead\Models\LeadStage;
 use Workdo\Lead\Models\Pipeline;
 use Workdo\Lead\Models\Source;
@@ -187,9 +188,16 @@ class SetupController extends Controller
         };
     }
 
-    /** Hook for the lead / deal tables (added with the lead module part): a stage or source that is still used cannot be deleted. */
+    /** A stage or pipeline that is still used cannot be deleted (deals / sources / labels are added with the later CRM parts). */
     private function inUse(Model $row): ?string
     {
+        if ($row instanceof LeadStage && Lead::where('lead_stage_id', $row->id)->exists()) {
+            return __('This stage still has leads. Move them to another stage first.');
+        }
+        if ($row instanceof Pipeline && Lead::where('pipeline_id', $row->id)->exists()) {
+            return __('This pipeline still has leads and cannot be deleted.');
+        }
+
         return null;
     }
 
