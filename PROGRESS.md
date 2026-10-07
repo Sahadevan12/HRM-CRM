@@ -223,6 +223,18 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         status + login switched off, or branch/department changed. Approved requests are history (cannot be deleted). Resigned/terminated employees get no payslip.
       - One controller + one React page (`Hrm/Lifecycle/Index`) serve the four kinds: the server describes fields/columns (`LifecycleController`).
       - Menu: HRM -> Awards & Discipline (4 pages), Employee Lifecycle (4 pages). Self-service resignation by staff is NOT built (HR enters it).
+- [x] Phase 9e: HRM H7 (communication + dashboard) - 308 tests (HrmCommsTest = 14). HRM module (H1-H7) is COMPLETE.
+      - New npm dependency: recharts 2.15 (HRM dashboard charts).
+      - Announcements (+ Category, generated): optional end date, department targeting (no department = everyone), optional acknowledgment with
+        "x / y acknowledged" for HR; employees see only RUNNING announcements meant for their department and acknowledge them (idempotent, `acknowledgments` table).
+      - Events (+ EventType with hex colour, generated): month calendar (Monday first, multi-day events span days, double click a day to add),
+        department targeting like announcements; employees can view, HR create/edit/delete.
+      - Documents: company files (policies...) on the PRIVATE disk, every employee can download, optional acknowledgment, HR upload/delete (pdf/jpg/png/doc/docx, 5 MB).
+      - HRM Dashboard (`view-hrm-dashboard`): KPI cards, headcount by department, 7-day attendance, joiners per month, gender / employment type pies,
+        upcoming events, birthdays (30 days), announcements, last payroll.
+      - `Services\DefaultData`: starter leave types, shift, document / award / event types, announcement categories - seeded ONCE per company
+        (setting `hrmDefaultsSeeded`) when the HRM dashboard is first opened; deleted defaults never come back. No separate demo seeder.
+      - Staff role gets view-announcements / view-events / view-hrm-documents.
 
 ## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,

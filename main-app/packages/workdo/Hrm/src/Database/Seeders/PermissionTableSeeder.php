@@ -106,6 +106,29 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'create-transfers', 'module' => 'transfers', 'label' => 'Create Transfers'],
             ['name' => 'approve-transfers', 'module' => 'transfers', 'label' => 'Approve Transfers'],
             ['name' => 'delete-transfers', 'module' => 'transfers', 'label' => 'Delete Transfers'],
+            ['name' => 'manage-announcement-categories', 'module' => 'announcement-categories', 'label' => 'Manage Announcement Categories'],
+            ['name' => 'create-announcement-categories', 'module' => 'announcement-categories', 'label' => 'Create Announcement Categories'],
+            ['name' => 'edit-announcement-categories', 'module' => 'announcement-categories', 'label' => 'Edit Announcement Categories'],
+            ['name' => 'delete-announcement-categories', 'module' => 'announcement-categories', 'label' => 'Delete Announcement Categories'],
+            ['name' => 'manage-event-types', 'module' => 'event-types', 'label' => 'Manage Event Types'],
+            ['name' => 'create-event-types', 'module' => 'event-types', 'label' => 'Create Event Types'],
+            ['name' => 'edit-event-types', 'module' => 'event-types', 'label' => 'Edit Event Types'],
+            ['name' => 'delete-event-types', 'module' => 'event-types', 'label' => 'Delete Event Types'],
+            ['name' => 'manage-announcements', 'module' => 'announcements', 'label' => 'Manage Announcements'],
+            ['name' => 'create-announcements', 'module' => 'announcements', 'label' => 'Create Announcements'],
+            ['name' => 'edit-announcements', 'module' => 'announcements', 'label' => 'Edit Announcements'],
+            ['name' => 'delete-announcements', 'module' => 'announcements', 'label' => 'Delete Announcements'],
+            ['name' => 'view-announcements', 'module' => 'announcements', 'label' => 'View Announcements'],
+            ['name' => 'manage-events', 'module' => 'events', 'label' => 'Manage Events'],
+            ['name' => 'create-events', 'module' => 'events', 'label' => 'Create Events'],
+            ['name' => 'edit-events', 'module' => 'events', 'label' => 'Edit Events'],
+            ['name' => 'delete-events', 'module' => 'events', 'label' => 'Delete Events'],
+            ['name' => 'view-events', 'module' => 'events', 'label' => 'View Events'],
+            ['name' => 'manage-hrm-documents', 'module' => 'hrm-documents', 'label' => 'Manage HR Documents'],
+            ['name' => 'create-hrm-documents', 'module' => 'hrm-documents', 'label' => 'Upload HR Documents'],
+            ['name' => 'delete-hrm-documents', 'module' => 'hrm-documents', 'label' => 'Delete HR Documents'],
+            ['name' => 'view-hrm-documents', 'module' => 'hrm-documents', 'label' => 'View HR Documents'],
+            ['name' => 'view-hrm-dashboard', 'module' => 'hrm-dashboard', 'label' => 'View HRM Dashboard'],
             // <permissions>
         ];
 
@@ -123,6 +146,6 @@ class PermissionTableSeeder extends Seeder
         $company?->givePermissionTo(array_column($permissions, 'name'));
 
         // every employee (system "staff" role) can clock in/out, apply for leave and read their own payslips
-        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave', 'view-payslips']);
+        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave', 'view-payslips', 'view-announcements', 'view-events', 'view-hrm-documents']);
     }
 }

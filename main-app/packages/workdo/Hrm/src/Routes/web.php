@@ -23,6 +23,12 @@ use Workdo\Hrm\Http\Controllers\AwardController;
 use Workdo\Hrm\Http\Controllers\WarningController;
 use Workdo\Hrm\Http\Controllers\ComplaintController;
 use Workdo\Hrm\Http\Controllers\LifecycleController;
+use Workdo\Hrm\Http\Controllers\AnnouncementCategoryController;
+use Workdo\Hrm\Http\Controllers\EventTypeController;
+use Workdo\Hrm\Http\Controllers\AnnouncementController;
+use Workdo\Hrm\Http\Controllers\EventController;
+use Workdo\Hrm\Http\Controllers\HrmDocumentController;
+use Workdo\Hrm\Http\Controllers\HrmDashboardController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(function () {
@@ -78,5 +84,21 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(fun
         Route::post('{id}/reject', [LifecycleController::class, 'reject'])->whereNumber('id')->name('reject');
         Route::delete('{id}', [LifecycleController::class, 'destroy'])->whereNumber('id')->name('destroy');
     });
+    Route::resource('hrm/announcement-categories', AnnouncementCategoryController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.announcement-categories');
+    Route::resource('hrm/event-types', EventTypeController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.event-types');
+
+    Route::get('hrm/dashboard', HrmDashboardController::class)->name('hrm.dashboard');
+
+    Route::get('hrm/announcements/mine', [AnnouncementController::class, 'my'])->name('hrm.announcements.my');
+    Route::post('hrm/announcements/{announcement}/acknowledge', [AnnouncementController::class, 'acknowledge'])->name('hrm.announcements.acknowledge');
+    Route::resource('hrm/announcements', AnnouncementController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.announcements');
+
+    Route::resource('hrm/events', EventController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.events');
+
+    Route::get('hrm/documents', [HrmDocumentController::class, 'index'])->name('hrm.documents.index');
+    Route::post('hrm/documents', [HrmDocumentController::class, 'store'])->name('hrm.documents.store');
+    Route::get('hrm/documents/{document}/download', [HrmDocumentController::class, 'download'])->name('hrm.documents.download');
+    Route::post('hrm/documents/{document}/acknowledge', [HrmDocumentController::class, 'acknowledge'])->name('hrm.documents.acknowledge');
+    Route::delete('hrm/documents/{document}', [HrmDocumentController::class, 'destroy'])->name('hrm.documents.destroy');
     // <crud-routes>
 });

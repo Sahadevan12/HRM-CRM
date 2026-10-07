@@ -8,6 +8,7 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
         icon: UserCog,
         order: 450,
         children: [
+            { title: t('HRM Dashboard'), href: route('hrm.dashboard'), permission: 'view-hrm-dashboard' },
             {
                 title: t('Employees'),
                 href: route('hrm.employees.index'),
@@ -105,6 +106,17 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
                     { title: t('Transfers'), href: route('hrm.lifecycle.index', 'transfers'), permission: 'manage-transfers' },
                     { title: t('Resignations'), href: route('hrm.lifecycle.index', 'resignations'), permission: 'manage-resignations' },
                     { title: t('Terminations'), href: route('hrm.lifecycle.index', 'terminations'), permission: 'manage-terminations' },
+                ],
+            },
+            {
+                title: t('Communication'),
+                children: [
+                    { title: t('Announcements'), href: route('hrm.announcements.index'), permission: 'manage-announcements' },
+                    { title: t('My Announcements'), href: route('hrm.announcements.my'), permission: 'view-announcements' },
+                    { title: t('Events'), href: route('hrm.events.index'), permission: 'view-events' },
+                    { title: t('Documents'), href: route('hrm.documents.index'), permission: 'view-hrm-documents' },
+                    { title: t('Announcement Categories'), href: route('hrm.announcement-categories.index'), permission: 'manage-announcement-categories' },
+                    { title: t('Event Types'), href: route('hrm.event-types.index'), permission: 'manage-event-types' },
                 ],
             },
             // <menu-items>
