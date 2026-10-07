@@ -12,7 +12,7 @@ use InvalidArgumentException;
  */
 class PackageGenerator
 {
-    public const FIELD_TYPES = ['string', 'text', 'integer', 'decimal', 'boolean', 'date'];
+    public const FIELD_TYPES = ['string', 'text', 'integer', 'decimal', 'boolean', 'date', 'ref'];
 
     /** Columns every tenant table already has, plus Laravel's own. */
     private const RESERVED_FIELDS = ['id', 'creator_id', 'created_by', 'created_at', 'updated_at'];
@@ -111,7 +111,7 @@ class PackageGenerator
             ]);
         }
 
-        $migration = sprintf('src/Database/Migrations/%s_create_%s_table.php', $this->migrationStamp(), $t['%%table%%']);
+        $migration = sprintf('src/Database/Migrations/%s_create_%s_table.php', $this->migrationStamp("{$dir}/src/Database/Migrations"), $t['%%table%%']);
         $put($migration, 'migration.php.stub', $t);
 
         // Wire the entity into the module files (marker comments keep these insertions predictable).
@@ -138,6 +138,8 @@ class PackageGenerator
             [$name, $type] = array_pad(explode(':', $part, 2), 2, 'string');
             $nullable = str_ends_with($type, '?');
             $type = rtrim($type, '?');
+            // ranch_id:ref=Branch = foreign key to another entity of the SAME module (select box in the form)
+            [$type, $ref] = array_pad(explode('=', $type, 2), 2, null);
 
             if (!preg_match('/^[a-z][a-z0-9_]*$/', $name)) {
                 throw new InvalidArgumentException("Invalid field name '{$name}' (use snake_case).");
@@ -148,11 +150,17 @@ class PackageGenerator
             if (!in_array($type, self::FIELD_TYPES, true)) {
                 throw new InvalidArgumentException("Unknown type '{$type}' for '{$name}'. Allowed: " . implode(', ', self::FIELD_TYPES));
             }
+            if ($type === 'ref' && (!$ref || !preg_match('/^[A-Z][A-Za-z0-9]*$/', $ref) || !str_ends_with($name, '_id'))) {
+                throw new InvalidArgumentException("Field '{$name}': a reference must be named <something>_id and look like branch_id:ref=Branch.");
+            }
+            if ($type !== 'ref' && $ref !== null) {
+                throw new InvalidArgumentException("Field '{$name}': only ref fields take =Entity.");
+            }
             if (isset($fields[$name])) {
                 throw new InvalidArgumentException("Duplicate field '{$name}'.");
             }
 
-            $fields[$name] = ['name' => $name, 'type' => $type, 'nullable' => $nullable];
+            $fields[$name] = ['name' => $name, 'type' => $type, 'nullable' => $nullable, 'ref' => $ref];
         }
 
         return array_values($fields);
@@ -209,13 +217,24 @@ class PackageGenerator
             '%%fillable%%' => $this->lines($fields, fn ($f) => "        '{$f['name']}',"),
             '%%casts%%' => $this->casts($fields),
             '%%columns%%' => $this->lines($fields, fn ($f) => '            ' . $this->column($f)),
-            '%%rules%%' => $this->lines($fields, fn ($f) => "            '{$f['name']}' => '" . $this->rule($f) . "',"),
+            '%%rules%%' => $this->lines($fields, fn ($f) => "            '{$f['name']}' => " . $this->ruleExpression($f)),
             '%%sortable%%' => $this->phpList(array_merge(['id', 'created_at'], array_column(array_filter($fields, fn ($f) => $f['type'] !== 'text' && $f['type'] !== 'boolean'), 'name'))),
             '%%searchable%%' => $this->phpList(array_column(array_filter($fields, fn ($f) => in_array($f['type'], ['string', 'text'], true)), 'name')),
             '%%tsFields%%' => $this->lines($fields, fn ($f) => "    {$f['name']}: " . $this->tsType($f) . ';'),
             '%%tsDefaults%%' => $this->lines($fields, fn ($f) => "    {$f['name']}: " . $this->tsDefault($f) . ','),
-            '%%tsEditAssign%%' => $this->lines($fields, fn ($f) => "            {$f['name']}: row.{$f['name']}" . ($f['nullable'] && $f['type'] !== 'boolean' ? " ?? {$this->tsDefault($f)}" : '') . ','),
-            '%%tsHeaders%%' => $this->lines($this->listFields($fields), fn ($f) => "                                    <TableHead>{t('" . Str::headline($f['name']) . "')}</TableHead>"),
+            '%%tsEditAssign%%' => $this->lines($fields, fn ($f) => $f['type'] === 'ref'
+                ? "            {$f['name']}: row.{$f['name']} ? String(row.{$f['name']}) : {$this->tsDefault($f)},"
+                : "            {$f['name']}: row.{$f['name']}" . ($f['nullable'] && $f['type'] !== 'boolean' ? " ?? {$this->tsDefault($f)}" : '') . ','),
+            // references (foreign keys to other entities of the module)
+            '%%relations%%' => $this->lines($this->refs($fields), fn ($f) => "\n    public function {$this->relationName($f)}(): BelongsTo\n    {\n        return \$this->belongsTo({$f['ref']}::class, '{$f['name']}');\n    }"),
+            '%%withList%%' => implode(', ', array_map(fn ($f) => "'{$this->relationName($f)}:id,name'", $this->refs($fields))),
+            '%%refProps%%' => $this->lines($this->refs($fields), fn ($f) => "            '{$this->refOptionsName($f)}' => {$f['ref']}::where('created_by', creatorId())->orderBy('name')->get(['id', 'name']),"),
+            '%%refImports%%' => $this->lines($this->refs($fields), fn ($f) => "use Workdo\\{$module}\\Models\\{$f['ref']};"),
+            '%%refPropTypes%%' => $this->lines($this->refs($fields), fn ($f) => "    {$this->refOptionsName($f)}: { id: number; name: string }[];"),
+            '%%refArgs%%' => implode('', array_map(fn ($f) => ', ' . $this->refOptionsName($f), $this->refs($fields))),
+            '%%tsTransform%%' => implode(' ', array_map(fn ($f) => "{$f['name']}: data.{$f['name']} === 'none' ? null : data.{$f['name']},", $this->refs($fields))),
+            '%%tsRelationTypes%%' => $this->lines($this->refs($fields), fn ($f) => "    {$this->relationName($f)}?: { id: number; name: string } | null;"),
+            '%%tsHeaders%%' => $this->lines($this->listFields($fields), fn ($f) => "                                    <TableHead>{t('" . Str::headline($f['type'] === 'ref' ? substr($f['name'], 0, -3) : $f['name']) . "')}</TableHead>"),
             '%%tsCells%%' => $this->lines($this->listFields($fields), fn ($f) => "                                        <TableCell>" . $this->tsCell($f) . '</TableCell>'),
             '%%colSpan%%' => (string) (count($this->listFields($fields)) + 1),
             '%%tsInputs%%' => $this->lines($fields, fn ($f) => $this->tsInput($f)),
@@ -239,13 +258,49 @@ class PackageGenerator
             'decimal' => "\$table->decimal('{$f['name']}', 12, 2)",
             'boolean' => "\$table->boolean('{$f['name']}')",
             'date' => "\$table->date('{$f['name']}')",
+            'ref' => "\$table->foreignId('{$f['name']}')",
         };
+
+        if ($f['type'] === 'ref') {
+            $table = Str::snake(Str::plural($f['ref']));
+
+            return $line . ($f['nullable'] ? "->nullable()->constrained('{$table}')->nullOnDelete();" : "->constrained('{$table}')->restrictOnDelete();");
+        }
 
         if ($f['type'] === 'boolean') {
             return $line . '->default(false);';
         }
 
         return $line . ($f['nullable'] ? '->nullable();' : ';');
+    }
+
+    /** The validation rule as PHP source: a quoted string, or an array for references (tenant scoped `exists`). */
+    private function ruleExpression(array $f): string
+    {
+        if ($f['type'] === 'ref') {
+            $table = Str::snake(Str::plural($f['ref']));
+            $exists = "Rule::exists('{$table}', 'id')->where('created_by', creatorId())";
+
+            return $f['nullable'] ? "['nullable', {$exists}]," : "['required', {$exists}],";
+        }
+
+        return "'" . $this->rule($f) . "',";
+    }
+
+    private function relationName(array $f): string
+    {
+        return Str::camel(substr($f['name'], 0, -3)); // branch_id => branch
+    }
+
+    private function refOptionsName(array $f): string
+    {
+        return Str::camel($f['ref']) . 'Options'; // Branch => branchOptions
+    }
+
+    /** @param array<int, array<string, mixed>> $fields */
+    private function refs(array $fields): array
+    {
+        return array_values(array_filter($fields, fn ($f) => $f['type'] === 'ref'));
     }
 
     private function rule(array $f): string
@@ -305,7 +360,7 @@ class PackageGenerator
     {
         $base = match ($f['type']) {
             'string', 'text', 'date' => 'string',
-            'integer', 'decimal' => 'number',
+            'integer', 'decimal', 'ref' => 'number',
             'boolean' => 'boolean',
         };
 
@@ -318,6 +373,7 @@ class PackageGenerator
             'string', 'text', 'date' => "''",
             'integer', 'decimal' => '0',
             'boolean' => 'false',
+            'ref' => $f['nullable'] ? "'none'" : "''", // 'none' = nothing chosen (sent as null)
         };
     }
 
@@ -325,6 +381,7 @@ class PackageGenerator
     {
         return match ($f['type']) {
             'boolean' => "{row.{$f['name']} ? t('Yes') : t('No')}",
+            'ref' => '{row.' . $this->relationName($f) . "?.name ?? '—'}",
             default => "{row.{$f['name']}}",
         };
     }
@@ -332,13 +389,28 @@ class PackageGenerator
     private function tsInput(array $f): string
     {
         $n = $f['name'];
-        $label = Str::headline($n);
+        $label = Str::headline($f['type'] === 'ref' ? substr($n, 0, -3) : $n);
         $pad = '                        ';
 
         if ($f['type'] === 'boolean') {
             return "{$pad}<label className=\"flex items-center gap-2 text-sm\">\n"
                 . "{$pad}    <Checkbox checked={form.data.{$n}} onCheckedChange={(c) => form.setData('{$n}', c === true)} /> {t('{$label}')}\n"
                 . "{$pad}</label>";
+        }
+
+        if ($f['type'] === 'ref') {
+            $none = $f['nullable'] ? "{$pad}            <SelectItem value=\"none\">{t('None')}</SelectItem>\n" : '';
+
+            return "{$pad}<div className=\"space-y-1\">\n"
+                . "{$pad}    <Label>{t('{$label}')}</Label>\n"
+                . "{$pad}    <Select value={form.data.{$n}} onValueChange={(v) => form.setData('{$n}', v)}>\n"
+                . "{$pad}        <SelectTrigger><SelectValue placeholder={t('Choose')} /></SelectTrigger>\n"
+                . "{$pad}        <SelectContent>\n" . $none
+                . "{$pad}            {" . $this->refOptionsName($f) . ".map((o) => <SelectItem key={o.id} value={String(o.id)}>{o.name}</SelectItem>)}\n"
+                . "{$pad}        </SelectContent>\n"
+                . "{$pad}    </Select>\n"
+                . "{$pad}    {form.errors.{$n} && <p className=\"text-sm text-destructive\">{form.errors.{$n}}</p>}\n"
+                . "{$pad}</div>";
         }
 
         $control = match ($f['type']) {
@@ -415,8 +487,20 @@ class PackageGenerator
     }
 
     /** Unique, ordered migration prefix (date + running second counter within one run). */
-    private function migrationStamp(): string
+    private function migrationStamp(string $migrationsDir): string
     {
-        return now()->addSeconds($this->migrationTick++)->format('Y_m_d_His');
+        // strictly after every migration the module already has, so a table that references an earlier one is always created later
+        $latest = collect(File::exists($migrationsDir) ? File::files($migrationsDir) : [])
+            ->map(fn ($f) => substr($f->getFilename(), 0, 17))
+            ->filter(fn ($stamp) => preg_match('/^\d{4}_\d{2}_\d{2}_\d{6}$/', $stamp))
+            ->max();
+
+        $candidate = now()->addSeconds($this->migrationTick++);
+        if ($latest) {
+            $floor = \Illuminate\Support\Carbon::createFromFormat('Y_m_d_His', $latest)->addSecond();
+            $candidate = $candidate->lessThan($floor) ? $floor : $candidate;
+        }
+
+        return $candidate->format('Y_m_d_His');
     }
 }

@@ -1,0 +1,19 @@
+{
+    "name": "workdo/hrm",
+    "description": "HRM add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\Hrm\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\Hrm\\Providers\\HrmServiceProvider"
+            ]
+        }
+    }
+}

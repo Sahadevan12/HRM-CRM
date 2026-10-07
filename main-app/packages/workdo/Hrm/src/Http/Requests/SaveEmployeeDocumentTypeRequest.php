@@ -1,13 +1,13 @@
 <?php
 
-namespace Workdo\%%Module%%\Http\Requests;
+namespace Workdo\Hrm\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class Save%%Entity%%Request extends FormRequest
+class SaveEmployeeDocumentTypeRequest extends FormRequest
 {
-    /** Permission checks live in the controller (create-/edit-%%entities%%). */
+    /** Permission checks live in the controller (create-/edit-employee-document-types). */
     public function authorize(): bool
     {
         return true;
@@ -17,7 +17,8 @@ class Save%%Entity%%Request extends FormRequest
     public function rules(): array
     {
         return [
-%%rules%%
+            'name' => 'required|string|max:255',
+            'is_required' => 'boolean',
         ];
     }
 }

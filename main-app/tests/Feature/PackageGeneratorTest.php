@@ -151,6 +151,58 @@ class PackageGeneratorTest extends TestCase
         $this->assertPhpIsValid();
     }
 
+    public function test_ref_fields_generate_foreign_keys_relations_tenant_rules_and_selects(): void
+    {
+        $g = $this->generator();
+        $g->makePackage('Org');
+        $g->makeCrud('Org', 'Branch', 'name:string');
+        $g->makeCrud('Org', 'Department', 'name:string,branch_id:ref=Branch?,head_id:ref=Employee');
+
+        $migrations = collect(File::files("{$this->root}/Org/src/Database/Migrations"))->map->getFilename()->sort()->values();
+        $this->assertStringContainsString('create_branches_table', $migrations[0]);   // the parent table is created first
+        $this->assertStringContainsString('create_departments_table', $migrations[1]);
+
+        $sql = File::get("{$this->root}/Org/src/Database/Migrations/{$migrations[1]}");
+        $this->assertStringContainsString("\$table->foreignId('branch_id')->nullable()->constrained('branches')->nullOnDelete();", $sql);
+        $this->assertStringContainsString("\$table->foreignId('head_id')->constrained('employees')->restrictOnDelete();", $sql);
+
+        $model = $this->read('Org/src/Models/Department.php');
+        $this->assertStringContainsString('public function branch(): BelongsTo', $model);
+        $this->assertStringContainsString("belongsTo(Branch::class, 'branch_id')", $model);
+
+        $rules = $this->read('Org/src/Http/Requests/SaveDepartmentRequest.php');
+        $this->assertStringContainsString("'branch_id' => ['nullable', Rule::exists('branches', 'id')->where('created_by', creatorId())],", $rules);
+        $this->assertStringContainsString("'head_id' => ['required', Rule::exists('employees', 'id')->where('created_by', creatorId())],", $rules);
+
+        $controller = $this->read('Org/src/Http/Controllers/DepartmentController.php');
+        $this->assertStringContainsString("with(['branch:id,name', 'head:id,name'])", $controller);
+        $this->assertStringContainsString("'branchOptions' => Branch::where('created_by', creatorId())", $controller);
+        $this->assertStringContainsString('use Workdo\Org\Models\Branch;', $controller);
+
+        $page = $this->read('Org/src/Resources/js/Pages/Departments/Index.tsx');
+        $this->assertStringContainsString('branchOptions: { id: number; name: string }[];', $page);
+        $this->assertStringContainsString('branchOptions }: Props', str_replace(', employeeOptions', '', $page));
+        $this->assertStringContainsString("branch_id: data.branch_id === 'none' ? null : data.branch_id,", $page);
+        $this->assertStringContainsString("branch_id: row.branch_id ? String(row.branch_id) : 'none',", $page);
+        $this->assertStringContainsString('{branchOptions.map((o) => <SelectItem', $page);
+        $this->assertStringContainsString("{row.branch?.name ?? '—'}", $page);
+        $this->assertStringNotContainsString('%%', $page);
+
+        $this->assertPhpIsValid();
+    }
+
+    public function test_invalid_ref_specs_are_rejected(): void
+    {
+        foreach (['branch:ref=Branch', 'branch_id:ref', 'branch_id:ref=branch', 'name:string=Branch'] as $spec) {
+            try {
+                $this->generator()->parseFields($spec);
+                $this->fail("Accepted: {$spec}");
+            } catch (InvalidArgumentException) {
+                $this->assertTrue(true);
+            }
+        }
+    }
+
     public function test_generated_code_is_indented_consistently(): void
     {
         $g = $this->generator();

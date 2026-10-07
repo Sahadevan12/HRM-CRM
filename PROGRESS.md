@@ -170,8 +170,27 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - NOT built: held/parked carts, shift open/close + cash drawer count, refunds directly from the POS screen (use the invoice's "Create return"), barcode printing,
         customer-facing display, offline mode
 
+- [x] Phase 9a: HRM H1 (organisation) + H2 (employees) - module `Hrm`, 226 tests pass (HrmEmployeesTest = 25)
+      - Generator got a new field type: `branch_id:ref=Branch?` (foreign key to another entity of the SAME module): FK migration (nullOnDelete /
+        restrictOnDelete), model relation, tenant-scoped `Rule::exists`, controller eager load + `<entity>Options` prop, Select in the React form
+        ('none' sentinel -> null). New migrations are always stamped AFTER the module's existing ones (parents first).
+      - Org entities (generated): Branch, Department(branch_id?), Designation(department_id?), EmployeeDocumentType(is_required)
+      - Employee = login `users` row (type staff, role staff or a company role, email verified) + `employees` HR profile, created/updated/deleted
+        together in one transaction (`Services\EmployeeService`): auto code EMP-0001 per company (unique per company), plan seat limit enforced,
+        role whitelist (no company/superadmin escalation), tenant-scoped branch/department/designation, status never reset by accident on update,
+        `is_enable_login` off blocks the employee. Bank/tax fields are `$hidden` in lists and only returned on the profile/edit pages.
+      - Employee documents: PRIVATE `local` disk (`employee-documents/<tenant>/...`), downloaded only through the controller (tenant + employee match),
+        pdf/jpg/png/doc/docx max 5 MB, expiry date, required-document-type warning; deleting an employee removes the files.
+      - Pages: Employees Index (filters), Form (sections; department/designation lists follow the branch/department), Show (profile + documents)
+      - Permissions: manage/create/edit/delete-employees, manage-employee-documents (+ generated ones for the 4 org entities)
+      - Menu: HRM -> Employees, Organization -> Branches / Departments / Designations / Document Types
+      - Verified in the browser: hired Meena (EMP-0001) through the real form; profile shows branch, department and salary.
+
 ## TODO (next)
-- [ ] Phase 9: HRM (H1-H7 in ERPGO_HRM_CRM_MASTER_PROMPTS.md), then CRM (C1-C5)
+- [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
+      overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
+      transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
+- [ ] CRM (C1-C5)
 - [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)

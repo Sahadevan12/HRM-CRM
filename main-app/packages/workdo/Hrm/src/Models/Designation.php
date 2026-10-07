@@ -1,17 +1,18 @@
 <?php
 
-namespace Workdo\%%Module%%\Models;
+namespace Workdo\Hrm\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class %%Entity%% extends Model
+class Designation extends Model
 {
-    protected $table = '%%table%%';
+    protected $table = 'designations';
 
     protected $fillable = [
-%%fillable%%
+        'name',
+        'department_id',
         'creator_id',
         'created_by',
     ];
@@ -19,7 +20,7 @@ class %%Entity%% extends Model
     protected function casts(): array
     {
         return [
-%%casts%%
+
         ];
     }
 
@@ -27,5 +28,9 @@ class %%Entity%% extends Model
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
-%%relations%%
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
 }

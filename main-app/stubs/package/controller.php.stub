@@ -13,6 +13,7 @@ use Workdo\%%Module%%\Events\Destroy%%Entity%%;
 use Workdo\%%Module%%\Events\Update%%Entity%%;
 use Workdo\%%Module%%\Http\Requests\Save%%Entity%%Request;
 use Workdo\%%Module%%\Models\%%Entity%%;
+%%refImports%%
 
 class %%Entity%%Controller extends Controller
 {
@@ -26,7 +27,7 @@ class %%Entity%%Controller extends Controller
             return redirect()->route('dashboard')->with('error', __('Permission denied'));
         }
 
-        $query = %%Entity%%::where('created_by', creatorId());
+        $query = %%Entity%%::with([%%withList%%])->where('created_by', creatorId());
 
         if ($request->filled('search') && self::SEARCHABLE) {
             $term = '%' . $request->get('search') . '%';
@@ -45,6 +46,7 @@ class %%Entity%%Controller extends Controller
                 ->paginate((int) $request->get('per_page', 10))
                 ->withQueryString(),
             'filters' => $request->only(['search', 'sort', 'direction', 'per_page']),
+%%refProps%%
         ]);
     }
 

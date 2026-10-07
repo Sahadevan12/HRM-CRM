@@ -25,31 +25,37 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-interface %%Entity%%Row {
+interface BranchRow {
     id: number;
-%%tsFields%%
-%%tsRelationTypes%%
+    name: string;
+    address: string | null;
+    city: string | null;
+    phone: string | null;
+
 }
 
 interface Props {
-    %%entityVarPlural%%: Paginated<%%Entity%%Row>;
+    branches: Paginated<BranchRow>;
     filters: { search?: string };
-%%refPropTypes%%
+
 }
 
 const emptyForm = {
-%%tsDefaults%%
+    name: '',
+    address: '',
+    city: '',
+    phone: '',
 };
 
-export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArgs%% }: Props) {
+export default function BranchesIndex({ branches, filters }: Props) {
     const { t } = useTranslation();
     const { auth } = usePage<PageProps>().props;
     const can = (permission: string) => auth.user.permissions?.includes(permission);
 
     const [search, setSearch] = useState(filters.search ?? '');
-    const [editing, setEditing] = useState<%%Entity%%Row | null>(null);
+    const [editing, setEditing] = useState<BranchRow | null>(null);
     const [open, setOpen] = useState(false);
-    const [deleting, setDeleting] = useState<%%Entity%%Row | null>(null);
+    const [deleting, setDeleting] = useState<BranchRow | null>(null);
     const form = useForm(emptyForm);
 
     const openCreate = () => {
@@ -59,10 +65,13 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
         setOpen(true);
     };
 
-    const openEdit = (row: %%Entity%%Row) => {
+    const openEdit = (row: BranchRow) => {
         setEditing(row);
         form.setData({
-%%tsEditAssign%%
+            name: row.name,
+            address: row.address ?? '',
+            city: row.city ?? '',
+            phone: row.phone ?? '',
         });
         form.clearErrors();
         setOpen(true);
@@ -70,31 +79,31 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        form.transform((data) => ({ ...data, %%tsTransform%% })); // 'none' (no choice) is sent as null
+        form.transform((data) => ({ ...data,  })); // 'none' (no choice) is sent as null
         const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
-        if (editing) form.put(route('%%module%%.%%entities%%.update', editing.id), options);
-        else form.post(route('%%module%%.%%entities%%.store'), options);
+        if (editing) form.put(route('hrm.branches.update', editing.id), options);
+        else form.post(route('hrm.branches.store'), options);
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('%%EntitiesLabel%%')}</h2>}>
-            <Head title={t('%%EntitiesLabel%%')} />
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('Branches')}</h2>}>
+            <Head title={t('Branches')} />
 
             <div className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
-                            router.get(route('%%module%%.%%entities%%.index'), { search }, { preserveState: true, replace: true });
+                            router.get(route('hrm.branches.index'), { search }, { preserveState: true, replace: true });
                         }}
                         className="flex gap-2"
                     >
                         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('Search...')} className="w-64" />
                         <Button type="submit" variant="outline">{t('Search')}</Button>
                     </form>
-                    {can('create-%%entities%%') && (
+                    {can('create-branches') && (
                         <Button onClick={openCreate}>
-                            <Plus className="mr-1 h-4 w-4" /> {t('Add %%EntityLabel%%')}
+                            <Plus className="mr-1 h-4 w-4" /> {t('Add Branch')}
                         </Button>
                     )}
                 </div>
@@ -104,28 +113,32 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                         <Table>
                             <TableHeader>
                                 <TableRow>
-%%tsHeaders%%
+                                    <TableHead>{t('Name')}</TableHead>
+                                    <TableHead>{t('City')}</TableHead>
+                                    <TableHead>{t('Phone')}</TableHead>
                                     <TableHead className="text-right">{t('Actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {%%entityVarPlural%%.data.length === 0 && (
+                                {branches.data.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={%%colSpan%%} className="py-8 text-center text-muted-foreground">
+                                        <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                                             {t('No records found.')}
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                {%%entityVarPlural%%.data.map((row) => (
+                                {branches.data.map((row) => (
                                     <TableRow key={row.id}>
-%%tsCells%%
+                                        <TableCell>{row.name}</TableCell>
+                                        <TableCell>{row.city}</TableCell>
+                                        <TableCell>{row.phone}</TableCell>
                                         <TableCell className="text-right">
-                                            {can('edit-%%entities%%') && (
+                                            {can('edit-branches') && (
                                                 <Button size="icon" variant="ghost" onClick={() => openEdit(row)}>
                                                     <Pencil className="h-4 w-4" />
                                                 </Button>
                                             )}
-                                            {can('delete-%%entities%%') && (
+                                            {can('delete-branches') && (
                                                 <Button size="icon" variant="ghost" onClick={() => setDeleting(row)}>
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
@@ -138,16 +151,35 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                     </CardContent>
                 </Card>
 
-                <Pagination meta={%%entityVarPlural%%} />
+                <Pagination meta={branches} />
             </div>
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editing ? t('Edit %%EntityLabel%%') : t('Add %%EntityLabel%%')}</DialogTitle>
+                        <DialogTitle>{editing ? t('Edit Branch') : t('Add Branch')}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-%%tsInputs%%
+                        <div className="space-y-1">
+                            <Label htmlFor="name">{t('Name')}</Label>
+                            <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
+                            {form.errors.name && <p className="text-sm text-destructive">{form.errors.name}</p>}
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="address">{t('Address')}</Label>
+                            <Textarea id="address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} />
+                            {form.errors.address && <p className="text-sm text-destructive">{form.errors.address}</p>}
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="city">{t('City')}</Label>
+                            <Input id="city" value={form.data.city} onChange={(e) => form.setData('city', e.target.value)} />
+                            {form.errors.city && <p className="text-sm text-destructive">{form.errors.city}</p>}
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="phone">{t('Phone')}</Label>
+                            <Input id="phone" value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} />
+                            {form.errors.phone && <p className="text-sm text-destructive">{form.errors.phone}</p>}
+                        </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t('Cancel')}</Button>
                             <Button type="submit" disabled={form.processing}>{editing ? t('Update') : t('Create')}</Button>
@@ -159,7 +191,7 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
             <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t('Delete %%EntityLabel%%?')}</AlertDialogTitle>
+                        <AlertDialogTitle>{t('Delete Branch?')}</AlertDialogTitle>
                         <AlertDialogDescription>{t('This action cannot be undone.')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -167,7 +199,7 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                         <AlertDialogAction
                             onClick={() =>
                                 deleting &&
-                                router.delete(route('%%module%%.%%entities%%.destroy', deleting.id), {
+                                router.delete(route('hrm.branches.destroy', deleting.id), {
                                     preserveScroll: true,
                                     onFinish: () => setDeleting(null),
                                 })

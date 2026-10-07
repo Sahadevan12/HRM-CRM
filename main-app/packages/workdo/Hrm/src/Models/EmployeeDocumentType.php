@@ -1,17 +1,18 @@
 <?php
 
-namespace Workdo\%%Module%%\Models;
+namespace Workdo\Hrm\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class %%Entity%% extends Model
+class EmployeeDocumentType extends Model
 {
-    protected $table = '%%table%%';
+    protected $table = 'employee_document_types';
 
     protected $fillable = [
-%%fillable%%
+        'name',
+        'is_required',
         'creator_id',
         'created_by',
     ];
@@ -19,7 +20,7 @@ class %%Entity%% extends Model
     protected function casts(): array
     {
         return [
-%%casts%%
+            'is_required' => 'boolean',
         ];
     }
 
@@ -27,5 +28,5 @@ class %%Entity%% extends Model
     {
         return $this->belongsTo(User::class, 'creator_id');
     }
-%%relations%%
+
 }

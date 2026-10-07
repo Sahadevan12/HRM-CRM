@@ -25,31 +25,33 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-interface %%Entity%%Row {
+interface EmployeeDocumentTypeRow {
     id: number;
-%%tsFields%%
-%%tsRelationTypes%%
+    name: string;
+    is_required: boolean;
+
 }
 
 interface Props {
-    %%entityVarPlural%%: Paginated<%%Entity%%Row>;
+    employeeDocumentTypes: Paginated<EmployeeDocumentTypeRow>;
     filters: { search?: string };
-%%refPropTypes%%
+
 }
 
 const emptyForm = {
-%%tsDefaults%%
+    name: '',
+    is_required: false,
 };
 
-export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArgs%% }: Props) {
+export default function EmployeeDocumentTypesIndex({ employeeDocumentTypes, filters }: Props) {
     const { t } = useTranslation();
     const { auth } = usePage<PageProps>().props;
     const can = (permission: string) => auth.user.permissions?.includes(permission);
 
     const [search, setSearch] = useState(filters.search ?? '');
-    const [editing, setEditing] = useState<%%Entity%%Row | null>(null);
+    const [editing, setEditing] = useState<EmployeeDocumentTypeRow | null>(null);
     const [open, setOpen] = useState(false);
-    const [deleting, setDeleting] = useState<%%Entity%%Row | null>(null);
+    const [deleting, setDeleting] = useState<EmployeeDocumentTypeRow | null>(null);
     const form = useForm(emptyForm);
 
     const openCreate = () => {
@@ -59,10 +61,11 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
         setOpen(true);
     };
 
-    const openEdit = (row: %%Entity%%Row) => {
+    const openEdit = (row: EmployeeDocumentTypeRow) => {
         setEditing(row);
         form.setData({
-%%tsEditAssign%%
+            name: row.name,
+            is_required: row.is_required,
         });
         form.clearErrors();
         setOpen(true);
@@ -70,31 +73,31 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
-        form.transform((data) => ({ ...data, %%tsTransform%% })); // 'none' (no choice) is sent as null
+        form.transform((data) => ({ ...data,  })); // 'none' (no choice) is sent as null
         const options = { preserveScroll: true, onSuccess: () => setOpen(false) };
-        if (editing) form.put(route('%%module%%.%%entities%%.update', editing.id), options);
-        else form.post(route('%%module%%.%%entities%%.store'), options);
+        if (editing) form.put(route('hrm.employee-document-types.update', editing.id), options);
+        else form.post(route('hrm.employee-document-types.store'), options);
     };
 
     return (
-        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('%%EntitiesLabel%%')}</h2>}>
-            <Head title={t('%%EntitiesLabel%%')} />
+        <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('Employee Document Types')}</h2>}>
+            <Head title={t('Employee Document Types')} />
 
             <div className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
-                            router.get(route('%%module%%.%%entities%%.index'), { search }, { preserveState: true, replace: true });
+                            router.get(route('hrm.employee-document-types.index'), { search }, { preserveState: true, replace: true });
                         }}
                         className="flex gap-2"
                     >
                         <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('Search...')} className="w-64" />
                         <Button type="submit" variant="outline">{t('Search')}</Button>
                     </form>
-                    {can('create-%%entities%%') && (
+                    {can('create-employee-document-types') && (
                         <Button onClick={openCreate}>
-                            <Plus className="mr-1 h-4 w-4" /> {t('Add %%EntityLabel%%')}
+                            <Plus className="mr-1 h-4 w-4" /> {t('Add Employee Document Type')}
                         </Button>
                     )}
                 </div>
@@ -104,28 +107,30 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                         <Table>
                             <TableHeader>
                                 <TableRow>
-%%tsHeaders%%
+                                    <TableHead>{t('Name')}</TableHead>
+                                    <TableHead>{t('Is Required')}</TableHead>
                                     <TableHead className="text-right">{t('Actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {%%entityVarPlural%%.data.length === 0 && (
+                                {employeeDocumentTypes.data.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={%%colSpan%%} className="py-8 text-center text-muted-foreground">
+                                        <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
                                             {t('No records found.')}
                                         </TableCell>
                                     </TableRow>
                                 )}
-                                {%%entityVarPlural%%.data.map((row) => (
+                                {employeeDocumentTypes.data.map((row) => (
                                     <TableRow key={row.id}>
-%%tsCells%%
+                                        <TableCell>{row.name}</TableCell>
+                                        <TableCell>{row.is_required ? t('Yes') : t('No')}</TableCell>
                                         <TableCell className="text-right">
-                                            {can('edit-%%entities%%') && (
+                                            {can('edit-employee-document-types') && (
                                                 <Button size="icon" variant="ghost" onClick={() => openEdit(row)}>
                                                     <Pencil className="h-4 w-4" />
                                                 </Button>
                                             )}
-                                            {can('delete-%%entities%%') && (
+                                            {can('delete-employee-document-types') && (
                                                 <Button size="icon" variant="ghost" onClick={() => setDeleting(row)}>
                                                     <Trash2 className="h-4 w-4 text-destructive" />
                                                 </Button>
@@ -138,16 +143,23 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                     </CardContent>
                 </Card>
 
-                <Pagination meta={%%entityVarPlural%%} />
+                <Pagination meta={employeeDocumentTypes} />
             </div>
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{editing ? t('Edit %%EntityLabel%%') : t('Add %%EntityLabel%%')}</DialogTitle>
+                        <DialogTitle>{editing ? t('Edit Employee Document Type') : t('Add Employee Document Type')}</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={submit} className="space-y-4">
-%%tsInputs%%
+                        <div className="space-y-1">
+                            <Label htmlFor="name">{t('Name')}</Label>
+                            <Input id="name" value={form.data.name} onChange={(e) => form.setData('name', e.target.value)} />
+                            {form.errors.name && <p className="text-sm text-destructive">{form.errors.name}</p>}
+                        </div>
+                        <label className="flex items-center gap-2 text-sm">
+                            <Checkbox checked={form.data.is_required} onCheckedChange={(c) => form.setData('is_required', c === true)} /> {t('Is Required')}
+                        </label>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t('Cancel')}</Button>
                             <Button type="submit" disabled={form.processing}>{editing ? t('Update') : t('Create')}</Button>
@@ -159,7 +171,7 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
             <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t('Delete %%EntityLabel%%?')}</AlertDialogTitle>
+                        <AlertDialogTitle>{t('Delete Employee Document Type?')}</AlertDialogTitle>
                         <AlertDialogDescription>{t('This action cannot be undone.')}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -167,7 +179,7 @@ export default function %%Entities%%Index({ %%entityVarPlural%%, filters%%refArg
                         <AlertDialogAction
                             onClick={() =>
                                 deleting &&
-                                router.delete(route('%%module%%.%%entities%%.destroy', deleting.id), {
+                                router.delete(route('hrm.employee-document-types.destroy', deleting.id), {
                                     preserveScroll: true,
                                     onFinish: () => setDeleting(null),
                                 })
