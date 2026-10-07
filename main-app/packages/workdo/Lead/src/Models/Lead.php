@@ -36,6 +36,46 @@ class Lead extends Model
         return $this->belongsToMany(User::class, 'user_leads');
     }
 
+    public function sources(): BelongsToMany
+    {
+        return $this->belongsToMany(Source::class, 'lead_sources');
+    }
+
+    public function labels(): BelongsToMany
+    {
+        return $this->belongsToMany(Label::class, 'lead_labels');
+    }
+
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(\Workdo\ProductService\Models\Product::class, 'lead_products');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(LeadTask::class)->orderBy('due_date');
+    }
+
+    public function calls(): HasMany
+    {
+        return $this->hasMany(LeadCall::class)->latest('id');
+    }
+
+    public function emails(): HasMany
+    {
+        return $this->hasMany(LeadEmail::class)->latest('id');
+    }
+
+    public function discussions(): HasMany
+    {
+        return $this->hasMany(LeadDiscussion::class)->latest('id');
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(LeadFile::class)->latest('id');
+    }
+
     public function activities(): HasMany
     {
         return $this->hasMany(LeadActivityLog::class)->latest('id');

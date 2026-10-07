@@ -25,6 +25,7 @@ import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea
 import { Head, router, useForm } from '@inertiajs/react';
 import { CalendarClock, LayoutGrid, List, Mail, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+import LeadDrawer from './LeadDrawer';
 import { useTranslation } from 'react-i18next';
 
 interface Lead {
@@ -49,6 +50,10 @@ interface Props {
     view: 'kanban' | 'list';
     leads: Lead[] | Paginated<Lead>;
     users: { id: number; name: string }[];
+    sourceOptions: { id: number; name: string }[];
+    labelOptions: { id: number; name: string; color: string }[];
+    productOptions: { id: number; name: string; sku: string }[];
+    can_detail: Record<'task' | 'call' | 'email' | 'discussion' | 'file', boolean>;
     filters: { search?: string; stage?: string };
     can: { create: boolean; edit: boolean; delete: boolean; move: boolean };
 }
@@ -56,7 +61,7 @@ interface Props {
 const empty = { subject: '', name: '', email: '', phone: '', notes: '', follow_up_date: '', lead_stage_id: '', user_ids: [] as number[], is_active: true };
 const ALL = 'all';
 
-export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, users, filters, can }: Props) {
+export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, users, sourceOptions, labelOptions, productOptions, can_detail, filters, can }: Props) {
     const { t } = useTranslation();
     const list = (Array.isArray(leads) ? leads : leads.data) as Lead[];
 
@@ -70,6 +75,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
     const [editing, setEditing] = useState<Lead | null>(null);
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState<Lead | null>(null);
+    const [detailId, setDetailId] = useState<number | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const form = useForm(empty);
 
@@ -124,7 +130,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
     const err = (k: string) => (form.errors as Record<string, string>)[k] && <p className="text-sm text-destructive">{(form.errors as Record<string, string>)[k]}</p>;
 
     const actions = (l: Lead) => (
-        <span className="flex shrink-0">
+        <span className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
             {can.edit && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(l)}><Pencil className="h-3.5 w-3.5" /></Button>}
             {can.delete && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setDeleting(l)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>}
         </span>
@@ -179,7 +185,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
                                                     <Draggable key={l.id} draggableId={String(l.id)} index={i} isDragDisabled={!can.move || l.is_converted}>
                                                         {(drag, dragSnap) => (
                                                             <div ref={drag.innerRef} {...drag.draggableProps} {...drag.dragHandleProps}>
-                                                                <Card className={`${dragSnap.isDragging ? 'shadow-lg' : ''} ${l.is_active ? '' : 'opacity-60'}`}>
+                                                                <Card className={`cursor-pointer ${dragSnap.isDragging ? 'shadow-lg' : ''} ${l.is_active ? '' : 'opacity-60'}`} onClick={() => setDetailId(l.id)}>
                                                                     <CardContent className="space-y-1 p-3 text-sm">
                                                                         <div className="flex items-start justify-between gap-1">
                                                                             <div className="font-medium">{l.subject}</div>
@@ -225,7 +231,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
                                         {list.length === 0 && <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">{t('No records found.')}</TableCell></TableRow>}
                                         {list.map((l) => (
                                             <TableRow key={l.id} className={l.is_active ? '' : 'opacity-60'}>
-                                                <TableCell className="font-medium">{l.subject}</TableCell>
+                                                <TableCell className="font-medium"><button type="button" className="text-left hover:underline" onClick={() => setDetailId(l.id)}>{l.subject}</button></TableCell>
                                                 <TableCell>{l.name}</TableCell>
                                                 <TableCell>{l.email ?? '—'}</TableCell>
                                                 <TableCell><Badge variant="outline">{l.stage?.name}</Badge></TableCell>
@@ -242,6 +248,8 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
                     </>
                 )}
             </div>
+
+            <LeadDrawer leadId={detailId} onClose={() => setDetailId(null)} sourceOptions={sourceOptions} labelOptions={labelOptions} productOptions={productOptions} can={{ edit: can.edit, delete: can.delete }} canDetail={can_detail} />
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-h-[90vh] overflow-y-auto">

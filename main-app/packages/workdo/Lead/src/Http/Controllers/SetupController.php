@@ -198,6 +198,13 @@ class SetupController extends Controller
             return __('This pipeline still has leads and cannot be deleted.');
         }
 
+        if ($row instanceof Source && DB::table('lead_sources')->where('source_id', $row->id)->exists()) {
+            return __('This source is used by leads and cannot be deleted.');
+        }
+        if ($row instanceof Label && DB::table('lead_labels')->where('label_id', $row->id)->exists()) {
+            return __('This label is used by leads and cannot be deleted.');
+        }
+
         return null;
     }
 

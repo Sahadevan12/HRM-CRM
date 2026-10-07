@@ -40,6 +40,11 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'delete-leads', 'module' => 'leads', 'label' => 'Delete Leads'],
             ['name' => 'move-leads', 'module' => 'leads', 'label' => 'Move Leads'],
             ['name' => 'view-all-leads', 'module' => 'leads', 'label' => 'View All Leads'],
+            ['name' => 'manage-lead-tasks', 'module' => 'leads', 'label' => 'Manage Lead Tasks'],
+            ['name' => 'manage-lead-calls', 'module' => 'leads', 'label' => 'Manage Lead Calls'],
+            ['name' => 'manage-lead-emails', 'module' => 'leads', 'label' => 'Manage Lead Emails'],
+            ['name' => 'manage-lead-discussions', 'module' => 'leads', 'label' => 'Manage Lead Discussions'],
+            ['name' => 'manage-lead-files', 'module' => 'leads', 'label' => 'Manage Lead Files'],
             // <permissions>
         ];
 

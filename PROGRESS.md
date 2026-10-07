@@ -258,7 +258,17 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Setup guards: a lead stage or pipeline that still holds leads cannot be deleted.
       - Not built (yet): the "Lead Move" e-mail template - there is no e-mail template system in the core yet.
       - Verified in the browser: created a lead through the form, dragged it to Contacted by keyboard, order survives a reload.## TODO (next)
-- [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
+- [x] Phase 10c: CRM C3 (lead drawer) - 345 tests (CrmLeadDetailTest = 13)
+      - Click a card / subject -> drawer (`Leads/LeadDrawer.tsx`) with tabs Overview / Tasks / Calls / Emails / Discussion / Files / Activity. It talks to ONE JSON
+        controller (`LeadDetailController`, routes `crm/leads/{lead}/...`): every mutation answers with the refreshed lead, 422 errors are shown inline.
+      - Overview: sources, labels (only the labels of the lead's OWN pipeline) and products (ProductService) are assigned with checkboxes / search (needs edit-leads).
+      - Tasks (due date, priority, complete / reopen), calls (in / out, minutes, result), e-mails (a RECORD only - nothing is sent), discussion, files
+        (private disk `lead-files/<company>`, pdf/jpg/png/doc/docx/xls/xlsx/csv/txt, 5 MB, downloaded through the controller).
+      - Permissions: manage-lead-tasks / -calls / -emails / -discussions / -files, one per action; the author removes their own entry, delete-leads any.
+        Every call also checks company + lead visibility (403 JSON). An entry of another lead cannot be reached through this one (404).
+      - Events (hooks for other modules): LeadCallAdded, LeadEmailAdded, LeadDiscussionAdded, LeadFileUploaded, LeadTaskAdded. Everything is written to the activity timeline.
+      - A source / label that leads still use cannot be deleted (Setup guard).
+      - Verified in the browser: open the drawer, tick a label, post a comment, timeline shows both.- [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
       overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
       transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
 - [ ] CRM (C1-C5)

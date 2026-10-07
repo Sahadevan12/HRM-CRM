@@ -12,6 +12,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Workdo\Lead\Exceptions\LeadException;
 use Workdo\Lead\Models\CrmPreference;
+use Workdo\Lead\Models\Label;
+use Workdo\Lead\Models\Source;
 use Workdo\Lead\Models\Lead;
 use Workdo\Lead\Models\LeadStage;
 use Workdo\Lead\Models\Pipeline;
@@ -47,7 +49,11 @@ class LeadController extends Controller
             'stages' => $stages,
             'view' => $view,
             'users' => User::whereIn('id', $this->leads->assignableUserIds($tenant))->orderBy('name')->get(['id', 'name']),
+            'sourceOptions' => Source::where('created_by', $tenant)->orderBy('name')->get(['id', 'name']),
+            'labelOptions' => Label::where('created_by', $tenant)->where('pipeline_id', $pipeline->id)->orderBy('name')->get(['id', 'name', 'color']),
+            'productOptions' => \Workdo\ProductService\Models\Product::where('created_by', $tenant)->orderBy('name')->limit(500)->get(['id', 'name', 'sku']),
             'filters' => $request->only(['search', 'stage']),
+            'can_detail' => ['task' => $user->can('manage-lead-tasks'), 'call' => $user->can('manage-lead-calls'), 'email' => $user->can('manage-lead-emails'), 'discussion' => $user->can('manage-lead-discussions'), 'file' => $user->can('manage-lead-files')],
             'can' => ['create' => $user->can('create-leads'), 'edit' => $user->can('edit-leads'), 'delete' => $user->can('delete-leads'), 'move' => $user->can('move-leads')],
         ];
 
