@@ -1,0 +1,19 @@
+{
+    "name": "workdo/lead",
+    "description": "Lead add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Workdo\\Lead\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Workdo\\Lead\\Providers\\LeadServiceProvider"
+            ]
+        }
+    }
+}

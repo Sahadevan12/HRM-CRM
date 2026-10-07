@@ -235,7 +235,16 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - `Services\DefaultData`: starter leave types, shift, document / award / event types, announcement categories - seeded ONCE per company
         (setting `hrmDefaultsSeeded`) when the HRM dashboard is first opened; deleted defaults never come back. No separate demo seeder.
       - Staff role gets view-announcements / view-events / view-hrm-documents.
-
+- [x] Phase 10a: CRM C1 (module `Lead`, alias CRM, menu "CRM") - 321 tests (CrmSetupTest = 13)
+      - New npm dependency: @hello-pangea/dnd (stage drag and drop; also used by the lead / deal boards later).
+      - Tables: pipelines (unique name per company), lead_stages + deal_stages (`order` per pipeline), labels (hex colour, per pipeline), sources.
+      - ONE tabbed page `Lead/SystemSetup/Index` + ONE `SetupController` for the five kinds (`crm/setup/{kind}`): add / rename / delete, stages are
+        re-ordered by drag and drop (`reorder` takes the full id list of one pipeline; stale / foreign / duplicate lists are refused). New stages go last,
+        deleting a stage closes the gap, a stage or label never moves pipeline, the LAST pipeline cannot be deleted, a new pipeline starts with the standard stages.
+      - `DefaultData` (once per company, flag `crmDefaultsSeeded`, on first visit): pipeline "Sales", lead stages New/Contacted/Qualified/Proposal Sent,
+        deal stages Initial Contact/Qualification/Meeting/Proposal/Negotiation, labels Hot/Warm/Cold, six sources.
+      - TODO in C2/C4: `SetupController::inUse()` is the hook that must refuse deleting a stage / source / label that leads or deals still use.
+      - Verified in the browser incl. keyboard drag and drop (order persists after reload).
 ## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
       overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
