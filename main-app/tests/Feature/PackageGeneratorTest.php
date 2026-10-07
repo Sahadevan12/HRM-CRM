@@ -191,6 +191,28 @@ class PackageGeneratorTest extends TestCase
         $this->assertPhpIsValid();
     }
 
+    public function test_time_fields_use_time_columns_h_i_rules_and_time_inputs(): void
+    {
+        $g = $this->generator();
+        $g->makePackage('Clock');
+        $g->makeCrud('Clock', 'Slot', 'start_time:time,end_time:time?');
+
+        $migration = collect(File::files("{$this->root}/Clock/src/Database/Migrations"))->map->getPathname()->first(fn ($p) => str_contains($p, 'create_slots_table'));
+        $this->assertStringContainsString("\$table->time('start_time');", File::get($migration));
+        $this->assertStringContainsString("\$table->time('end_time')->nullable();", File::get($migration));
+
+        $rules = $this->read('Clock/src/Http/Requests/SaveSlotRequest.php');
+        $this->assertStringContainsString("'start_time' => 'required|date_format:H:i'", $rules);
+        $this->assertStringContainsString("'end_time' => 'nullable|date_format:H:i'", $rules);
+
+        $page = $this->read('Clock/src/Resources/js/Pages/Slots/Index.tsx');
+        $this->assertStringContainsString('type="time"', $page);
+        $this->assertStringContainsString('slice(0, 5)', $page);
+        $this->assertStringNotContainsString('%%', $page);
+
+        $this->assertPhpIsValid();
+    }
+
     public function test_invalid_ref_specs_are_rejected(): void
     {
         foreach (['branch:ref=Branch', 'branch_id:ref', 'branch_id:ref=branch', 'name:string=Branch'] as $spec) {

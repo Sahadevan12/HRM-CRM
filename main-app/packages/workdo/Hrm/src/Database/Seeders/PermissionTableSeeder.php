@@ -35,6 +35,32 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'edit-employees', 'module' => 'employees', 'label' => 'Edit Employees'],
             ['name' => 'delete-employees', 'module' => 'employees', 'label' => 'Delete Employees'],
             ['name' => 'manage-employee-documents', 'module' => 'employees', 'label' => 'Manage Employee Documents'],
+            ['name' => 'manage-shifts', 'module' => 'shifts', 'label' => 'Manage Shifts'],
+            ['name' => 'create-shifts', 'module' => 'shifts', 'label' => 'Create Shifts'],
+            ['name' => 'edit-shifts', 'module' => 'shifts', 'label' => 'Edit Shifts'],
+            ['name' => 'delete-shifts', 'module' => 'shifts', 'label' => 'Delete Shifts'],
+            ['name' => 'manage-holidays', 'module' => 'holidays', 'label' => 'Manage Holidays'],
+            ['name' => 'create-holidays', 'module' => 'holidays', 'label' => 'Create Holidays'],
+            ['name' => 'edit-holidays', 'module' => 'holidays', 'label' => 'Edit Holidays'],
+            ['name' => 'delete-holidays', 'module' => 'holidays', 'label' => 'Delete Holidays'],
+            ['name' => 'manage-leave-types', 'module' => 'leave-types', 'label' => 'Manage Leave Types'],
+            ['name' => 'create-leave-types', 'module' => 'leave-types', 'label' => 'Create Leave Types'],
+            ['name' => 'edit-leave-types', 'module' => 'leave-types', 'label' => 'Edit Leave Types'],
+            ['name' => 'delete-leave-types', 'module' => 'leave-types', 'label' => 'Delete Leave Types'],
+            ['name' => 'manage-ip-restrictions', 'module' => 'ip-restrictions', 'label' => 'Manage Ip Restrictions'],
+            ['name' => 'create-ip-restrictions', 'module' => 'ip-restrictions', 'label' => 'Create Ip Restrictions'],
+            ['name' => 'edit-ip-restrictions', 'module' => 'ip-restrictions', 'label' => 'Edit Ip Restrictions'],
+            ['name' => 'delete-ip-restrictions', 'module' => 'ip-restrictions', 'label' => 'Delete Ip Restrictions'],
+            ['name' => 'manage-attendances', 'module' => 'attendances', 'label' => 'Manage Attendances'],
+            ['name' => 'create-attendances', 'module' => 'attendances', 'label' => 'Create Attendances'],
+            ['name' => 'edit-attendances', 'module' => 'attendances', 'label' => 'Edit Attendances'],
+            ['name' => 'delete-attendances', 'module' => 'attendances', 'label' => 'Delete Attendances'],
+            ['name' => 'manage-leave-applications', 'module' => 'leave-applications', 'label' => 'Manage Leave Applications'],
+            ['name' => 'delete-leave-applications', 'module' => 'leave-applications', 'label' => 'Delete Leave Applications'],
+            ['name' => 'approve-leave-applications', 'module' => 'leave-applications', 'label' => 'Approve Leave Applications'],
+            ['name' => 'manage-hrm-settings', 'module' => 'hrm-settings', 'label' => 'Manage HRM Settings'],
+            ['name' => 'clock-attendance', 'module' => 'attendances', 'label' => 'Clock In / Out'],
+            ['name' => 'apply-leave', 'module' => 'leave-applications', 'label' => 'Apply For Leave'],
             // <permissions>
         ];
 
@@ -50,5 +76,8 @@ class PermissionTableSeeder extends Seeder
         // ONE call for all of them: givePermissionTo flushes spatie's permission cache every time,
         // so granting one by one gets very slow as the number of permissions grows
         $company?->givePermissionTo(array_column($permissions, 'name'));
+
+        // every employee (system "staff" role) can clock in/out and apply for leave
+        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave']);
     }
 }

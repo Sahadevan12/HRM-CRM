@@ -19,6 +19,7 @@ interface Props {
     branches: Option[];
     departments: (Option & { branch_id: number | null })[];
     designations: (Option & { department_id: number | null })[];
+    shifts: Option[];
     roles: { name: string; label: string }[];
     options: { genders: string[]; employmentTypes: string[]; statuses: string[] };
 }
@@ -37,7 +38,7 @@ function Field({ label, error, children, className }: { label: string; error?: s
     );
 }
 
-export default function EmployeeForm({ employee, role, nextCode, branches, departments, designations, roles, options }: Props) {
+export default function EmployeeForm({ employee, role, nextCode, branches, departments, designations, shifts, roles, options }: Props) {
     const { t } = useTranslation();
     const e = employee;
 
@@ -51,6 +52,7 @@ export default function EmployeeForm({ employee, role, nextCode, branches, depar
         branch_id: choice(e?.branch_id),
         department_id: choice(e?.department_id),
         designation_id: choice(e?.designation_id),
+        shift_id: choice(e?.shift_id),
         date_of_birth: text(e?.date_of_birth),
         gender: choice(e?.gender),
         date_of_joining: text(e?.date_of_joining),
@@ -85,7 +87,7 @@ export default function EmployeeForm({ employee, role, nextCode, branches, depar
     const dept = form.data.department_id;
     const visibleDesignations = designations.filter((d) => dept === NONE || d.department_id === null || String(d.department_id) === dept);
 
-    const dropdown = (key: 'branch_id' | 'department_id' | 'designation_id', label: string, items: Option[]) => (
+    const dropdown = (key: 'branch_id' | 'department_id' | 'designation_id' | 'shift_id', label: string, items: Option[]) => (
         <Field label={label} error={err(key)}>
             <Select value={form.data[key]} onValueChange={(v) => form.setData(key, v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -104,6 +106,7 @@ export default function EmployeeForm({ employee, role, nextCode, branches, depar
             branch_id: d.branch_id === NONE ? null : d.branch_id,
             department_id: d.department_id === NONE ? null : d.department_id,
             designation_id: d.designation_id === NONE ? null : d.designation_id,
+            shift_id: d.shift_id === NONE ? null : d.shift_id,
             gender: d.gender === NONE ? null : d.gender,
         }));
         if (e) form.put(route('hrm.employees.update', e.id));
@@ -144,6 +147,7 @@ export default function EmployeeForm({ employee, role, nextCode, branches, depar
                         {dropdown('branch_id', t('Branch'), branches)}
                         {dropdown('department_id', t('Department'), visibleDepartments)}
                         {dropdown('designation_id', t('Designation'), visibleDesignations)}
+                        {dropdown('shift_id', t('Shift'), shifts)}
                         <Field label={t('Date of joining')} error={err('date_of_joining')}>{input('date_of_joining', 'date')}</Field>
                         <Field label={t('Employment type')} error={err('employment_type')}>
                             <Select value={form.data.employment_type} onValueChange={(v) => form.setData('employment_type', v)}>

@@ -36,6 +36,7 @@ class SaveEmployeeRequest extends FormRequest
             'branch_id' => ['nullable', $owned('branches')],
             'department_id' => ['nullable', $owned('departments')],
             'designation_id' => ['nullable', $owned('designations')],
+            'shift_id' => ['nullable', $owned('shifts')],
             'date_of_birth' => 'nullable|date|before:today',
             'gender' => ['nullable', Rule::in(Employee::GENDERS)],
             'date_of_joining' => 'nullable|date',
@@ -70,7 +71,7 @@ class SaveEmployeeRequest extends FormRequest
     /** Empty strings from the form become null / defaults so nothing odd is stored. */
     protected function prepareForValidation(): void
     {
-        $nullable = ['branch_id', 'department_id', 'designation_id', 'date_of_birth', 'gender', 'date_of_joining', 'status', 'role', 'employee_code', 'basic_salary', 'hourly_rate'];
+        $nullable = ['branch_id', 'department_id', 'designation_id', 'shift_id', 'date_of_birth', 'gender', 'date_of_joining', 'status', 'role', 'employee_code', 'basic_salary', 'hourly_rate'];
 
         $this->merge(collect($nullable)->mapWithKeys(fn ($key) => [$key => $this->input($key) === '' ? null : $this->input($key)])->all());
     }

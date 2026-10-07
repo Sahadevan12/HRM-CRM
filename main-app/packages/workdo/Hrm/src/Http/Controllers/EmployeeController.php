@@ -146,6 +146,7 @@ class EmployeeController extends Controller
             'branches' => Branch::where('created_by', $tenant)->orderBy('name')->get(['id', 'name']),
             'departments' => Department::where('created_by', $tenant)->orderBy('name')->get(['id', 'name', 'branch_id']),
             'designations' => Designation::where('created_by', $tenant)->orderBy('name')->get(['id', 'name', 'department_id']),
+            'shifts' => \Workdo\Hrm\Models\Shift::where('created_by', $tenant)->orderBy('name')->get(['id', 'name']),
             'roles' => Role::where('created_by', $tenant)->orWhere(fn ($q) => $q->whereNull('created_by')->where('name', 'staff'))->orderBy('label')->get(['name', 'label']),
             'options' => [
                 'genders' => Employee::GENDERS,

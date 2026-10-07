@@ -185,6 +185,21 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Permissions: manage/create/edit/delete-employees, manage-employee-documents (+ generated ones for the 4 org entities)
       - Menu: HRM -> Employees, Organization -> Branches / Departments / Designations / Document Types
       - Verified in the browser: hired Meena (EMP-0001) through the real form; profile shows branch, department and salary.
+- [x] Phase 9b: HRM H3 (attendance) + H4 (leave) - 255 tests (HrmAttendanceLeaveTest = 28, generator `time` test added)
+      - Generator field type `time` (`$table->time`, `date_format:H:i`, `<Input type="time">`).
+      - Generated CRUD: Shift (start/end/break/night), Holiday (end >= start), LeaveType (days_per_year, 0 = unlimited; cannot be deleted once used),
+        IpRestriction (valid + unique per company). Employee got `shift_id` (same-company rule, Form dropdown).
+      - Rules live in services: `WorkCalendar` (working weekdays from setting `hrmWorkingDays`, default Mon-Sat, + holidays),
+        `AttendanceService` (clock in/out, manual entries, hours = out - in - break, overtime above the shift length, half day below half a shift,
+        late = delay from shift start once beyond grace `hrmLateGraceMinutes` (default 10), night shifts end after midnight and belong to the start day,
+        one record per employee per day, IP allow-list for self clocking, only active employees), `AttendanceSummary` (per working day:
+        leave_paid/leave_unpaid > present/half_day/absent; past day without record = absent; future = upcoming; weekly offs/holidays never absent -
+        payroll reuses it), `LeaveService` (working days only, no overlap, no cross-year, yearly allowance re-checked on approve, row lock on apply).
+      - Times are stored in the app time zone and shown in the company time zone (`in_time`/`out_time` appended on Attendance).
+      - Self service: staff role gets `clock-attendance` + `apply-leave` (seeded); an employee only sees/withdraws their OWN pending leave, owner without
+        an employee profile gets a clear message. HR: manage/create/edit/delete-attendances, manage/approve/delete-leave-applications, manage-hrm-settings.
+      - Pages: My Attendance, Attendance Records (filters + manual entry), Monthly Summary, Leave Applications (apply / approve / reject), Leave Balance, HRM Settings.
+      - Verified in the browser: all new pages render without console errors.
 
 ## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,

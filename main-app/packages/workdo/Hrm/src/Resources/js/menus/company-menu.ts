@@ -38,6 +38,47 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
                     },
                 ],
             },
+            {
+                title: t('Shifts'),
+                href: route('hrm.shifts.index'),
+                permission: 'manage-shifts',
+            },
+            {
+                title: t('Holidays'),
+                href: route('hrm.holidays.index'),
+                permission: 'manage-holidays',
+            },
+            {
+                title: t('Leave Types'),
+                href: route('hrm.leave-types.index'),
+                permission: 'manage-leave-types',
+            },
+            {
+                title: t('Ip Restrictions'),
+                href: route('hrm.ip-restrictions.index'),
+                permission: 'manage-ip-restrictions',
+            },
+            {
+                title: t('Attendance'),
+                children: [
+                    { title: t('My Attendance'), href: route('hrm.attendances.my'), permission: 'clock-attendance' },
+                    { title: t('Attendance Records'), href: route('hrm.attendances.index'), permission: 'manage-attendances' },
+                    { title: t('Monthly Summary'), href: route('hrm.attendances.summary'), permission: 'manage-attendances' },
+                ],
+            },
+            {
+                title: t('Leave'),
+                children: [
+                    { title: t('Leave Applications'), href: route('hrm.leave-applications.index'), permission: 'manage-leave-applications' },
+                    { title: t('My Leave'), href: route('hrm.leave-applications.index'), permission: 'apply-leave' },
+                    { title: t('Leave Balance'), href: route('hrm.leave-applications.balance'), permission: 'apply-leave' },
+                ],
+            },
+            {
+                title: t('HRM Settings'),
+                href: route('hrm.settings.edit'),
+                permission: 'manage-hrm-settings',
+            },
             // <menu-items>
         ],
     },

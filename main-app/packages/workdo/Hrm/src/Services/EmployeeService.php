@@ -12,7 +12,7 @@ class EmployeeService
 {
     /** Columns of the HR profile that the form may set. */
     private const PROFILE = [
-        'branch_id', 'department_id', 'designation_id', 'date_of_birth', 'gender', 'date_of_joining', 'employment_type', 'status',
+        'branch_id', 'department_id', 'designation_id', 'shift_id', 'date_of_birth', 'gender', 'date_of_joining', 'employment_type', 'status',
         'phone', 'address_line', 'city', 'state', 'country', 'postal_code', 'emergency_name', 'emergency_relationship',
         'emergency_phone', 'bank_name', 'account_holder', 'account_number', 'bank_code', 'tax_id', 'basic_salary', 'hourly_rate', 'notes',
     ];

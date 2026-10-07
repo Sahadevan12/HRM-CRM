@@ -12,7 +12,7 @@ use InvalidArgumentException;
  */
 class PackageGenerator
 {
-    public const FIELD_TYPES = ['string', 'text', 'integer', 'decimal', 'boolean', 'date', 'ref'];
+    public const FIELD_TYPES = ['string', 'text', 'integer', 'decimal', 'boolean', 'date', 'time', 'ref'];
 
     /** Columns every tenant table already has, plus Laravel's own. */
     private const RESERVED_FIELDS = ['id', 'creator_id', 'created_by', 'created_at', 'updated_at'];
@@ -224,7 +224,9 @@ class PackageGenerator
             '%%tsDefaults%%' => $this->lines($fields, fn ($f) => "    {$f['name']}: " . $this->tsDefault($f) . ','),
             '%%tsEditAssign%%' => $this->lines($fields, fn ($f) => $f['type'] === 'ref'
                 ? "            {$f['name']}: row.{$f['name']} ? String(row.{$f['name']}) : {$this->tsDefault($f)},"
-                : "            {$f['name']}: row.{$f['name']}" . ($f['nullable'] && $f['type'] !== 'boolean' ? " ?? {$this->tsDefault($f)}" : '') . ','),
+                : ($f['type'] === 'time'
+                ? "            {$f['name']}: row.{$f['name']}?.slice(0, 5) ?? '',"
+                : "            {$f['name']}: row.{$f['name']}" . ($f['nullable'] && $f['type'] !== 'boolean' ? " ?? {$this->tsDefault($f)}" : '') . ',')),
             // references (foreign keys to other entities of the module)
             '%%relations%%' => $this->lines($this->refs($fields), fn ($f) => "\n    public function {$this->relationName($f)}(): BelongsTo\n    {\n        return \$this->belongsTo({$f['ref']}::class, '{$f['name']}');\n    }"),
             '%%withList%%' => implode(', ', array_map(fn ($f) => "'{$this->relationName($f)}:id,name'", $this->refs($fields))),
@@ -258,6 +260,7 @@ class PackageGenerator
             'decimal' => "\$table->decimal('{$f['name']}', 12, 2)",
             'boolean' => "\$table->boolean('{$f['name']}')",
             'date' => "\$table->date('{$f['name']}')",
+            'time' => "\$table->time('{$f['name']}')",
             'ref' => "\$table->foreignId('{$f['name']}')",
         };
 
@@ -314,6 +317,7 @@ class PackageGenerator
             'decimal' => 'numeric|min:0|max:9999999999',
             'boolean' => 'boolean',
             'date' => 'date',
+            'time' => 'date_format:H:i',
         };
     }
 
@@ -359,7 +363,7 @@ class PackageGenerator
     private function tsType(array $f): string
     {
         $base = match ($f['type']) {
-            'string', 'text', 'date' => 'string',
+            'string', 'text', 'date', 'time' => 'string',
             'integer', 'decimal', 'ref' => 'number',
             'boolean' => 'boolean',
         };
@@ -370,7 +374,7 @@ class PackageGenerator
     private function tsDefault(array $f): string
     {
         return match ($f['type']) {
-            'string', 'text', 'date' => "''",
+            'string', 'text', 'date', 'time' => "''",
             'integer', 'decimal' => '0',
             'boolean' => 'false',
             'ref' => $f['nullable'] ? "'none'" : "''", // 'none' = nothing chosen (sent as null)
@@ -382,6 +386,7 @@ class PackageGenerator
         return match ($f['type']) {
             'boolean' => "{row.{$f['name']} ? t('Yes') : t('No')}",
             'ref' => '{row.' . $this->relationName($f) . "?.name ?? '—'}",
+            'time' => "{row.{$f['name']}?.slice(0, 5)}", // 08:00:00 -> 08:00
             default => "{row.{$f['name']}}",
         };
     }
@@ -417,6 +422,7 @@ class PackageGenerator
             'text' => "<Textarea id=\"{$n}\" value={form.data.{$n}} onChange={(e) => form.setData('{$n}', e.target.value)} />",
             'integer', 'decimal' => "<Input id=\"{$n}\" type=\"number\" step=\"" . ($f['type'] === 'decimal' ? '0.01' : '1') . "\" value={form.data.{$n}} onChange={(e) => form.setData('{$n}', Number(e.target.value))} />",
             'date' => "<Input id=\"{$n}\" type=\"date\" value={form.data.{$n}} onChange={(e) => form.setData('{$n}', e.target.value)} />",
+            'time' => "<Input id=\"{$n}\" type=\"time\" value={form.data.{$n}} onChange={(e) => form.setData('{$n}', e.target.value)} />",
             default => "<Input id=\"{$n}\" value={form.data.{$n}} onChange={(e) => form.setData('{$n}', e.target.value)} />",
         };
 

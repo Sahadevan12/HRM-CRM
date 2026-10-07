@@ -16,7 +16,7 @@ class Employee extends Model
     protected $table = 'employees';
 
     protected $fillable = [
-        'user_id', 'employee_code', 'branch_id', 'department_id', 'designation_id', 'date_of_birth', 'gender',
+        'user_id', 'employee_code', 'branch_id', 'department_id', 'designation_id', 'shift_id', 'date_of_birth', 'gender',
         'date_of_joining', 'employment_type', 'status', 'phone', 'address_line', 'city', 'state', 'country',
         'postal_code', 'emergency_name', 'emergency_relationship', 'emergency_phone', 'bank_name', 'account_holder',
         'account_number', 'bank_code', 'tax_id', 'basic_salary', 'hourly_rate', 'notes', 'creator_id', 'created_by',
@@ -53,6 +53,11 @@ class Employee extends Model
     public function designation(): BelongsTo
     {
         return $this->belongsTo(Designation::class);
+    }
+
+    public function shift(): BelongsTo
+    {
+        return $this->belongsTo(Shift::class);
     }
 
     public function documents(): HasMany
