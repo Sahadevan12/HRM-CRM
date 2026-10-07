@@ -200,6 +200,19 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         an employee profile gets a clear message. HR: manage/create/edit/delete-attendances, manage/approve/delete-leave-applications, manage-hrm-settings.
       - Pages: My Attendance, Attendance Records (filters + manual entry), Monthly Summary, Leave Applications (apply / approve / reject), Leave Balance, HRM Settings.
       - Verified in the browser: all new pages render without console errors.
+- [x] Phase 9c: HRM H5 (payroll) - 280 tests (HrmPayrollTest = 25)
+      - Setup: SalaryComponent (generated CRUD; allowance|deduction, fixed|percent of basic), Salary Setup page (basic, hourly rate, components per employee),
+        Loans (instalment per month until repaid; cancel; delete only without repayments).
+      - `PayrollService`: one payroll per company and month. draft (regenerate = recalculate) -> approved (loan instalments counted as repaid; "reopen" gives
+        them back) -> paid (final). basic prorated by working days since joining, absence = daily rate x (absent + unpaid leave + half days/2) from the SAME
+        `AttendanceSummary` as the attendance report, overtime = hours x hourly rate (or daily/8) x setting `hrmOvertimeMultiplier` (default 1.5),
+        loans last and never push net below 0. Only active employees; payslip lines keep a readable breakdown.
+      - Core event `App\Events\PaySalary` (plain numbers) -> Account listener `RecordSalaryPayment` books ONE entry: Dr Salaries & Wages (5300),
+        Cr Cash/Bank, Cr Salary Deductions Payable (2300), Cr Employee Loans (1400); inside the pay transaction (failure => still approved).
+        New default accounts 1400/2300/5300 (default chart is now 15 accounts).
+      - Payslips: HR sees all; staff (`view-payslips`) only their own, only once the payroll is approved/paid; printable page.
+      - An employee with payslips/loans cannot be deleted (terminate instead).
+      - Known limits: loan disbursement itself is not booked (only the recovery credits 1400); a paid payroll cannot be reversed; no tax slabs / bonuses.
 
 ## TODO (next)
 - [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,

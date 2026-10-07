@@ -14,6 +14,10 @@ use Workdo\Hrm\Http\Controllers\IpRestrictionController;
 use Workdo\Hrm\Http\Controllers\AttendanceController;
 use Workdo\Hrm\Http\Controllers\LeaveApplicationController;
 use Workdo\Hrm\Http\Controllers\HrmSettingsController;
+use Workdo\Hrm\Http\Controllers\SalaryComponentController;
+use Workdo\Hrm\Http\Controllers\PayrollController;
+use Workdo\Hrm\Http\Controllers\SalarySetupController;
+use Workdo\Hrm\Http\Controllers\LoanController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(function () {
@@ -43,5 +47,19 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(fun
 
     Route::get('hrm/settings', [HrmSettingsController::class, 'edit'])->name('hrm.settings.edit');
     Route::put('hrm/settings', [HrmSettingsController::class, 'update'])->name('hrm.settings.update');
+    Route::resource('hrm/salary-components', SalaryComponentController::class)->only(['index', 'store', 'update', 'destroy'])->names('hrm.salary-components');
+
+    Route::get('hrm/salary-setup', [SalarySetupController::class, 'index'])->name('hrm.salary-setup.index');
+    Route::put('hrm/salary-setup/{employee}', [SalarySetupController::class, 'update'])->name('hrm.salary-setup.update');
+
+    Route::resource('hrm/loans', LoanController::class)->only(['index', 'store', 'destroy'])->names('hrm.loans');
+    Route::post('hrm/loans/{loan}/cancel', [LoanController::class, 'cancel'])->name('hrm.loans.cancel');
+
+    Route::get('hrm/payslips', [PayrollController::class, 'my'])->name('hrm.payslips.my');
+    Route::get('hrm/payslips/{payslip}', [PayrollController::class, 'payslip'])->name('hrm.payslips.show');
+    Route::post('hrm/payrolls/{payroll}/approve', [PayrollController::class, 'approve'])->name('hrm.payrolls.approve');
+    Route::post('hrm/payrolls/{payroll}/reopen', [PayrollController::class, 'reopen'])->name('hrm.payrolls.reopen');
+    Route::post('hrm/payrolls/{payroll}/pay', [PayrollController::class, 'pay'])->name('hrm.payrolls.pay');
+    Route::resource('hrm/payrolls', PayrollController::class)->only(['index', 'store', 'show', 'destroy'])->names('hrm.payrolls');
     // <crud-routes>
 });

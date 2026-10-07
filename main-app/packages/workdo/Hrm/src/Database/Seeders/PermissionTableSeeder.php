@@ -61,6 +61,21 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'manage-hrm-settings', 'module' => 'hrm-settings', 'label' => 'Manage HRM Settings'],
             ['name' => 'clock-attendance', 'module' => 'attendances', 'label' => 'Clock In / Out'],
             ['name' => 'apply-leave', 'module' => 'leave-applications', 'label' => 'Apply For Leave'],
+            ['name' => 'manage-salary-components', 'module' => 'salary-components', 'label' => 'Manage Salary Components'],
+            ['name' => 'create-salary-components', 'module' => 'salary-components', 'label' => 'Create Salary Components'],
+            ['name' => 'edit-salary-components', 'module' => 'salary-components', 'label' => 'Edit Salary Components'],
+            ['name' => 'delete-salary-components', 'module' => 'salary-components', 'label' => 'Delete Salary Components'],
+            ['name' => 'manage-salary-setup', 'module' => 'salary-setup', 'label' => 'Manage Salary Setup'],
+            ['name' => 'manage-loans', 'module' => 'loans', 'label' => 'Manage Loans'],
+            ['name' => 'create-loans', 'module' => 'loans', 'label' => 'Create Loans'],
+            ['name' => 'edit-loans', 'module' => 'loans', 'label' => 'Edit Loans'],
+            ['name' => 'delete-loans', 'module' => 'loans', 'label' => 'Delete Loans'],
+            ['name' => 'manage-payrolls', 'module' => 'payrolls', 'label' => 'Manage Payrolls'],
+            ['name' => 'create-payrolls', 'module' => 'payrolls', 'label' => 'Create Payrolls'],
+            ['name' => 'approve-payrolls', 'module' => 'payrolls', 'label' => 'Approve Payrolls'],
+            ['name' => 'pay-payrolls', 'module' => 'payrolls', 'label' => 'Pay Payrolls'],
+            ['name' => 'delete-payrolls', 'module' => 'payrolls', 'label' => 'Delete Payrolls'],
+            ['name' => 'view-payslips', 'module' => 'payrolls', 'label' => 'View Own Payslips'],
             // <permissions>
         ];
 
@@ -77,7 +92,7 @@ class PermissionTableSeeder extends Seeder
         // so granting one by one gets very slow as the number of permissions grows
         $company?->givePermissionTo(array_column($permissions, 'name'));
 
-        // every employee (system "staff" role) can clock in/out and apply for leave
-        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave']);
+        // every employee (system "staff" role) can clock in/out, apply for leave and read their own payslips
+        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave', 'view-payslips']);
     }
 }

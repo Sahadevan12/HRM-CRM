@@ -132,7 +132,11 @@ class EmployeeController extends Controller
             return back()->with('error', __('You cannot delete your own account.'));
         }
 
-        $this->employees->delete($employee);
+        try {
+            $this->employees->delete($employee);
+        } catch (\Workdo\Hrm\Exceptions\HrmException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return redirect()->route('hrm.employees.index')->with('success', __('The employee has been deleted.'));
     }

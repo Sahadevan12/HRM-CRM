@@ -55,6 +55,11 @@ class Employee extends Model
         return $this->belongsTo(Designation::class);
     }
 
+    public function salaryComponents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(EmployeeSalaryComponent::class);
+    }
+
     public function shift(): BelongsTo
     {
         return $this->belongsTo(Shift::class);

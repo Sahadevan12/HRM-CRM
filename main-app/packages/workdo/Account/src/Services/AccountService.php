@@ -13,13 +13,16 @@ class AccountService
     public const RECEIVABLE = '1100';
     public const INVENTORY = '1200';
     public const TAX_RECEIVABLE = '1300';
+    public const EMPLOYEE_LOANS = '1400';
     public const PAYABLE = '2000';
     public const TAX_PAYABLE = '2210';
+    public const SALARY_DEDUCTIONS = '2300';
     public const EQUITY = '3000';
     public const SALES = '4100';
     public const SALES_RETURNS = '4200';
     public const COGS = '5000';
     public const SERVICE_EXPENSE = '5200';
+    public const SALARY_EXPENSE = '5300';
 
     /** @var array<int, array{0: string, 1: string, 2: string, 3?: bool}> code, name, type, is_bank */
     public const DEFAULTS = [
@@ -28,13 +31,16 @@ class AccountService
         [self::RECEIVABLE, 'Accounts Receivable', 'asset'],
         [self::INVENTORY, 'Inventory', 'asset'],
         [self::TAX_RECEIVABLE, 'Tax Receivable (Input Tax)', 'asset'],
+        [self::EMPLOYEE_LOANS, 'Employee Loans & Advances', 'asset'],
         [self::PAYABLE, 'Accounts Payable', 'liability'],
         [self::TAX_PAYABLE, 'Tax Payable (Output Tax)', 'liability'],
+        [self::SALARY_DEDUCTIONS, 'Salary Deductions Payable', 'liability'],
         [self::EQUITY, "Owner's Equity", 'equity'],
         [self::SALES, 'Sales Revenue', 'revenue'],
         [self::SALES_RETURNS, 'Sales Returns & Allowances', 'revenue'],
         [self::COGS, 'Cost of Goods Sold', 'expense'],
         [self::SERVICE_EXPENSE, 'Services & Other Purchases', 'expense'],
+        [self::SALARY_EXPENSE, 'Salaries & Wages', 'expense'],
     ];
 
     /** @var array<int, array<string, ChartOfAccount>> per-request cache: tenant => code => account */

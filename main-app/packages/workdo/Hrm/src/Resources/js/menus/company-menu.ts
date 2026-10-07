@@ -79,6 +79,16 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
                 href: route('hrm.settings.edit'),
                 permission: 'manage-hrm-settings',
             },
+            {
+                title: t('Payroll'),
+                children: [
+                    { title: t('Salary Setup'), href: route('hrm.salary-setup.index'), permission: 'manage-salary-setup' },
+                    { title: t('Salary Components'), href: route('hrm.salary-components.index'), permission: 'manage-salary-components' },
+                    { title: t('Loans'), href: route('hrm.loans.index'), permission: 'manage-loans' },
+                    { title: t('Payrolls'), href: route('hrm.payrolls.index'), permission: 'manage-payrolls' },
+                    { title: t('My Payslips'), href: route('hrm.payslips.my'), permission: 'view-payslips' },
+                ],
+            },
             // <menu-items>
         ],
     },

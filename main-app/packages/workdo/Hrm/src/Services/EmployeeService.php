@@ -69,6 +69,11 @@ class EmployeeService
     /** Removes the employee, the login and the uploaded files. */
     public function delete(Employee $employee): void
     {
+        // payslips and loans are financial history: such an employee is terminated, never deleted
+        if (\Workdo\Hrm\Models\Payslip::where('employee_id', $employee->id)->exists() || \Workdo\Hrm\Models\Loan::where('employee_id', $employee->id)->exists()) {
+            throw new \Workdo\Hrm\Exceptions\HrmException(__('This employee has payslips or loans and cannot be deleted. Set the status to terminated instead.'));
+        }
+
         $paths = $employee->documents()->pluck('file_path')->all();
 
         DB::transaction(fn () => $employee->user->delete()); // employee + documents cascade

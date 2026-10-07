@@ -121,10 +121,10 @@ class AccountingTest extends TestCase
         $this->assertSame(0, ChartOfAccount::where('created_by', $this->a->id)->count());
 
         $this->actingAs($this->a)->get('/account/chart-of-accounts')->assertOk()
-            ->assertInertia(fn ($p) => $p->component('Account/ChartOfAccounts/Index', false)->has('accounts.data', 12));
+            ->assertInertia(fn ($p) => $p->component('Account/ChartOfAccounts/Index', false)->has('accounts.data', 15));
         $this->actingAs($this->a)->get('/account/chart-of-accounts')->assertOk();
 
-        $this->assertSame(12, ChartOfAccount::where('created_by', $this->a->id)->count());
+        $this->assertSame(15, ChartOfAccount::where('created_by', $this->a->id)->count());
         $this->assertTrue(ChartOfAccount::where('created_by', $this->a->id)->where('code', '1100')->value('is_system'));
         $this->assertSame(['1000', '1010'], ChartOfAccount::where('created_by', $this->a->id)->where('is_bank', true)->orderBy('code')->pluck('code')->all());
 
@@ -663,7 +663,7 @@ class AccountingTest extends TestCase
         $this->assertSame(0, JournalEntry::where('created_by', $this->a->id)->count());
         $this->assertSame(0, Payment::count());
         $this->assertSame(0, Document::where('created_by', $this->a->id)->count());
-        $this->assertSame(12, ChartOfAccount::where('created_by', $b->id)->count());
+        $this->assertSame(15, ChartOfAccount::where('created_by', $b->id)->count());
     }
 
     public function test_backfill_books_documents_posted_before_the_company_had_accounting(): void
