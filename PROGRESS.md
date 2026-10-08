@@ -269,7 +269,19 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - Events (hooks for other modules): LeadCallAdded, LeadEmailAdded, LeadDiscussionAdded, LeadFileUploaded, LeadTaskAdded. Everything is written to the activity timeline.
       - A source / label that leads still use cannot be deleted (Setup guard).
       - Verified in the browser: open the drawer, tick a label, post a comment, timeline shows both.- [ ] Phase 9b: HRM H3 attendance (Shift, clock in/out, working days, holidays, IP restrict), H4 leave, H5 payroll (set salary, allowances, deductions, loans,
-      overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
+- [x] Phase 10d: CRM C4 (deals + lead conversion) - 364 tests (CrmDealsTest = 19)
+      - Deal tables mirror the lead ones (deals, user_deals, client_deals, deal_activity_logs, deal_sources / labels / products, deal_tasks / calls / emails /
+        discussions / files). The deal models, events and `DealDetailController` were GENERATED from the lead ones (same rules, `deal` instead of `lead`);
+        NOTE the deal drawer endpoints answer with a `deal` key, the lead ones with `lead` (the drawer reads either).
+      - Deal: name, price, phone, notes, stage (first deal stage first), status active | won | lost, clients (users of type client; the POS walk-in
+        customer is excluded), staff. Board + list (search / stage / status), won / lost / reopen buttons (`change-deal-status`; event `DealStatusChanged`),
+        a decided deal cannot be dragged until reopened. Same visibility rule as leads (`view-all-deals`). The drawer (`LeadDrawer entity="deal"`) is shared.
+      - Convert (`LeadConversion`, button on the lead card, permission `convert-leads`): price, pipeline, client = none / existing / NEW (a `client` user without
+        login, role client, counts against the plan seat limit, e-mail must be unused) and tick-boxes for what to copy (products, sources, labels - only into
+        the same pipeline -, tasks, calls, e-mails, comments, files = real file copies). One transaction; copied files are removed again if it fails.
+        The lead is marked converted (frozen on the board, cannot be converted twice); deleting the deal frees it again. Event `LeadConverted`.
+      - Setup guards extended: deal stages / pipelines / sources / labels used by deals cannot be deleted.
+      - Verified in the browser: converted the demo lead, marked the deal Won, opened the deal drawer, the lead shows "Converted".      overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
       transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
 - [ ] CRM (C1-C5)
 - [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)

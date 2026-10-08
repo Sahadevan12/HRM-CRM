@@ -18,11 +18,12 @@ use Workdo\Lead\Models\Lead;
 use Workdo\Lead\Models\LeadStage;
 use Workdo\Lead\Models\Pipeline;
 use Workdo\Lead\Services\DefaultData;
+use Workdo\Lead\Services\LeadConversion;
 use Workdo\Lead\Services\LeadService;
 
 class LeadController extends Controller
 {
-    public function __construct(private LeadService $leads, private DefaultData $defaults)
+    public function __construct(private LeadService $leads, private DefaultData $defaults, private LeadConversion $conversion)
     {
     }
 
@@ -52,9 +53,10 @@ class LeadController extends Controller
             'sourceOptions' => Source::where('created_by', $tenant)->orderBy('name')->get(['id', 'name']),
             'labelOptions' => Label::where('created_by', $tenant)->where('pipeline_id', $pipeline->id)->orderBy('name')->get(['id', 'name', 'color']),
             'productOptions' => \Workdo\ProductService\Models\Product::where('created_by', $tenant)->orderBy('name')->limit(500)->get(['id', 'name', 'sku']),
+            'clients' => User::whereIn('id', app(\Workdo\Lead\Services\DealService::class)->clientIds($tenant))->orderBy('name')->get(['id', 'name']),
             'filters' => $request->only(['search', 'stage']),
             'can_detail' => ['task' => $user->can('manage-lead-tasks'), 'call' => $user->can('manage-lead-calls'), 'email' => $user->can('manage-lead-emails'), 'discussion' => $user->can('manage-lead-discussions'), 'file' => $user->can('manage-lead-files')],
-            'can' => ['create' => $user->can('create-leads'), 'edit' => $user->can('edit-leads'), 'delete' => $user->can('delete-leads'), 'move' => $user->can('move-leads')],
+            'can' => ['create' => $user->can('create-leads'), 'edit' => $user->can('edit-leads'), 'delete' => $user->can('delete-leads'), 'move' => $user->can('move-leads'), 'convert' => $user->can('convert-leads')],
         ];
 
         if ($view === 'list') {
@@ -113,6 +115,34 @@ class LeadController extends Controller
         $lead->delete();
 
         return back()->with('success', __('The lead has been deleted.'));
+    }
+
+    /** Lead -> deal (client, price and what to copy are chosen in the dialog). */
+    public function convert(Request $request, Lead $lead): RedirectResponse
+    {
+        if (!Auth::user()->can('convert-leads') || !$this->canSee($lead)) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        $tenant = creatorId();
+        $data = $request->validate([
+            'price' => 'required|numeric|min:0|max:9999999999',
+            'pipeline_id' => ['required', Rule::exists('pipelines', 'id')->where('created_by', $tenant)],
+            'client_mode' => ['required', Rule::in(['none', 'existing', 'new'])],
+            'client_id' => ['required_if:client_mode,existing', 'nullable', 'integer'],
+            'client_name' => ['required_if:client_mode,new', 'nullable', 'string', 'max:255'],
+            'client_email' => ['required_if:client_mode,new', 'nullable', 'email', 'max:255'],
+            'copy' => 'array',
+            'copy.*' => [Rule::in(LeadConversion::COPY)],
+        ]);
+
+        try {
+            $this->conversion->convert($lead, $data, Auth::id());
+        } catch (LeadException $e) {
+            return back()->withErrors(['convert' => $e->getMessage()]);
+        }
+
+        return back()->with('success', __('The lead has been converted to a deal.'));
     }
 
     /** Drag and drop on the board. */

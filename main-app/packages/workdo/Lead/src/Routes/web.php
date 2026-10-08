@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Workdo\Lead\Http\Controllers\SetupController;
 use Workdo\Lead\Http\Controllers\LeadController;
 use Workdo\Lead\Http\Controllers\LeadDetailController;
+use Workdo\Lead\Http\Controllers\DealController;
+use Workdo\Lead\Http\Controllers\DealDetailController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(function () {
@@ -25,6 +27,20 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(fu
         Route::post('files', [LeadDetailController::class, 'upload'])->name('files.upload');
         Route::get('files/{file}', [LeadDetailController::class, 'download'])->whereNumber('file')->name('files.download');
     });
+    Route::post('crm/leads/{lead}/convert', [LeadController::class, 'convert'])->whereNumber('lead')->name('crm.leads.convert');
+
+    Route::prefix('crm/deals/{deal}')->name('crm.deals.')->whereNumber('deal')->group(function () {
+        Route::get('detail', [DealDetailController::class, 'show'])->name('detail');
+        Route::put('sync', [DealDetailController::class, 'sync'])->name('sync');
+        Route::post('items/{kind}', [DealDetailController::class, 'add'])->whereIn('kind', ['task', 'call', 'email', 'discussion'])->name('items.add');
+        Route::post('tasks/{task}/toggle', [DealDetailController::class, 'toggleTask'])->whereNumber('task')->name('tasks.toggle');
+        Route::delete('items/{kind}/{id}', [DealDetailController::class, 'remove'])->whereIn('kind', ['task', 'call', 'email', 'discussion', 'file'])->whereNumber('id')->name('items.remove');
+        Route::post('files', [DealDetailController::class, 'upload'])->name('files.upload');
+        Route::get('files/{file}', [DealDetailController::class, 'download'])->whereNumber('file')->name('files.download');
+        Route::post('status', [DealController::class, 'status'])->name('status');
+    });
+    Route::post('crm/deals/move', [DealController::class, 'move'])->name('crm.deals.move');
+    Route::resource('crm/deals', DealController::class)->only(['index', 'store', 'update', 'destroy'])->names('crm.deals');
     Route::post('crm/leads/move', [LeadController::class, 'move'])->name('crm.leads.move');
     Route::resource('crm/leads', LeadController::class)->only(['index', 'store', 'update', 'destroy'])->names('crm.leads');
     // <crud-routes>

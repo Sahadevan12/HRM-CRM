@@ -15,8 +15,11 @@ interface Named { id: number; name: string }
 interface Creator { creator?: { name: string } | null; creator_id: number | null; created_at: string }
 interface Detail {
     id: number;
-    subject: string;
+    subject?: string;
     name: string;
+    price?: number;
+    status?: string;
+    clients?: Named[];
     email: string | null;
     phone: string | null;
     notes: string | null;
@@ -42,6 +45,8 @@ interface Props {
     productOptions: (Named & { sku: string })[];
     can: { edit: boolean; delete: boolean };
     canDetail: Record<'task' | 'call' | 'email' | 'discussion' | 'file', boolean>;
+    /** which record the drawer shows; decides the routes it talks to */
+    entity?: 'lead' | 'deal';
 }
 
 type Tab = 'overview' | 'tasks' | 'calls' | 'emails' | 'discussion' | 'files' | 'activity';
@@ -50,8 +55,9 @@ const day = (d: string) => d.slice(0, 10);
 const size = (b: number) => (b > 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
 
 /** The lead drawer: one JSON endpoint per action, every answer is the refreshed lead. */
-export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOptions, productOptions, can, canDetail }: Props) {
+export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOptions, productOptions, can, canDetail, entity = 'lead' }: Props) {
     const { t } = useTranslation();
+    const prefix = `crm.${entity}s`;
     const [lead, setLead] = useState<Detail | null>(null);
     const [me, setMe] = useState<number | null>(null);
     const [tab, setTab] = useState<Tab>('overview');
@@ -60,13 +66,13 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
     const [busy, setBusy] = useState(false);
     const [productSearch, setProductSearch] = useState('');
 
-    const call = useCallback(async (fn: () => Promise<{ data: { lead: Detail; me: number } }>) => {
+    const call = useCallback(async (fn: () => Promise<{ data: { lead?: Detail; deal?: Detail; me: number } }>) => {
         setBusy(true);
         setErrors({});
         setMessage(null);
         try {
             const { data } = await fn();
-            setLead(data.lead);
+            setLead((data.lead ?? data.deal) as Detail); // the server answers with `lead` or `deal` depending on the record
             setMe(data.me);
             return true;
         } catch (e) {
@@ -82,13 +88,13 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
     useEffect(() => {
         setLead(null);
         setTab('overview');
-        if (leadId) call(() => axios.get(route('crm.leads.detail', leadId), { headers: { Accept: 'application/json' } }));
+        if (leadId) call(() => axios.get(route(`${prefix}.detail`, leadId), { headers: { Accept: 'application/json' } }));
     }, [leadId, call]);
 
     const base = (name: string, extra: unknown[] = []) => route(name, [leadId, ...extra]);
-    const add = (kind: string, data: Record<string, unknown>) => call(() => axios.post(base('crm.leads.items.add', [kind]), data));
-    const remove = (kind: string, id: number) => call(() => axios.delete(base('crm.leads.items.remove', [kind, id])));
-    const sync = (patch: Record<string, number[]>) => call(() => axios.put(base('crm.leads.sync'), { source_ids: lead!.sources.map((s) => s.id), label_ids: lead!.labels.map((l) => l.id), product_ids: lead!.products.map((p) => p.id), ...patch }));
+    const add = (kind: string, data: Record<string, unknown>) => call(() => axios.post(base(`${prefix}.items.add`, [kind]), data));
+    const remove = (kind: string, id: number) => call(() => axios.delete(base(`${prefix}.items.remove`, [kind, id])));
+    const sync = (patch: Record<string, number[]>) => call(() => axios.put(base(`${prefix}.sync`), { source_ids: lead!.sources.map((s) => s.id), label_ids: lead!.labels.map((l) => l.id), product_ids: lead!.products.map((p) => p.id), ...patch }));
 
     const toggle = (current: Named[], id: number, on: boolean) => (on ? [...current.map((c) => c.id), id] : current.filter((c) => c.id !== id).map((c) => c.id));
     const mine = (item: Creator) => item.creator_id === me || can.delete;
@@ -112,7 +118,7 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
         if (!file) return;
         const fd = new FormData();
         fd.append('file', file);
-        if (await call(() => axios.post(base('crm.leads.files.upload'), fd, { headers: { Accept: 'application/json' } }))) setFile(null);
+        if (await call(() => axios.post(base(`${prefix}.files.upload`), fd, { headers: { Accept: 'application/json' } }))) setFile(null);
     };
 
     const products = productOptions.filter((p) => !productSearch || `${p.name} ${p.sku}`.toLowerCase().includes(productSearch.toLowerCase())).slice(0, 30);
@@ -121,7 +127,7 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
         <Dialog open={leadId !== null} onOpenChange={(o) => !o && onClose()}>
             <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>{lead ? lead.subject : t('Lead')}</DialogTitle>
+                    <DialogTitle>{lead ? (lead.subject ?? lead.name) : t(entity === 'deal' ? 'Deal' : 'Lead')}</DialogTitle>
                 </DialogHeader>
 
                 {message && <p className="rounded bg-destructive/10 p-2 text-sm text-destructive">{message}</p>}
@@ -138,7 +144,15 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
                                 <div className="grid gap-2 sm:grid-cols-2">
                                     <div><span className="text-muted-foreground">{t('Name')}:</span> {lead.name}</div>
                                     <div><span className="text-muted-foreground">{t('Stage')}:</span> {lead.pipeline.name} / {lead.stage.name}</div>
-                                    <div><span className="text-muted-foreground">{t('Email')}:</span> {lead.email ?? '—'}</div>
+                                    {entity === 'deal' ? (
+                                        <>
+                                            <div><span className="text-muted-foreground">{t('Price')}:</span> {Number(lead.price ?? 0).toLocaleString()}</div>
+                                            <div><span className="text-muted-foreground">{t('Status')}:</span> {t(lead.status ?? 'active')}</div>
+                                            <div className="sm:col-span-2"><span className="text-muted-foreground">{t('Clients')}:</span> {lead.clients?.map((c) => c.name).join(', ') || '—'}</div>
+                                        </>
+                                    ) : (
+                                        <div><span className="text-muted-foreground">{t('Email')}:</span> {lead.email ?? '—'}</div>
+                                    )}
                                     <div><span className="text-muted-foreground">{t('Phone')}:</span> {lead.phone ?? '—'}</div>
                                     <div className="sm:col-span-2"><span className="text-muted-foreground">{t('Assigned to')}:</span> {lead.users.map((u) => u.name).join(', ') || '—'}</div>
                                     {lead.notes && <p className="whitespace-pre-line sm:col-span-2">{lead.notes}</p>}
@@ -207,7 +221,7 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
                                 {lead.tasks.length === 0 && <p className="text-sm text-muted-foreground">{t('No tasks yet.')}</p>}
                                 {lead.tasks.map((x) => (
                                     <div key={x.id} className="flex items-center gap-2 rounded border p-2 text-sm">
-                                        {canDetail.task && <Button size="icon" variant={x.status === 'completed' ? 'default' : 'outline'} className="h-6 w-6" disabled={busy} onClick={() => call(() => axios.post(base('crm.leads.tasks.toggle', [x.id])))}><Check className="h-3.5 w-3.5" /></Button>}
+                                        {canDetail.task && <Button size="icon" variant={x.status === 'completed' ? 'default' : 'outline'} className="h-6 w-6" disabled={busy} onClick={() => call(() => axios.post(base(`${prefix}.tasks.toggle`, [x.id])))}><Check className="h-3.5 w-3.5" /></Button>}
                                         <div className={`flex-1 ${x.status === 'completed' ? 'text-muted-foreground line-through' : ''}`}>{x.name}<div className="text-xs text-muted-foreground">{day(x.due_date)}{x.due_time ? ` ${x.due_time.slice(0, 5)}` : ''} · {t(x.priority)} · {by(x)}</div></div>
                                         {mine(x) && canDetail.task && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove('task', x.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>}
                                     </div>
@@ -295,7 +309,7 @@ export default function LeadDrawer({ leadId, onClose, sourceOptions, labelOption
                                 {lead.files.map((x) => (
                                     <div key={x.id} className="flex items-center gap-2 rounded border p-2 text-sm">
                                         <div className="flex-1">{x.file_name} <span className="text-xs text-muted-foreground">{size(x.file_size)} · {by(x)}</span></div>
-                                        <Button size="icon" variant="ghost" className="h-7 w-7" asChild><a href={base('crm.leads.files.download', [x.id])}><Download className="h-3.5 w-3.5" /></a></Button>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7" asChild><a href={base(`${prefix}.files.download`, [x.id])}><Download className="h-3.5 w-3.5" /></a></Button>
                                         {mine(x) && canDetail.file && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove('file', x.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>}
                                     </div>
                                 ))}

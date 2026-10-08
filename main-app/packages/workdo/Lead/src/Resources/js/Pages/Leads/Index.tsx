@@ -23,8 +23,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Paginated } from '@/types';
 import { DragDropContext, Draggable, Droppable, DropResult } from '@hello-pangea/dnd';
 import { Head, router, useForm } from '@inertiajs/react';
-import { CalendarClock, LayoutGrid, List, Mail, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
+import { ArrowRightLeft, CalendarClock, LayoutGrid, List, Mail, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
+import ConvertDialog from './ConvertDialog';
 import LeadDrawer from './LeadDrawer';
 import { useTranslation } from 'react-i18next';
 
@@ -53,15 +54,16 @@ interface Props {
     sourceOptions: { id: number; name: string }[];
     labelOptions: { id: number; name: string; color: string }[];
     productOptions: { id: number; name: string; sku: string }[];
+    clients: { id: number; name: string }[];
     can_detail: Record<'task' | 'call' | 'email' | 'discussion' | 'file', boolean>;
     filters: { search?: string; stage?: string };
-    can: { create: boolean; edit: boolean; delete: boolean; move: boolean };
+    can: { create: boolean; edit: boolean; delete: boolean; move: boolean; convert: boolean };
 }
 
 const empty = { subject: '', name: '', email: '', phone: '', notes: '', follow_up_date: '', lead_stage_id: '', user_ids: [] as number[], is_active: true };
 const ALL = 'all';
 
-export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, users, sourceOptions, labelOptions, productOptions, can_detail, filters, can }: Props) {
+export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, users, sourceOptions, labelOptions, productOptions, clients, can_detail, filters, can }: Props) {
     const { t } = useTranslation();
     const list = (Array.isArray(leads) ? leads : leads.data) as Lead[];
 
@@ -76,6 +78,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState<Lead | null>(null);
     const [detailId, setDetailId] = useState<number | null>(null);
+    const [converting, setConverting] = useState<Lead | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const form = useForm(empty);
 
@@ -131,6 +134,7 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
 
     const actions = (l: Lead) => (
         <span className="flex shrink-0" onClick={(e) => e.stopPropagation()}>
+            {can.convert && !l.is_converted && <Button size="icon" variant="ghost" className="h-7 w-7" title={t('Convert to deal')} onClick={() => setConverting(l)}><ArrowRightLeft className="h-3.5 w-3.5" /></Button>}
             {can.edit && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => openEdit(l)}><Pencil className="h-3.5 w-3.5" /></Button>}
             {can.delete && <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setDeleting(l)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>}
         </span>
@@ -250,6 +254,8 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
             </div>
 
             <LeadDrawer leadId={detailId} onClose={() => setDetailId(null)} sourceOptions={sourceOptions} labelOptions={labelOptions} productOptions={productOptions} can={{ edit: can.edit, delete: can.delete }} canDetail={can_detail} />
+
+            <ConvertDialog lead={converting} pipelines={pipelines} pipelineId={pipeline.id} clients={clients} onClose={() => setConverting(null)} />
 
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent className="max-h-[90vh] overflow-y-auto">

@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Workdo\Lead\Models\DealStage;
+use Workdo\Lead\Models\Deal;
 use Workdo\Lead\Models\Label;
 use Workdo\Lead\Models\Lead;
 use Workdo\Lead\Models\LeadStage;
@@ -194,14 +195,17 @@ class SetupController extends Controller
         if ($row instanceof LeadStage && Lead::where('lead_stage_id', $row->id)->exists()) {
             return __('This stage still has leads. Move them to another stage first.');
         }
-        if ($row instanceof Pipeline && Lead::where('pipeline_id', $row->id)->exists()) {
-            return __('This pipeline still has leads and cannot be deleted.');
+        if ($row instanceof DealStage && Deal::where('deal_stage_id', $row->id)->exists()) {
+            return __('This stage still has deals. Move them to another stage first.');
+        }
+        if ($row instanceof Pipeline && (Lead::where('pipeline_id', $row->id)->exists() || Deal::where('pipeline_id', $row->id)->exists())) {
+            return __('This pipeline still has leads or deals and cannot be deleted.');
         }
 
-        if ($row instanceof Source && DB::table('lead_sources')->where('source_id', $row->id)->exists()) {
+        if ($row instanceof Source && (DB::table('lead_sources')->where('source_id', $row->id)->exists() || DB::table('deal_sources')->where('source_id', $row->id)->exists())) {
             return __('This source is used by leads and cannot be deleted.');
         }
-        if ($row instanceof Label && DB::table('lead_labels')->where('label_id', $row->id)->exists()) {
+        if ($row instanceof Label && (DB::table('lead_labels')->where('label_id', $row->id)->exists() || DB::table('deal_labels')->where('label_id', $row->id)->exists())) {
             return __('This label is used by leads and cannot be deleted.');
         }
 

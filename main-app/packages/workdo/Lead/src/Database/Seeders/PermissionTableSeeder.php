@@ -45,6 +45,19 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'manage-lead-emails', 'module' => 'leads', 'label' => 'Manage Lead Emails'],
             ['name' => 'manage-lead-discussions', 'module' => 'leads', 'label' => 'Manage Lead Discussions'],
             ['name' => 'manage-lead-files', 'module' => 'leads', 'label' => 'Manage Lead Files'],
+            ['name' => 'convert-leads', 'module' => 'leads', 'label' => 'Convert Leads'],
+            ['name' => 'manage-deals', 'module' => 'deals', 'label' => 'Manage Deals'],
+            ['name' => 'create-deals', 'module' => 'deals', 'label' => 'Create Deals'],
+            ['name' => 'edit-deals', 'module' => 'deals', 'label' => 'Edit Deals'],
+            ['name' => 'delete-deals', 'module' => 'deals', 'label' => 'Delete Deals'],
+            ['name' => 'move-deals', 'module' => 'deals', 'label' => 'Move Deals'],
+            ['name' => 'view-all-deals', 'module' => 'deals', 'label' => 'View All Deals'],
+            ['name' => 'change-deal-status', 'module' => 'deals', 'label' => 'Change Deal Status'],
+            ['name' => 'manage-deal-tasks', 'module' => 'deals', 'label' => 'Manage Deal Tasks'],
+            ['name' => 'manage-deal-calls', 'module' => 'deals', 'label' => 'Manage Deal Calls'],
+            ['name' => 'manage-deal-emails', 'module' => 'deals', 'label' => 'Manage Deal Emails'],
+            ['name' => 'manage-deal-discussions', 'module' => 'deals', 'label' => 'Manage Deal Discussions'],
+            ['name' => 'manage-deal-files', 'module' => 'deals', 'label' => 'Manage Deal Files'],
             // <permissions>
         ];
 
