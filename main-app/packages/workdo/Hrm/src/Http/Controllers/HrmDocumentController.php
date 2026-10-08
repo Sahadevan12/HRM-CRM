@@ -31,10 +31,14 @@ class HrmDocumentController extends Controller
         $done = $employee ? Acknowledgment::where('kind', 'document')->where('employee_id', $employee->id)->pluck('ref_id') : collect();
         $audience = Employee::where('created_by', $tenant)->where('status', 'active')->count();
 
-        $documents = HrmDocument::where('created_by', $tenant)->latest('id')->get()->each(function (HrmDocument $d) use ($done, $manage, $audience) {
+        $documents = HrmDocument::where('created_by', $tenant)->latest('id')->get();
+        // one query for all the acknowledgment counts (HR only)
+        $counts = $manage ? Acknowledgment::where('kind', 'document')->whereIn('ref_id', $documents->pluck('id'))->selectRaw('ref_id, COUNT(*) as c')->groupBy('ref_id')->pluck('c', 'ref_id') : collect();
+
+        $documents->each(function (HrmDocument $d) use ($done, $manage, $audience, $counts) {
             $d->setAttribute('acknowledged', $done->contains($d->id));
             if ($manage && $d->requires_acknowledgment) {
-                $d->setAttribute('ack_count', Acknowledgment::where('kind', 'document')->where('ref_id', $d->id)->count());
+                $d->setAttribute('ack_count', (int) ($counts[$d->id] ?? 0));
                 $d->setAttribute('audience', $audience);
             }
         });

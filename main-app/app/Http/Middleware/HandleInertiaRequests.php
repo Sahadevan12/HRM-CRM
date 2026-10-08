@@ -44,7 +44,8 @@ class HandleInertiaRequests extends Middleware
             ],
             // Guests only get public branding (login page); logged-in users get everything.
             'adminAllSetting' => getAdminAllSetting(publicOnly: !$user),
-            'companyAllSetting' => $user ? getCompanyAllSetting($user->id) : [],
+            // only the settings marked public: secrets (e.g. the CRM web form address) and internal flags must not reach every user's browser
+            'companyAllSetting' => $user ? getCompanyAllSetting($user->id, publicOnly: true) : [],
             'languages' => availableLanguages(),
             'translations' => $this->translations($locale),
         ];

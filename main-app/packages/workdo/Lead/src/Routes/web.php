@@ -7,11 +7,22 @@ use Workdo\Lead\Http\Controllers\LeadDetailController;
 use Workdo\Lead\Http\Controllers\DealController;
 use Workdo\Lead\Http\Controllers\DealDetailController;
 use Workdo\Lead\Http\Controllers\CrmDashboardController;
+use Workdo\Lead\Http\Controllers\AutomationController;
+use Workdo\Lead\Http\Controllers\WebToLeadController;
 // <use-statements>
+
+// The public website form: no login and no CSRF token (the secret in the address and the throttle protect it).
+Route::middleware(['web', 'throttle:30,1'])->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+    Route::post('crm/web-to-lead/{token}', [WebToLeadController::class, 'store'])->name('crm.web-to-lead');
+    Route::options('crm/web-to-lead/{token}', [WebToLeadController::class, 'preflight']);
+});
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(function () {
     Route::prefix('crm/setup')->name('crm.setup.')->group(function () {
         Route::get('/', [SetupController::class, 'index'])->name('index');
+        Route::put('automation', [AutomationController::class, 'update'])->name('automation.update');
+        Route::post('automation/token', [AutomationController::class, 'regenerateToken'])->name('automation.token');
+        Route::delete('automation/token', [AutomationController::class, 'disableToken'])->name('automation.token.disable');
         Route::prefix('{kind}')->where(['kind' => 'pipelines|lead-stages|deal-stages|labels|sources'])->group(function () {
             Route::post('/', [SetupController::class, 'store'])->name('store');
             Route::post('reorder', [SetupController::class, 'reorder'])->name('reorder');

@@ -142,6 +142,10 @@ class DealService
             $this->log($deal, $actorId, 'status', __('Status changed from :from to :to', ['from' => __($from), 'to' => __($status)]));
             DealStatusChanged::dispatch($deal, $from, $status);
 
+            if ($status === 'won') {
+                $this->announceWin($deal, $actorId);
+            }
+
             return $deal;
         });
     }
@@ -149,5 +153,28 @@ class DealService
     public function log(Deal $deal, ?int $actorId, string $type, string $remark): DealActivityLog
     {
         return DealActivityLog::create(['deal_id' => $deal->id, 'user_id' => $actorId, 'type' => $type, 'remark' => mb_substr($remark, 0, 500), 'created_by' => $deal->created_by]);
+    }
+
+    /**
+     * Tell the other modules (core event) that a deal was won. A failing optional automation must never undo the win: the error is reported
+     * and written to the activity trail instead.
+     */
+    private function announceWin(Deal $deal, int $actorId): void
+    {
+        $event = new \App\Events\DealWon(
+            $deal->created_by, $deal->id, $deal->name, $deal->clients()->orderBy('users.id')->value('users.id'),
+            $deal->products()->pluck('products.id')->all(), $actorId,
+        );
+
+        try {
+            event($event);
+        } catch (\Throwable $e) {
+            report($e);
+            $event->note = __('The automatic follow-up of the won deal failed: :error', ['error' => $e->getMessage()]);
+        }
+
+        if ($event->note) {
+            $this->log($deal, $actorId, 'automation', $event->note);
+        }
     }
 }

@@ -3,8 +3,10 @@
 namespace Workdo\SalesPurchase\Providers;
 
 use App\Events\CompanyDeleting;
+use App\Events\DealWon;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Workdo\SalesPurchase\Listeners\DeleteCompanyDocuments;
+use Workdo\SalesPurchase\Listeners\DraftProposalForWonDeal;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -15,5 +17,6 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         CompanyDeleting::class => [DeleteCompanyDocuments::class],
+        DealWon::class => [DraftProposalForWonDeal::class],
     ];
 }

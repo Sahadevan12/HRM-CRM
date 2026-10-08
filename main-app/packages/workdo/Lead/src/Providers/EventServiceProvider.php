@@ -12,6 +12,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        // \App\Events\SomeEvent::class => [\Workdo\Lead\Listeners\SomeListener::class],
+        \App\Events\CollectDashboardWidgets::class => [\Workdo\Lead\Listeners\AddCrmDashboardWidget::class],
     ];
 }

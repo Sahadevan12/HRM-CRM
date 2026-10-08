@@ -293,7 +293,22 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         refuses a company that already has leads or deals unless --force.
       - Bug found by the browser check: the activity logs had no `lead` / `deal` relation (fixed + test).
       - NOT built: the mobile API controllers (the core has no API token login yet) and notification / e-mail templates (no template system in the core).      transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
-- [ ] CRM (C1-C5)
+- [x] Phase 11: Integration I1 - 392 tests (IntegrationTest = 17). Modules talk through CORE events only.
+      - Company dashboard widgets: core event `CollectDashboardWidgets` (App\Events); `DashboardController` collects, the `Dashboard` page renders one generic
+        card per module. HRM and CRM add theirs (`AddHrmDashboardWidget`, `AddCrmDashboardWidget`) only when the module is active for the company AND the user may
+        open that module's dashboard; numbers are the company's own (CRM ones respect lead / deal visibility).
+      - Deal won -> draft proposal: core event `DealWon` (plain data), dispatched by `DealService::setStatus`; the SalesPurchase listener
+        `DraftProposalForWonDeal` makes a DRAFT sales proposal (deal's client, deal's products qty 1 at list price, first warehouse, notes marker
+        "CRM deal #id: name") - OPT-IN per company (CRM Setup > Automation, setting `crmDraftProposalOnWin`). It skips and says why (no client / no
+        products / no warehouse / already drafted); the reason is written into the deal's activity trail. A failing listener never undoes the win.
+      - Web to lead: PUBLIC `POST /crm/web-to-lead/{secret}` (no login, no CSRF, throttle 30/min, CORS open, OPTIONS answered, honeypot field `website_url`).
+        The secret belongs to one company, is shown with a copy-paste HTML snippet in CRM Setup and can be renewed / switched off. Creates a lead in the first
+        stage of the oldest pipeline with source "Website" and a "web" activity entry; needs an e-mail or phone; a company without the module gets 404.
+      - REVIEW of HRM + CRM: every controller method has a permission check (only the two public web-form methods do not, on purpose); every query by id
+        is tenant-scoped (validated ids, `created_by` checks, or children reached through a checked parent). FINDINGS FIXED: (1) SECURITY - `companyAllSetting`
+        shared ALL company settings, including non-public ones (the web form secret, internal flags, POS walk-in id), with every logged-in user of the company
+        (staff, clients): now only public settings are shared; (2) HRM documents list did one count query per document: now one grouped query.
+      - Verified in the browser: dashboard cards, switched the web form on in CRM Setup and posted a lead to the real endpoint.- [ ] CRM (C1-C5)
 - [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)

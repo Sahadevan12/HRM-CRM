@@ -61,6 +61,12 @@ class SetupController extends Controller
             'labels' => $all(Label::class, ['id', 'name', 'color', 'pipeline_id']),
             'sources' => $all(Source::class, ['id', 'name']),
             'tabs' => $visible,
+            'automation' => [
+                'draftProposalOnWin' => (tenantSettings($tenant)[AutomationController::PROPOSAL] ?? '0') === '1',
+                'proposalAvailable' => Module_is_active('SalesPurchase', $tenant),
+                'webToLeadUrl' => ($token = (string) (tenantSettings($tenant)[AutomationController::TOKEN] ?? '')) !== '' ? route('crm.web-to-lead', $token) : null,
+                'canEdit' => $user->can('edit-pipelines'),
+            ],
             'can' => collect(array_keys(self::KINDS))->mapWithKeys(fn ($k) => [$k => [
                 'create' => $user->can("create-{$k}"), 'edit' => $user->can("edit-{$k}"), 'delete' => $user->can("delete-{$k}"),
             ]]),

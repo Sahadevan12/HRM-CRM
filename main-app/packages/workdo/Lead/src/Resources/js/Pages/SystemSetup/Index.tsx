@@ -10,6 +10,7 @@ import {
     AlertDialogTitle,
 } from '@/Components/ui/alert-dialog';
 import { Card, CardContent } from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
@@ -35,12 +36,13 @@ interface Props {
     sources: Named[];
     tabs: Kind[];
     can: Record<Kind, Perm>;
+    automation: { draftProposalOnWin: boolean; proposalAvailable: boolean; webToLeadUrl: string | null; canEdit: boolean };
 }
 
 const TITLES: Record<Kind, string> = { pipelines: 'Pipelines', 'lead-stages': 'Lead Stages', 'deal-stages': 'Deal Stages', labels: 'Labels', sources: 'Sources' };
 const SINGULAR: Record<Kind, string> = { pipelines: 'Pipeline', 'lead-stages': 'Lead Stage', 'deal-stages': 'Deal Stage', labels: 'Label', sources: 'Source' };
 
-export default function SystemSetup({ pipelines, leadStages, dealStages, labels, sources, tabs, can }: Props) {
+export default function SystemSetup({ pipelines, leadStages, dealStages, labels, sources, tabs, can, automation }: Props) {
     const { t } = useTranslation();
     const [kind, setKind] = useState<Kind>(tabs[0]);
     const [pipelineId, setPipelineId] = useState<number>(pipelines[0]?.id ?? 0);
@@ -92,12 +94,53 @@ export default function SystemSetup({ pipelines, leadStages, dealStages, labels,
     };
 
     const isStage = kind === 'lead-stages' || kind === 'deal-stages';
+    const snippet = automation.webToLeadUrl
+        ? `<form id="lead-form">\n  <input name="name" placeholder="Name" required>\n  <input name="email" type="email" placeholder="Email">\n  <input name="phone" placeholder="Phone">\n  <textarea name="message" placeholder="Message"></textarea>\n  <input name="website_url" style="display:none" tabindex="-1" autocomplete="off">\n  <button>Send</button>\n</form>\n<script>\ndocument.getElementById('lead-form').addEventListener('submit', async (e) => {\n  e.preventDefault();\n  const r = await fetch('${automation.webToLeadUrl}', { method: 'POST', headers: { Accept: 'application/json' }, body: new FormData(e.target) });\n  alert(r.ok ? 'Thank you!' : 'Please check the form.');\n});\n</script>`
+        : '';
 
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold">{t('CRM Setup')}</h2>}>
             <Head title={t('CRM Setup')} />
 
             <div className="mx-auto max-w-4xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
+                <Card>
+                    <CardContent className="space-y-4 p-4 text-sm">
+                        <div className="font-semibold">{t('Automation')}</div>
+                        <label className="flex items-start gap-2">
+                            <Checkbox
+                                checked={automation.draftProposalOnWin}
+                                disabled={!automation.canEdit || !automation.proposalAvailable}
+                                onCheckedChange={(v) => router.put(route('crm.setup.automation.update'), { draft_proposal_on_win: v === true }, { preserveScroll: true })}
+                            />
+                            <span>
+                                {t('When a deal is won, draft a sales proposal for its client')}
+                                <span className="block text-xs text-muted-foreground">
+                                    {automation.proposalAvailable ? t('Needs a client and products on the deal. Only a draft is created, nothing is sent.') : t('Needs the Sales module.')}
+                                </span>
+                            </span>
+                        </label>
+
+                        <div className="space-y-2 border-t pt-3">
+                            <div className="font-medium">{t('Website form (web to lead)')}</div>
+                            {automation.webToLeadUrl ? (
+                                <>
+                                    <p className="text-xs text-muted-foreground">{t('Post a form to this secret address and a lead is created in your first pipeline.')}</p>
+                                    <Input readOnly value={automation.webToLeadUrl} onFocus={(e) => e.target.select()} />
+                                    <textarea readOnly rows={8} value={snippet} onFocus={(e) => e.target.select()} className="w-full rounded-md border bg-muted/30 p-2 font-mono text-xs" />
+                                </>
+                            ) : (
+                                <p className="text-xs text-muted-foreground">{t('The form is switched off.')}</p>
+                            )}
+                            {automation.canEdit && (
+                                <div className="flex gap-2">
+                                    <Button size="sm" variant="outline" onClick={() => router.post(route('crm.setup.automation.token'), {}, { preserveScroll: true })}>{automation.webToLeadUrl ? t('Renew address') : t('Switch on')}</Button>
+                                    {automation.webToLeadUrl && <Button size="sm" variant="outline" onClick={() => router.delete(route('crm.setup.automation.token.disable'), { preserveScroll: true })}>{t('Switch off')}</Button>}
+                                </div>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <div className="flex flex-wrap gap-2">
                     {tabs.map((k) => <Button key={k} variant={k === kind ? 'default' : 'outline'} size="sm" onClick={() => setKind(k)}>{t(TITLES[k])}</Button>)}
                 </div>
