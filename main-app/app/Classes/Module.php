@@ -3,8 +3,11 @@
 namespace App\Classes;
 
 use App\Models\AddOn;
+use App\Models\Plan;
+use App\Models\UserActiveModule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Spatie\Permission\Models\Permission;
 
 /**
  * Registry of add-on modules (packages/workdo/*).
@@ -60,7 +63,31 @@ class Module
             $addon->save();
         }
 
+        $this->prune();
         $this->forgetCache();
+    }
+
+    /**
+     * A module folder that was deleted from packages/workdo is UNINSTALLED: its add-on row, the companies' grants, the entry in every plan and its
+     * permissions go too, so no plan keeps offering something that no longer exists. (The module's own tables stay: dropping data is a decision for
+     * a person, not for a sync.)
+     */
+    public function prune(): void
+    {
+        $installed = $this->installed();
+
+        AddOn::whereNotIn('module', $installed)->delete();
+        UserActiveModule::whereNotIn('module', $installed)->delete();
+
+        foreach (Plan::whereNotNull('modules')->get() as $plan) {
+            $kept = array_values(array_intersect((array) $plan->modules, $installed));
+            if ($kept !== array_values((array) $plan->modules)) {
+                $plan->update(['modules' => $kept]);
+            }
+        }
+
+        // delete one by one: that also removes the role / user links of the permission
+        Permission::whereNotNull('add_on')->whereNotIn('add_on', $installed)->get()->each->delete();
     }
 
     /** Modules enabled platform-wide (and still present on disk), by priority. */

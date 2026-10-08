@@ -86,6 +86,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | First super admin (read by the database seeder)
+    |--------------------------------------------------------------------------
+    | Only used when the account does not exist yet. In production a missing SEED_PASSWORD means: generate a random one and print it once.
+    | Kept in config so it still works with `php artisan config:cache`.
+    */
+    'seed_admin_email' => env('SEED_ADMIN_EMAIL'),
+    'seed_password' => env('SEED_PASSWORD'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |

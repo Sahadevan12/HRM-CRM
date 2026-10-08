@@ -18,7 +18,7 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       (`Hello/Hello/Index` -> `packages/workdo/Hello/src/Resources/js/Pages/Hello/Index.tsx`)
 - [x] `resources/views/app.blade.php` only preloads core page chunks (module pages load via app.tsx)
 - [x] `tailwind.config.js` scans `packages/workdo/**`
-- [x] Smoke-test module `packages/workdo/Hello` (route `/hello-module`) renders -> engine verified. Delete after Phase 4 generator.
+- [x] Smoke-test module `Hello` rendered -> engine verified. (REMOVED in Phase 12.)
 
 - [x] Phase 0b: shadcn/ui (v2.3 for Tailwind 3) components in `resources/js/Components/ui`, `lib/utils.ts` (cn),
       CSS variables + Tailwind theme, lucide, sonner toasts (shown from `flash` in AuthenticatedLayout),
@@ -80,7 +80,7 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - After generating: `php artisan migrate && php artisan package:sync && php artisan package:seed <Module>`, add module to a plan, `npm run build`
       - Code: `App\Services\PackageGenerator`, stubs in `stubs/package/*.stub` (tokens look like %%Entity%%)
       - Sample modules: `Hello` (engine smoke test) and `Notes` (generated; Note fields above + Notebook defaults).
-        `NotesSampleModuleTest` guards generator output (tenant isolation, validation, plan gating, events). Delete Notes + that test before shipping.
+        `NotesSampleModuleTest` guarded generator output. (Both samples and that test were REMOVED in Phase 12; `PackageGeneratorTest` still covers the generator.)
       - Tests: `PackageGeneratorTest` (21: files, lint, markers, invalid names/fields, no overwrite)
 
 - [x] Phase 3.5: Companies page (superadmin): list/search, create (free plan), edit, assign plan (month/year/trial/lifetime),
@@ -309,7 +309,16 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         shared ALL company settings, including non-public ones (the web form secret, internal flags, POS walk-in id), with every logged-in user of the company
         (staff, clients): now only public settings are shared; (2) HRM documents list did one count query per document: now one grouped query.
       - Verified in the browser: dashboard cards, switched the web form on in CRM Setup and posted a lead to the real endpoint.- [ ] CRM (C1-C5)
-- [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
+- [x] Phase 12: pre-production cleanup - 392 tests
+      - REMOVED the sample modules `Hello` and `Notes` (+ `NotesSampleModuleTest`; `SaasTest` now uses `Hrm` for the module-gating checks).
+        `Module::sync()` now PRUNES: a module folder that is gone is uninstalled - its add-on row, every company's grant, its entry in every plan and
+        its permissions are removed (its tables are kept: dropping data is a person's decision). Test: `ModulePruneTest`.
+      - Passwords: the seeder (`PermissionRoleSeeder::seedAccounts`) keeps `password` ONLY for local / testing. In production it creates ONLY the super admin,
+        with `SEED_PASSWORD` (config `app.seed_password`, so it survives `config:cache`) or a random password printed ONCE; `SEED_ADMIN_EMAIL` sets the e-mail;
+        no demo company; re-seeding never resets a password. Test: `SeededAccountsTest`.
+      - `.env.example` rewritten (MySQL, production checklist, SEED_*), root `README.md` (install, modules, tests, production checklist incl. the scheduler
+        for `hrm:apply-lifecycle`, private uploads, commands, tenancy), `main-app/README.md` points to it.
+      - The repository on GitHub may be public: the only default credential left in it is the LOCAL demo password.- [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 

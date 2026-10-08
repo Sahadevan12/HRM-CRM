@@ -107,20 +107,21 @@ class SaasTest extends TestCase
     public function test_module_route_needs_platform_flag_and_plan_grant(): void
     {
         $free = $this->company('f@test.com', $this->free);
-        $this->actingAs($free)->get('/hello-module')->assertRedirect(route('dashboard'));
-        $this->assertFalse(Module_is_active('Hello', $free->id));
+        $this->actingAs($free)->get('/hrm/settings')->assertRedirect(route('dashboard'));
+        $this->assertFalse(Module_is_active('Hrm', $free->id));
 
         $pro = $this->company('p@test.com', $this->pro);
-        $this->actingAs($pro)->get('/hello-module')->assertOk();
-        $this->assertTrue(Module_is_active('Hello', $pro->id));
+        $this->actingAs($pro)->get('/hrm/settings')->assertOk();
+        $this->assertTrue(Module_is_active('Hrm', $pro->id));
+        $this->assertTrue(Module_is_active('Hrm', $this->admin->id));
 
-        // switched off platform-wide => nobody (except nothing) gets it, even with the plan
-        (new Module())->setEnabled('Hello', false);
-        $this->actingAs($pro)->get('/hello-module')->assertRedirect(route('dashboard'));
-        $this->actingAs($this->admin)->get('/hello-module')->assertRedirect(route('dashboard'));
+        // switched off platform-wide => nobody gets it, not even with the plan, not even the super admin
+        (new Module())->setEnabled('Hrm', false);
+        $this->actingAs($pro)->get('/hrm/settings')->assertRedirect(route('dashboard'));
+        $this->assertFalse(Module_is_active('Hrm', $this->admin->id));
 
-        (new Module())->setEnabled('Hello', true);
-        $this->actingAs($this->admin)->get('/hello-module')->assertOk();
+        (new Module())->setEnabled('Hrm', true);
+        $this->assertTrue(Module_is_active('Hrm', $this->admin->id));
     }
 
     public function test_activated_packages_are_shared_with_the_frontend(): void
@@ -129,7 +130,7 @@ class SaasTest extends TestCase
 
         // whatever modules are installed, a Pro company gets exactly the ones its plan lists
         $expected = array_values(array_unique(array_merge(PlanService::ALWAYS_ACTIVE, array_intersect((new Module())->allEnabled(), $this->pro->modules))));
-        $this->assertContains('Hello', $expected);
+        $this->assertContains('Hrm', $expected);
 
         $this->actingAs($pro)->get('/dashboard')
             ->assertInertia(fn ($page) => $page->where('auth.user.activatedPackages', $expected));
@@ -150,13 +151,13 @@ class SaasTest extends TestCase
         $this->assertSame($this->pro->id, (int) $company->active_plan);
         $this->assertSame(25, $company->total_user);
         $this->assertSame(now()->addYear()->toDateString(), $company->plan_expire_date->toDateString());
-        $this->assertDatabaseHas('user_active_modules', ['user_id' => $company->id, 'module' => 'Hello']);
+        $this->assertDatabaseHas('user_active_modules', ['user_id' => $company->id, 'module' => 'Hrm']);
 
         app(PlanService::class)->assign($company, $this->free);
         $company->refresh();
         $this->assertNull($company->plan_expire_date);
         $this->assertSame(3, $company->total_user);
-        $this->assertDatabaseMissing('user_active_modules', ['user_id' => $company->id, 'module' => 'Hello']);
+        $this->assertDatabaseMissing('user_active_modules', ['user_id' => $company->id, 'module' => 'Hrm']);
     }
 
     public function test_new_registrations_start_on_the_free_plan(): void
@@ -346,19 +347,19 @@ class SaasTest extends TestCase
         $this->actingAs($company)->get('/coupons')->assertRedirect(route('dashboard'));
         $this->actingAs($company)->get('/add-ons')->assertRedirect(route('dashboard'));
         $this->actingAs($company)->get('/bank-transfers')->assertRedirect(route('dashboard'));
-        $this->actingAs($company)->post('/add-ons/Hello/toggle', ['is_enable' => false])->assertSessionHas('error');
+        $this->actingAs($company)->post('/add-ons/Hrm/toggle', ['is_enable' => false])->assertSessionHas('error');
 
-        $this->assertTrue(AddOn::where('module', 'Hello')->value('is_enable'));
+        $this->assertTrue(AddOn::where('module', 'Hrm')->value('is_enable'));
         $this->assertFalse($company->can('create-plans'));
     }
 
     public function test_superadmin_manages_plans_and_modules_are_validated(): void
     {
         $this->actingAs($this->admin)->post('/plans', [
-            'name' => 'Team', 'monthly_price' => 10, 'yearly_price' => 100, 'max_users' => 10, 'modules' => ['Hello'],
+            'name' => 'Team', 'monthly_price' => 10, 'yearly_price' => 100, 'max_users' => 10, 'modules' => ['Hrm'],
         ])->assertSessionHas('success');
         $team = Plan::where('name', 'Team')->firstOrFail();
-        $this->assertSame(['Hello'], $team->modules);
+        $this->assertSame(['Hrm'], $team->modules);
 
         $this->actingAs($this->admin)->post('/plans', [
             'name' => 'Bad', 'monthly_price' => 10, 'yearly_price' => 100, 'max_users' => 10, 'modules' => ['NotAModule'],
@@ -393,11 +394,11 @@ class SaasTest extends TestCase
 
     public function test_superadmin_can_toggle_an_add_on(): void
     {
-        $this->actingAs($this->admin)->post('/add-ons/Hello/toggle', ['is_enable' => false])->assertSessionHas('success');
-        $this->assertFalse((new Module())->isEnabled('Hello'));
+        $this->actingAs($this->admin)->post('/add-ons/Hrm/toggle', ['is_enable' => false])->assertSessionHas('success');
+        $this->assertFalse((new Module())->isEnabled('Hrm'));
 
-        $this->actingAs($this->admin)->post('/add-ons/Hello/toggle', ['is_enable' => true])->assertSessionHas('success');
-        $this->assertTrue((new Module())->isEnabled('Hello'));
+        $this->actingAs($this->admin)->post('/add-ons/Hrm/toggle', ['is_enable' => true])->assertSessionHas('success');
+        $this->assertTrue((new Module())->isEnabled('Hrm'));
 
         $this->actingAs($this->admin)->post('/add-ons/Ghost/toggle', ['is_enable' => true])->assertSessionHas('error');
     }
@@ -431,10 +432,10 @@ class SaasTest extends TestCase
         (new Module())->forgetCache();
 
         $this->artisan('package:sync')->assertSuccessful();
-        $this->assertDatabaseHas('add_ons', ['module' => 'Hello', 'is_enable' => true]);
+        $this->assertDatabaseHas('add_ons', ['module' => 'Hrm', 'is_enable' => true]);
 
-        (new Module())->setEnabled('Hello', false);
+        (new Module())->setEnabled('Hrm', false);
         $this->artisan('package:sync')->assertSuccessful();
-        $this->assertDatabaseHas('add_ons', ['module' => 'Hello', 'is_enable' => false]);
+        $this->assertDatabaseHas('add_ons', ['module' => 'Hrm', 'is_enable' => false]);
     }
 }

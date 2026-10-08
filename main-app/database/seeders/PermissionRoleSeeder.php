@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -91,12 +92,32 @@ class PermissionRoleSeeder extends Seeder
         Role::findByName('company')->revokePermissionTo(self::ADMIN_ONLY);
         Role::findByName('staff')->givePermissionTo('manage-dashboard');
 
-        // Default accounts (DEV ONLY – change before production)
+        $this->seedAccounts();
+    }
+
+    /**
+     * The first logins.
+     *  - local / testing:  superadmin@example.com and a demo company, both with the password "password" (a convenience, never a secret)
+     *  - production:       ONLY the super admin; the password is SEED_PASSWORD from .env, or a random one that is printed ONCE
+     *                      (and the e-mail can be set with SEED_ADMIN_EMAIL). There is no demo company.
+     * Accounts that already exist are left alone, so re-running the seeder never resets a password.
+     */
+    private function seedAccounts(): void
+    {
+        $production = app()->environment('production');
+        $generated = false;
+
+        $password = config('app.seed_password');
+        if (!$password) {
+            $password = $production ? Str::password(20, symbols: false) : 'password';
+            $generated = $production;
+        }
+
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@example.com'],
+            ['email' => config('app.seed_admin_email') ?: 'superadmin@example.com'],
             [
                 'name' => 'Super Admin',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
                 'type' => 'superadmin',
                 'total_user' => -1,
@@ -104,11 +125,19 @@ class PermissionRoleSeeder extends Seeder
         );
         $superAdmin->syncRoles(['superadmin']);
 
+        if ($production) {
+            if ($superAdmin->wasRecentlyCreated && $generated) {
+                $this->command?->warn("Super admin created: {$superAdmin->email} / {$password}  (shown once - change it after the first login)");
+            }
+
+            return;
+        }
+
         $company = User::firstOrCreate(
             ['email' => 'company@example.com'],
             [
                 'name' => 'Demo Company',
-                'password' => Hash::make('password'),
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
                 'type' => 'company',
                 'total_user' => 10,
