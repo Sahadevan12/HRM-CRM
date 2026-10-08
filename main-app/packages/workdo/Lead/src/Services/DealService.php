@@ -137,7 +137,8 @@ class DealService
                 throw new LeadException(__('The deal is already :status.', ['status' => __($status)]));
             }
 
-            $deal->update(['status' => $status]);
+            // won / lost remember when it was decided, reopening clears it
+            $deal->update(['status' => $status, 'closed_at' => $status === 'active' ? null : now()]);
             $this->log($deal, $actorId, 'status', __('Status changed from :from to :to', ['from' => __($from), 'to' => __($status)]));
             DealStatusChanged::dispatch($deal, $from, $status);
 

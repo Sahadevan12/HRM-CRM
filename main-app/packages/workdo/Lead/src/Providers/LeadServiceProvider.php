@@ -3,6 +3,7 @@
 namespace Workdo\Lead\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Workdo\Lead\Console\Commands\CrmDemo;
 
 class LeadServiceProvider extends ServiceProvider
 {
@@ -16,6 +17,10 @@ class LeadServiceProvider extends ServiceProvider
         $migrationsPath = __DIR__ . '/../Database/Migrations';
         if (is_dir($migrationsPath)) {
             $this->loadMigrationsFrom($migrationsPath);
+        }
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([CrmDemo::class]);
         }
     }
 

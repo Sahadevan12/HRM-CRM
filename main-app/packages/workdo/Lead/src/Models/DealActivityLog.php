@@ -14,4 +14,9 @@ class DealActivityLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function deal(): BelongsTo
+    {
+        return $this->belongsTo(Deal::class);
+    }
 }

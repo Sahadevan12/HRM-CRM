@@ -14,4 +14,9 @@ class LeadActivityLog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(Lead::class);
+    }
 }

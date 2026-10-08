@@ -282,7 +282,17 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         The lead is marked converted (frozen on the board, cannot be converted twice); deleting the deal frees it again. Event `LeadConverted`.
       - Setup guards extended: deal stages / pipelines / sources / labels used by deals cannot be deleted.
       - Verified in the browser: converted the demo lead, marked the deal Won, opened the deal drawer, the lead shows "Converted".      overtime, payroll batch + payslip + PaySalary event -> Account), H6 lifecycle (awards, promotions, resignations, terminations, warnings, complaints,
-      transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
+- [x] Phase 10e: CRM C5 (dashboard, reports, demo data) - 375 tests (CrmReportsTest = 11). CRM module (C1-C5) is COMPLETE except the items below.
+      - `deals.closed_at` (set when a deal becomes won / lost, cleared on reopen): won / lost value is reported in the month it was DECIDED.
+      - `CrmReportService`: lead report (by stage / source / user / month, conversion rate; counted by creation date), deal report (won / lost count + value,
+        win rate, open pipeline per stage = snapshot of today, won by user, won / lost per month). Everything is limited to the company AND to what the user may
+        see (owner / `view-all-*` see all, other staff only their own leads and deals). Period is sanitised (bad dates -> this year, swapped, max 5 years).
+      - Pages: `crm/dashboard` (KPIs of this month, charts, tasks due / overdue, latest activity; permission view-crm-dashboard) and `crm/reports` (pipeline +
+        period filter, tables and recharts; permission view-crm-reports).
+      - `php artisan crm:demo <company e-mail> [--force]`: 12 leads over all stages, sources, labels, tasks and 8 deals (open / won / lost over six months);
+        refuses a company that already has leads or deals unless --force.
+      - Bug found by the browser check: the activity logs had no `lead` / `deal` relation (fixed + test).
+      - NOT built: the mobile API controllers (the core has no API token login yet) and notification / e-mail templates (no template system in the core).      transfers), H7 announcements/events/HR documents/dashboard. See ERPGO_HRM_CRM_MASTER_PROMPTS.md for the spec.
 - [ ] CRM (C1-C5)
 - [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
 - [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists

@@ -6,6 +6,7 @@ use Workdo\Lead\Http\Controllers\LeadController;
 use Workdo\Lead\Http\Controllers\LeadDetailController;
 use Workdo\Lead\Http\Controllers\DealController;
 use Workdo\Lead\Http\Controllers\DealDetailController;
+use Workdo\Lead\Http\Controllers\CrmDashboardController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(function () {
@@ -27,6 +28,8 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(fu
         Route::post('files', [LeadDetailController::class, 'upload'])->name('files.upload');
         Route::get('files/{file}', [LeadDetailController::class, 'download'])->whereNumber('file')->name('files.download');
     });
+    Route::get('crm/dashboard', [CrmDashboardController::class, 'dashboard'])->name('crm.dashboard');
+    Route::get('crm/reports', [CrmDashboardController::class, 'reports'])->name('crm.reports');
     Route::post('crm/leads/{lead}/convert', [LeadController::class, 'convert'])->whereNumber('lead')->name('crm.leads.convert');
 
     Route::prefix('crm/deals/{deal}')->name('crm.deals.')->whereNumber('deal')->group(function () {

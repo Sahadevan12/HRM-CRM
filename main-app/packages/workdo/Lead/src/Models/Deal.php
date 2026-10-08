@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Deal extends Model
 {
     protected $fillable = [
-        'name', 'price', 'phone', 'notes', 'pipeline_id', 'deal_stage_id', 'order', 'status', 'is_active', 'lead_id', 'creator_id', 'created_by',
+        'name', 'price', 'phone', 'notes', 'pipeline_id', 'deal_stage_id', 'order', 'status', 'closed_at', 'is_active', 'lead_id', 'creator_id', 'created_by',
     ];
 
     protected function casts(): array
     {
-        return ['price' => 'float', 'is_active' => 'boolean'];
+        return ['price' => 'float', 'is_active' => 'boolean', 'closed_at' => 'datetime'];
     }
 
     public function pipeline(): BelongsTo

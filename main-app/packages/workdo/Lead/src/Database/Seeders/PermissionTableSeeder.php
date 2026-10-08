@@ -58,6 +58,8 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'manage-deal-emails', 'module' => 'deals', 'label' => 'Manage Deal Emails'],
             ['name' => 'manage-deal-discussions', 'module' => 'deals', 'label' => 'Manage Deal Discussions'],
             ['name' => 'manage-deal-files', 'module' => 'deals', 'label' => 'Manage Deal Files'],
+            ['name' => 'view-crm-dashboard', 'module' => 'crm-reports', 'label' => 'View CRM Dashboard'],
+            ['name' => 'view-crm-reports', 'module' => 'crm-reports', 'label' => 'View CRM Reports'],
             // <permissions>
         ];
 
