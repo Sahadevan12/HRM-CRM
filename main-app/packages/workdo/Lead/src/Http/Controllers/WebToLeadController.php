@@ -61,6 +61,11 @@ class WebToLeadController extends Controller
         $lead->sources()->attach($source->id);
         $this->leads->log($lead, null, 'web', __('Lead received from the website form'));
 
+        $owner = \App\Models\User::find($tenant);
+        app(\App\Services\MailTemplates::class)->send('crm_web_lead_received', $tenant, $owner, [
+            'name' => $owner?->name, 'contact' => $data['name'], 'email' => $data['email'] ?? '-', 'phone' => $data['phone'] ?? '-', 'message' => $data['message'] ?? '',
+        ]);
+
         return $this->reply(['ok' => true]);
     }
 

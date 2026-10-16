@@ -10,7 +10,7 @@ The app lives in [`main-app/`](main-app). `PROGRESS.md` is the detailed build lo
 
 | Module | What it does |
 |---|---|
-| **Core** | Companies, plans & coupons, orders / bank transfers, users, roles & permissions, settings (brand, currency), languages (en / ta), add-on switches, dashboard |
+| **Core** | Companies, plans & coupons, orders / bank transfers, users, roles & permissions, settings (brand, currency), languages (en / ta), add-on switches, dashboard, **e-mail templates** (modules register the e-mails they send; each company can reword or switch them off) |
 | **ProductService** | Products & services, categories, units, taxes, warehouses, stock, stock transfers |
 | **SalesPurchase** | Sales proposals, sales & purchase invoices, returns (one `documents` engine) |
 | **Account** | Chart of accounts, journal, customer / vendor payments, reports; books every posted document automatically |
@@ -88,5 +88,5 @@ Roles: `superadmin` > `company` > `staff` / `client` / `vendor`. Permissions are
 
 ## Not built (by design or not yet)
 
-Mobile API (there is no token login yet), e-mail / notification templates, online payment gateways (bank transfer only),
+Mobile API (there is no token login yet), online payment gateways (bank transfer only),
 staff self-service resignation, booking a loan's disbursement in the ledger. See `PROGRESS.md` for every known limit.

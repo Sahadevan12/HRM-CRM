@@ -12,7 +12,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // one registry per request: the modules are asked for their templates only once
+        $this->app->singleton(\App\Services\MailTemplates::class);
     }
 
     /**

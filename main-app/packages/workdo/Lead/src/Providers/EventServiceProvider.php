@@ -13,5 +13,6 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         \App\Events\CollectDashboardWidgets::class => [\Workdo\Lead\Listeners\AddCrmDashboardWidget::class],
+        \App\Events\CollectMailTemplates::class => [\Workdo\Lead\Listeners\RegisterCrmMailTemplates::class],
     ];
 }

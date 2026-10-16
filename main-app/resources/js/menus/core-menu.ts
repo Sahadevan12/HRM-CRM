@@ -1,5 +1,5 @@
 import { NavItem } from '@/types';
-import { Banknote, Building2, KeyRound, LayoutDashboard, Package, Puzzle, Receipt, Settings, Ticket, Users } from 'lucide-react';
+import { Banknote, Building2, KeyRound, LayoutDashboard, Mail, Package, Puzzle, Receipt, Settings, Ticket, Users } from 'lucide-react';
 
 /** Core (always available) sidebar items. Titles go through t() so they are translatable. */
 export const coreMenu = (t: (key: string) => string): NavItem[] => [
@@ -66,6 +66,13 @@ export const coreMenu = (t: (key: string) => string): NavItem[] => [
         icon: Puzzle,
         permission: 'manage-add-ons',
         order: 340,
+    },
+    {
+        title: t('Email Templates'),
+        href: route('email-templates.index'),
+        icon: Mail,
+        permission: 'manage-email-templates',
+        order: 910,
     },
     {
         title: t('Settings'),

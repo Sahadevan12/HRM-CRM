@@ -44,6 +44,12 @@ Route::middleware(['auth', 'verified', 'PlanModuleCheck'])->group(function () {
     Route::post('settings/currency', [SettingController::class, 'updateCurrency'])->name('settings.currency.update');
     Route::post('settings/payment', [SettingController::class, 'updatePayment'])->name('settings.payment.update');
 
+    // E-mail templates (what the modules send in the company's name)
+    Route::get('email-templates', [\App\Http\Controllers\EmailTemplateController::class, 'index'])->name('email-templates.index');
+    Route::put('email-templates/{key}', [\App\Http\Controllers\EmailTemplateController::class, 'update'])->name('email-templates.update');
+    Route::delete('email-templates/{key}', [\App\Http\Controllers\EmailTemplateController::class, 'reset'])->name('email-templates.reset');
+    Route::post('email-templates/{key}/test', [\App\Http\Controllers\EmailTemplateController::class, 'test'])->name('email-templates.test');
+
     // Plans / subscriptions
     Route::get('plans', [PlanController::class, 'index'])->name('plans.index');
     Route::post('plans', [PlanController::class, 'store'])->name('plans.store');

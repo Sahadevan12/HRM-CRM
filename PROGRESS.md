@@ -319,7 +319,17 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
       - `.env.example` rewritten (MySQL, production checklist, SEED_*), root `README.md` (install, modules, tests, production checklist incl. the scheduler
         for `hrm:apply-lifecycle`, private uploads, commands, tenancy), `main-app/README.md` points to it.
       - The repository on GitHub may be public: the only default credential left in it is the LOCAL demo password.- [ ] (old) Phase 7: Account module (chart of accounts, journal via events: PostSalesInvoice etc.), then POS, HRM (H1-H7), CRM (C1-C5)
-- [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
+- [x] Phase 13: e-mail templates + notifications - 408 tests (MailTemplatesTest = 16)
+      - Core: `CollectMailTemplates` event (modules register templates as plain data), `MailTemplates` service (definitions, per-company overrides in
+        `email_template_overrides`, render, send), `TemplatedMail`, page `EmailTemplates/Index` (menu "Email Templates", permission `manage-email-templates`):
+        edit subject / body with click-to-insert placeholders, switch a template off, "send a test to me", "back to default", live preview with sample data.
+        Saving refuses `{{placeholders}}` the template cannot fill.
+      - SAFETY: the body is plain text, HTML-escaped first, values escaped too (a lead called `<script>` stays text); subject = one line (no header injection);
+        `send()` never throws and `sendAfterCommit()` waits for the database transaction, so a mail problem never undoes a leave decision / payroll / lead move.
+      - HRM templates: `hrm_leave_status` (employee, on approve / reject), `hrm_payslip_ready` (every employee when a payroll is approved; no amount in the mail).
+        CRM templates: `crm_lead_assigned`, `crm_lead_moved`, `crm_deal_won` (to the OTHER people working on it, never to the person who did it),
+        `crm_web_lead_received` (to the company owner). Mail transport is whatever `MAIL_*` says (`log` locally = written to storage/logs).
+      - Verified in the browser: page, preview, test mail reached the log.- [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
 - [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 
 ## Gotchas learned

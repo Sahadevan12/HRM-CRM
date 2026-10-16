@@ -89,6 +89,12 @@ class PayrollService
 
             $payroll->update(['status' => 'approved', 'approved_by' => $approverId, 'approved_at' => now()]);
 
+            // every employee hears that the payslip can be read (the amount stays inside the app)
+            $mails = app(\App\Services\MailTemplates::class);
+            foreach ($payroll->payslips()->with('employee.user')->get() as $slip) {
+                $mails->sendAfterCommit('hrm_payslip_ready', $payroll->created_by, $slip->employee->user, ['name' => $slip->employee->user->name, 'month' => $payroll->month]);
+            }
+
             return $payroll;
         });
     }

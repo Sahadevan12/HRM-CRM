@@ -24,6 +24,7 @@ class PermissionRoleSeeder extends Seeder
 
         ['name' => 'manage-settings', 'module' => 'settings', 'label' => 'Manage Settings'],
         ['name' => 'edit-settings', 'module' => 'settings', 'label' => 'Edit Settings'],
+        ['name' => 'manage-email-templates', 'module' => 'settings', 'label' => 'Manage E-mail Templates'],
 
         ['name' => 'manage-plans', 'module' => 'plans', 'label' => 'Manage Plans'],
         ['name' => 'create-plans', 'module' => 'plans', 'label' => 'Create Plans'],

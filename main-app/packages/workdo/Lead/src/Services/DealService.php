@@ -144,6 +144,13 @@ class DealService
 
             if ($status === 'won') {
                 $this->announceWin($deal, $actorId);
+
+                $by = (string) User::whereKey($actorId)->value('name');
+                foreach ($deal->users()->get() as $user) {
+                    if ($user->id !== $actorId) {
+                        app(\App\Services\MailTemplates::class)->sendAfterCommit('crm_deal_won', $deal->created_by, $user, ['name' => $user->name, 'deal' => $deal->name, 'price' => number_format((float) $deal->price, 2), 'by' => $by]);
+                    }
+                }
             }
 
             return $deal;

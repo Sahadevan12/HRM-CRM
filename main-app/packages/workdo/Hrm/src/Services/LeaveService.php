@@ -56,6 +56,7 @@ class LeaveService
             $this->assertBalance($leave->employee, $leave->type, $leave->total_days, (int) $leave->start_date->format('Y'), $leave->id);
 
             $leave->update(['status' => 'approved', 'approver_comment' => $comment, 'approved_by' => $approverId, 'approved_at' => now()]);
+            $this->tell($leave);
 
             return $leave;
         });
@@ -65,6 +66,7 @@ class LeaveService
     {
         $this->assertPending($leave);
         $leave->update(['status' => 'rejected', 'approver_comment' => $comment, 'approved_by' => $approverId, 'approved_at' => now()]);
+        $this->tell($leave);
 
         return $leave;
     }
@@ -89,6 +91,17 @@ class LeaveService
                 'remaining' => $type->days_per_year > 0 ? round($type->days_per_year - $used - $pending, 1) : null,
             ];
         })->all();
+    }
+
+    /** The employee hears about the decision (after the database change is saved; a mail problem never undoes it). */
+    private function tell(LeaveApplication $leave): void
+    {
+        $leave->loadMissing('employee.user', 'type');
+
+        app(\App\Services\MailTemplates::class)->sendAfterCommit('hrm_leave_status', $leave->created_by, $leave->employee->user, [
+            'name' => $leave->employee->user->name, 'leave_type' => $leave->type->name, 'from' => $leave->start_date->toDateString(), 'to' => $leave->end_date->toDateString(),
+            'days' => rtrim(rtrim(number_format($leave->total_days, 1), '0'), '.'), 'status' => __($leave->status), 'comment' => $leave->approver_comment ?? '',
+        ]);
     }
 
     private function assertPending(LeaveApplication $leave): void

@@ -13,5 +13,6 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         \App\Events\CollectDashboardWidgets::class => [\Workdo\Hrm\Listeners\AddHrmDashboardWidget::class],
+        \App\Events\CollectMailTemplates::class => [\Workdo\Hrm\Listeners\RegisterHrmMailTemplates::class],
     ];
 }

@@ -55,6 +55,7 @@ class LeadService
             $lead->update($data);
 
             $changes = $lead->users()->sync($userIds);
+            $this->notifyAssigned($lead, $changes['attached'], $actorId);
             if ($changes['attached'] || $changes['detached']) {
                 $names = User::whereIn('id', $userIds)->orderBy('name')->pluck('name')->implode(', ');
                 $this->log($lead, $actorId, 'assigned', $names !== '' ? __('Assigned to :names', ['names' => $names]) : __('Everybody was unassigned'));
@@ -104,10 +105,32 @@ class LeadService
 
             if ($from->id !== $stage->id) {
                 $this->log($lead, $actorId, 'moved', __('Moved from :from to :to', ['from' => $from->name, 'to' => $stage->name]));
+                $this->notify('crm_lead_moved', $lead, $lead->users()->get(), $actorId, ['from' => $from->name, 'to' => $stage->name]);
             }
 
             return $lead->refresh();
         });
+    }
+
+    /** The people who are newly assigned hear about it (not the one who did it). */
+    private function notifyAssigned(Lead $lead, array $attachedIds, int $actorId): void
+    {
+        if ($attachedIds) {
+            $this->notify('crm_lead_assigned', $lead, User::whereIn('id', $attachedIds)->get(), $actorId);
+        }
+    }
+
+    /** One e-mail per recipient (so {{name}} is personal), never to the person who caused it. */
+    private function notify(string $key, Lead $lead, $recipients, int $actorId, array $extra = []): void
+    {
+        $by = (string) User::whereKey($actorId)->value('name');
+        $mails = app(\App\Services\MailTemplates::class);
+
+        foreach ($recipients as $user) {
+            if ($user->id !== $actorId) {
+                $mails->sendAfterCommit($key, $lead->created_by, $user, $extra + ['name' => $user->name, 'lead' => $lead->subject, 'by' => $by]);
+            }
+        }
     }
 
     public function log(Lead $lead, ?int $actorId, string $type, string $remark): LeadActivityLog
