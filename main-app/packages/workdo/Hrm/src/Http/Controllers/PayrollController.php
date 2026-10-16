@@ -13,6 +13,7 @@ use Workdo\Hrm\Models\Employee;
 use Workdo\Hrm\Models\Payroll;
 use Workdo\Hrm\Models\Payslip;
 use Workdo\Hrm\Services\PayrollService;
+use Workdo\Hrm\Services\PayslipDocument;
 
 class PayrollController extends Controller
 {
@@ -121,17 +122,33 @@ class PayrollController extends Controller
         return Inertia::render('Hrm/Payslips/My', ['payslips' => $slips, 'hasProfile' => (bool) $employee]);
     }
 
-    public function payslip(Payslip $payslip): Response|RedirectResponse
+    /** HR reads every payslip of the company; an employee only their own, and only once the payroll is approved / paid. */
+    public static function mayRead(Payslip $payslip, \App\Models\User $user): bool
     {
-        $user = Auth::user();
-        $payslip->load('payroll', 'employee.user:id,name', 'employee.designation:id,name', 'employee.department:id,name', 'lines');
+        $payslip->loadMissing('payroll', 'employee');
 
         $isHr = $user->can('manage-payrolls');
         $isOwner = $payslip->employee->user_id === $user->id && $user->can('view-payslips') && in_array($payslip->payroll->status, ['approved', 'paid'], true);
 
-        if ($payslip->payroll->created_by !== creatorId() || !($isHr || $isOwner)) {
+        return $payslip->payroll->created_by === creatorId() && ($isHr || $isOwner);
+    }
+
+    public function pdf(Payslip $payslip, PayslipDocument $documents)
+    {
+        if (!self::mayRead($payslip, Auth::user())) {
             return redirect()->route('dashboard')->with('error', __('Permission denied'));
         }
+
+        return $documents->render($payslip)->download($documents->filename($payslip));
+    }
+
+    public function payslip(Payslip $payslip): Response|RedirectResponse
+    {
+        if (!self::mayRead($payslip, Auth::user())) {
+            return redirect()->route('dashboard')->with('error', __('Permission denied'));
+        }
+
+        $payslip->load('payroll', 'employee.user:id,name', 'employee.designation:id,name', 'employee.department:id,name', 'lines');
 
         return Inertia::render('Hrm/Payslips/Show', ['payslip' => $payslip, 'company' => company_setting('company_name') ?: Auth::user()->name]);
     }

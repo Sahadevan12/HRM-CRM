@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/Components/ui/card';
 import { useMoney } from '@/hooks/useMoney';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { Printer } from 'lucide-react';
+import { Download, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface Line {
@@ -50,7 +50,8 @@ export default function PayslipShow({ payslip, company }: Props) {
             <Head title={`${t('Payslip')} ${payslip.payroll.month}`} />
 
             <div className="mx-auto max-w-3xl space-y-4 px-4 py-8 sm:px-6 lg:px-8">
-                <div className="flex justify-end print:hidden">
+                <div className="flex justify-end gap-2 print:hidden">
+                    <Button variant="outline" asChild><a href={route('hrm.payslips.pdf', payslip.id)}><Download className="mr-1 h-4 w-4" />{t('Download PDF')}</a></Button>
                     <Button variant="outline" onClick={() => window.print()}><Printer className="mr-1 h-4 w-4" />{t('Print')}</Button>
                 </div>
                 <Card>

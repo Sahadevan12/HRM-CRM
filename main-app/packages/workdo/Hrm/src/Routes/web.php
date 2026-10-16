@@ -68,6 +68,7 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(fun
 
     Route::get('hrm/payslips', [PayrollController::class, 'my'])->name('hrm.payslips.my');
     Route::get('hrm/payslips/{payslip}', [PayrollController::class, 'payslip'])->name('hrm.payslips.show');
+    Route::get('hrm/payslips/{payslip}/pdf', [PayrollController::class, 'pdf'])->name('hrm.payslips.pdf');
     Route::post('hrm/payrolls/{payroll}/approve', [PayrollController::class, 'approve'])->name('hrm.payrolls.approve');
     Route::post('hrm/payrolls/{payroll}/reopen', [PayrollController::class, 'reopen'])->name('hrm.payrolls.reopen');
     Route::post('hrm/payrolls/{payroll}/pay', [PayrollController::class, 'pay'])->name('hrm.payrolls.pay');

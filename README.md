@@ -19,7 +19,7 @@ The app lives in [`main-app/`](main-app). `PROGRESS.md` is the detailed build lo
 | **CRM** (`Lead`) | Pipelines & stages (drag and drop), leads and deals boards, lead drawer (tasks, calls, e-mails, comments, files, activity), lead to deal conversion, won / lost, dashboard, reports, web-to-lead form |
 
 Modules talk to each other through **core events only** (`app/Events`): e.g. a posted invoice books the ledger, a paid payroll
-books the salary expense, a won deal can draft a sales proposal, every module adds a card to the company dashboard.
+books the salary expense, a won deal can draft a sales proposal, leave / payroll / CRM events send e-mails, every module adds a card to the company dashboard.
 
 ## Requirements
 
@@ -80,6 +80,10 @@ npx tsc --noEmit            # type check
 | `php artisan hrm:apply-lifecycle` | Apply due resignations / terminations / transfers (scheduled daily) |
 | `php artisan crm:demo <company e-mail> [--force]` | Sample CRM data for demos |
 
+## Mobile API
+
+Token login (Laravel Sanctum) plus CRM and HRM self-service endpoints under /api/v1: see [docs/API.md](docs/API.md).
+
 ## How tenancy works
 
 Every business table has `creator_id` and `created_by`; `created_by` is the **company (tenant) id**, and `creatorId()` returns it for the logged-in user.
@@ -88,5 +92,5 @@ Roles: `superadmin` > `company` > `staff` / `client` / `vendor`. Permissions are
 
 ## Not built (by design or not yet)
 
-Mobile API (there is no token login yet), online payment gateways (bank transfer only),
+Online payment gateways (bank transfer only),
 staff self-service resignation, booking a loan's disbursement in the ledger. See `PROGRESS.md` for every known limit.

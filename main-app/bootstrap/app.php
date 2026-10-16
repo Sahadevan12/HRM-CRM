@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -18,8 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'PlanModuleCheck' => \App\Http\Middleware\PlanModuleCheck::class,
+            'api.access' => \App\Http\Middleware\ApiAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // the mobile API always answers in JSON (401 instead of a redirect to the login page, 422 instead of a redirect back)
+        $exceptions->shouldRenderJsonWhen(fn ($request, $e) => $request->is('api/*') || $request->expectsJson());
     })->create();

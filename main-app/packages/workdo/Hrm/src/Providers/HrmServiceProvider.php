@@ -15,6 +15,13 @@ class HrmServiceProvider extends ServiceProvider
             $this->loadRoutesFrom($routesPath);
         }
 
+        $apiPath = __DIR__ . '/../Routes/api.php';
+        if (file_exists($apiPath)) {
+            $this->loadRoutesFrom($apiPath);
+        }
+
+        $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'hrm');
+
         $migrationsPath = __DIR__ . '/../Database/Migrations';
         if (is_dir($migrationsPath)) {
             $this->loadMigrationsFrom($migrationsPath);

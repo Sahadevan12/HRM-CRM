@@ -330,7 +330,19 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         CRM templates: `crm_lead_assigned`, `crm_lead_moved`, `crm_deal_won` (to the OTHER people working on it, never to the person who did it),
         `crm_web_lead_received` (to the company owner). Mail transport is whatever `MAIL_*` says (`log` locally = written to storage/logs).
       - Verified in the browser: page, preview, test mail reached the log.- [ ] Online payment gateways (Stripe/Razorpay...) as modules; only bank transfer exists
-- [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
+- [x] Phase 14: mobile API + payslip PDF - 425 tests (MobileApiTest = 17)
+      - Payslip PDF: `barryvdh/laravel-dompdf` (new dependency), `PayslipDocument` + `hrm::payslip` Blade view (DejaVu Sans = currency symbols, company currency
+        settings), web `GET hrm/payslips/{id}/pdf` (button "Download PDF" on the payslip page) and the API twin. Who may read a payslip lives in ONE place
+        (`PayrollController::mayRead`: HR = all of the company, employee = own + approved / paid only).
+      - Mobile API `/api/v1` (documented in `docs/API.md`): Laravel Sanctum personal access tokens (60 days, one per device, revoked on logout / when the account
+        is disabled), `config/sanctum.php` guard = [] (a browser session cookie is NOT accepted). `routes/api.php` enabled, API always answers JSON (401, not a redirect).
+        `ApiAccess` middleware = the JSON twin of `PlanModuleCheck` (account + company enabled, plan not expired, module active; codes account_disabled /
+        plan_expired / module_inactive). Login: only company + staff, 5 wrong passwords per e-mail+address then 429, same message for unknown e-mail / wrong password.
+      - Core: login / me / logout. Modules add `Routes/api.php` (loaded by their provider). CRM (`CrmApiController`): pipelines + stages, dashboard, leads list / create /
+        move, deals list / status, and the detail + child routes REUSE the web drawer's JSON controllers (so permissions cannot drift). HRM (`HrmApiController`):
+        profile, clock in / out + recent attendance, leave (list, balances, apply, withdraw own pending), payslips (list / detail / PDF), announcements + acknowledge.
+        Same permissions and the same "only what I may see" rules as the website.
+      - Verified with curl against the running app: login, an authorised call, 401 without token, token dead after logout.- [ ] Then ProductService -> Sales/Purchase -> Account -> POS -> HRM (H1-H7) -> CRM (C1-C5)
 
 ## Gotchas learned
 - Breeze `npm install` conflict: `@types/node` must be ^22 and `@tailwindcss/vite` removed (Tailwind 3 is used).
