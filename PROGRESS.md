@@ -363,3 +363,17 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
         / Cr Cash or Bank. Deleting an unrepaid loan removes the entry (`LoanDisbursementCancelled`). Payroll instalments already credited 1400, so the account now
         shows exactly what employees still owe. Without the Accounting module nothing is booked. A loan CANCELLED (not deleted) keeps its entry: the open balance is a
         decision for the accountant (write it off with a manual journal entry).
+- [x] Phase 16: online payment gateways (Stripe + Razorpay) - 456 tests (OnlinePaymentTest = 18)
+      - Plan purchase online next to the existing bank transfer. `orders.payment_type` is now a plain string (stripe | razorpay | ...), + `gateway_reference`,
+        `gateway_payment_id`. `App\Services\Payments`: `PaymentGateways` (availability, platform currency, minor units incl. zero-decimal currencies, `settle()` = pay an
+        order EXACTLY once under a row lock), `StripeGateway` (Checkout Session over plain HTTP, session lookup, webhook signature `Stripe-Signature` with a 5 minute
+        tolerance), `RazorpayGateway` (order, payment signature `order_id|payment_id`, webhook signature). No SDKs.
+      - SERVER decides the price: `payments/checkout` takes only plan, period, coupon, gateway; the order and the gateway amount come from the plan / coupon; a 100%
+        coupon completes at once as a `free` order. A plan is activated ONLY after the gateway confirms it AND amount, currency and order reference match
+        (return page asks Stripe itself, Razorpay popup result is signature-checked against OUR order id, webhooks are signed). Own-order checks everywhere (404 otherwise).
+      - Webhooks `payments/webhook/stripe|razorpay`: public, CSRF-free, throttled; wrong / old / missing signature = 400, valid but irrelevant = 200.
+      - Settings > Payment (super admin): switches + keys. Keys are saved NON-public; the settings page only learns that a secret exists (empty field = keep);
+        a gateway cannot be switched on without its keys; key formats are validated. SECURITY FIX found on the way: `adminAllSetting` was shared with every logged-in
+        user including non-public platform settings -> now public ones only (a secret would otherwise have reached every browser).
+      - UI: "Pay online" buttons on the subscribe page (Stripe = redirect, Razorpay = popup loaded from checkout.razorpay.com).
+      - Not built: recurring subscriptions, refunds (do them in the gateway dashboard), receipts for plan payments, PayPal.

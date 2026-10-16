@@ -43,7 +43,8 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             // Guests only get public branding (login page); logged-in users get everything.
-            'adminAllSetting' => getAdminAllSetting(publicOnly: !$user),
+            // only public settings, for everybody: the payment gateway keys are platform settings that are NOT public
+            'adminAllSetting' => getAdminAllSetting(publicOnly: true),
             // only the settings marked public: secrets (e.g. the CRM web form address) and internal flags must not reach every user's browser
             'companyAllSetting' => $user ? getCompanyAllSetting($user->id, publicOnly: true) : [],
             'languages' => availableLanguages(),

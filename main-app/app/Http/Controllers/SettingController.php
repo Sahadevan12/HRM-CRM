@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Payments\PaymentGateways;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,8 +21,10 @@ class SettingController extends Controller
         }
 
         return Inertia::render('Settings/Index', [
-            'settings' => Auth::user()->isSuperadmin() ? getAdminAllSetting() : getCompanyAllSetting(),
+            // the gateway secrets stay on the server: the page only learns THAT a secret is saved
+            'settings' => array_diff_key(Auth::user()->isSuperadmin() ? getAdminAllSetting() : getCompanyAllSetting(), array_flip(PaymentGateways::SECRET_KEYS)),
             'themeColors' => self::THEME_COLORS,
+            'gateways' => Auth::user()->isSuperadmin() ? $this->gatewayState() : null,
         ]);
     }
 
@@ -91,6 +94,66 @@ class SettingController extends Controller
         $this->save($validated);
 
         return back()->with('success', __('Payment settings updated successfully.'));
+    }
+
+    /** Platform owner: switch the online payment gateways on and enter their keys. Empty secret fields keep what is saved. */
+    public function updateGateways(Request $request): RedirectResponse
+    {
+        if (!Auth::user()->can('edit-settings') || !Auth::user()->isSuperadmin()) {
+            return back()->with('error', __('Permission denied'));
+        }
+
+        $data = $request->validate([
+            'stripeEnabled' => 'required|boolean',
+            'stripeSecretKey' => ['nullable', 'string', 'max:255', 'regex:/^(sk|rk)_(test|live)_[A-Za-z0-9]+$/'],
+            'stripeWebhookSecret' => ['nullable', 'string', 'max:255', 'regex:/^whsec_[A-Za-z0-9]+$/'],
+            'razorpayEnabled' => 'required|boolean',
+            'razorpayKeyId' => ['nullable', 'string', 'max:100', 'regex:/^rzp_(test|live)_[A-Za-z0-9]+$/'],
+            'razorpayKeySecret' => 'nullable|string|max:255',
+            'razorpayWebhookSecret' => 'nullable|string|max:255',
+        ]);
+
+        $saved = fn (string $key) => filled(tenantSettings(superadminId())[$key] ?? null);
+
+        // a gateway can only be switched on when it has the keys it needs (the ones in the form or the ones already saved)
+        $need = ['stripe' => ['stripeSecretKey'], 'razorpay' => ['razorpayKeyId', 'razorpayKeySecret']];
+        foreach (['stripe', 'razorpay'] as $gateway) {
+            if ($data[$gateway . 'Enabled']) {
+                foreach ($need[$gateway] as $key) {
+                    if (blank($data[$key] ?? null) && !$saved($key)) {
+                        return back()->withErrors([$key => __('Enter this key before switching the gateway on.')]);
+                    }
+                }
+            }
+        }
+
+        // the switches are public (the checkout page needs to know), the keys are not
+        foreach (['stripeEnabled', 'razorpayEnabled'] as $key) {
+            setSetting($key, $data[$key] ? '1' : '0', null, false);
+        }
+        foreach (['stripeSecretKey', 'stripeWebhookSecret', 'razorpayKeyId', 'razorpayKeySecret', 'razorpayWebhookSecret'] as $key) {
+            if (filled($data[$key] ?? null)) {
+                setSetting($key, $data[$key], null, false);
+            }
+        }
+
+        return back()->with('success', __('Payment gateways updated successfully.'));
+    }
+
+    /** @return array<string, mixed> what the settings page may know about the gateways (never a secret) */
+    private function gatewayState(): array
+    {
+        $s = tenantSettings(superadminId());
+        $has = fn (string $key) => filled($s[$key] ?? null);
+
+        return [
+            'currency' => strtoupper($s['currencyCode'] ?? 'USD'),
+            'stripe' => ['enabled' => ($s['stripeEnabled'] ?? '0') === '1', 'hasSecret' => $has('stripeSecretKey'), 'hasWebhookSecret' => $has('stripeWebhookSecret'), 'webhookUrl' => route('payments.webhook.stripe')],
+            'razorpay' => [
+                'enabled' => ($s['razorpayEnabled'] ?? '0') === '1', 'keyId' => $s['razorpayKeyId'] ?? '', 'hasSecret' => $has('razorpayKeySecret'),
+                'hasWebhookSecret' => $has('razorpayWebhookSecret'), 'webhookUrl' => route('payments.webhook.razorpay'),
+            ],
+        ];
     }
 
     private function save(array $values): void

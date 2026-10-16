@@ -24,7 +24,20 @@ Route::get('/', function () {
     ]);
 });
 
+// Payment gateways call these themselves (a payment finished, also when the customer closed the browser): no login, no CSRF token, the SIGNATURE
+// of the request is the credential (see PaymentWebhookController).
+Route::middleware('throttle:120,1')->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])->group(function () {
+    Route::post('payments/webhook/stripe', [\App\Http\Controllers\PaymentWebhookController::class, 'stripe'])->name('payments.webhook.stripe');
+    Route::post('payments/webhook/razorpay', [\App\Http\Controllers\PaymentWebhookController::class, 'razorpay'])->name('payments.webhook.razorpay');
+});
+
 Route::middleware(['auth', 'verified', 'PlanModuleCheck'])->group(function () {
+    // Online payment of a plan (Stripe / Razorpay)
+    Route::post('payments/checkout', [\App\Http\Controllers\OnlinePaymentController::class, 'checkout'])->middleware('throttle:20,1')->name('payments.checkout');
+    Route::get('payments/stripe/return', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeReturn'])->name('payments.stripe.return');
+    Route::get('payments/stripe/cancel', [\App\Http\Controllers\OnlinePaymentController::class, 'stripeCancel'])->name('payments.stripe.cancel');
+    Route::post('payments/razorpay/verify', [\App\Http\Controllers\OnlinePaymentController::class, 'razorpayVerify'])->name('payments.razorpay.verify');
+
     Route::get('/dashboard', \App\Http\Controllers\DashboardController::class)->name('dashboard');
 
     // Profile
@@ -43,6 +56,7 @@ Route::middleware(['auth', 'verified', 'PlanModuleCheck'])->group(function () {
     Route::post('settings/system', [SettingController::class, 'updateSystem'])->name('settings.system.update');
     Route::post('settings/currency', [SettingController::class, 'updateCurrency'])->name('settings.currency.update');
     Route::post('settings/payment', [SettingController::class, 'updatePayment'])->name('settings.payment.update');
+    Route::post('settings/gateways', [SettingController::class, 'updateGateways'])->name('settings.gateways.update');
 
     // E-mail templates (what the modules send in the company's name)
     Route::get('email-templates', [\App\Http\Controllers\EmailTemplateController::class, 'index'])->name('email-templates.index');

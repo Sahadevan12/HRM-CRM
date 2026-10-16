@@ -10,7 +10,7 @@ class Order extends Model
 {
     protected $fillable = [
         'order_number', 'user_id', 'plan_id', 'plan_name', 'duration', 'price', 'discount',
-        'final_price', 'coupon_code', 'payment_type', 'payment_status',
+        'final_price', 'coupon_code', 'payment_type', 'payment_status', 'gateway_reference', 'gateway_payment_id',
     ];
 
     protected function casts(): array

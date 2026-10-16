@@ -65,7 +65,8 @@ npx tsc --noEmit            # type check
 6. Web server document root = `main-app/public`. Make `storage/` and `bootstrap/cache/` writable.
 7. Uploaded files (employee documents, HR documents, lead / deal files) are on the **private** `local` disk and are only served through
    permission-checked controllers. Back up `storage/app/private` together with the database.
-8. HTTPS everywhere. The public web-to-lead endpoint (`/crm/web-to-lead/{secret}`) is rate limited and protected by a per-company secret that
+8. **Payments:** in *Settings > Payment* switch on Stripe / Razorpay with LIVE keys and register the webhook addresses (Stripe event `checkout.session.completed`; Razorpay events `payment.captured` and `order.paid`). Test with the gateways' test keys first.
+9. HTTPS everywhere. The public web-to-lead endpoint (`/crm/web-to-lead/{secret}`) is rate limited and protected by a per-company secret that
    a company admin can renew or switch off in *CRM Setup*.
 
 ## Useful commands
@@ -90,6 +91,10 @@ Every business table has `creator_id` and `created_by`; `created_by` is the **co
 Every query is filtered by it, and every id coming from a request is validated against it (`Rule::exists(...)->where('created_by', creatorId())`).
 Roles: `superadmin` > `company` > `staff` / `client` / `vendor`. Permissions are per action (`manage-`, `create-`, `edit-`, `delete-` ...), checked in the controllers.
 
+## Online payments
+
+Companies buy plans by **bank transfer** (approved by the platform owner), **Stripe** (hosted checkout) or **Razorpay** (popup). The platform owner enters the keys in *Settings > Payment*; the keys are never sent to a browser. A plan is activated only after the gateway confirmed the payment AND the amount and currency match the order the server created. Add the webhook addresses shown on that page in the Stripe / Razorpay dashboards (so a payment is also recorded when the customer closes the browser). The price of the order is always calculated on the server.
+
 ## Not built (by design or not yet)
 
-Online payment gateways (bank transfer only). See `PROGRESS.md` for every known limit.
+Invoices / receipts for plan payments, recurring (auto-renewing) subscriptions, refunds through the gateways (do them in the gateway dashboard), more gateways (PayPal ...). See `PROGRESS.md` for every known limit.

@@ -100,6 +100,7 @@ class PlanController extends Controller
         return Inertia::render('Plans/Subscribe', [
             'plan' => $plan,
             'bankTransferDetails' => admin_setting('bankTransferDetails'),
+            'gateways' => app(\App\Services\Payments\PaymentGateways::class)->available(),
             'moduleNames' => AddOn::pluck('name', 'module'),
         ]);
     }

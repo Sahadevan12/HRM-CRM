@@ -13,6 +13,7 @@ interface Props {
     plan: { id: number; name: string; monthly_price: number; yearly_price: number; modules: string[] | null };
     bankTransferDetails: string | null;
     moduleNames: Record<string, string>;
+    gateways?: Record<string, string>;
 }
 
 interface Quote {
@@ -21,7 +22,7 @@ interface Quote {
     final_price: number;
 }
 
-export default function Subscribe({ plan, bankTransferDetails }: Props) {
+export default function Subscribe({ plan, bankTransferDetails, gateways = {} }: Props) {
     const form = useForm<{ plan_id: number; duration: 'month' | 'year'; coupon_code: string; notes: string; attachment: File | null }>({
         plan_id: plan.id,
         duration: 'month',
@@ -52,6 +53,55 @@ export default function Subscribe({ plan, bankTransferDetails }: Props) {
         } catch (e: any) {
             setQuote(null);
             setCouponError(e.response?.data?.error ?? e.response?.data?.message ?? 'Could not apply coupon');
+        }
+    };
+
+    const [paying, setPaying] = useState<string | null>(null);
+    const [payError, setPayError] = useState<string | null>(null);
+
+    /** Stripe: go to the hosted page. Razorpay: open its popup and let the server verify the result. */
+    const payOnline = async (gateway: string) => {
+        setPaying(gateway);
+        setPayError(null);
+        try {
+            const { data } = await axios.post(route('payments.checkout'), { plan_id: plan.id, duration: form.data.duration, coupon_code: form.data.coupon_code || null, gateway }, { headers: { Accept: 'application/json' } });
+
+            if (data.redirect) {
+                window.location.href = data.redirect;
+                return;
+            }
+
+            const r = data.razorpay;
+            await new Promise<void>((resolve, reject) => {
+                const open = () => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const checkout = new (window as any).Razorpay({
+                        key: r.key, order_id: r.order_id, amount: r.amount, currency: r.currency, name: r.name, description: r.description, prefill: r.prefill,
+                        handler: async (res: Record<string, string>) => {
+                            try {
+                                const verified = await axios.post(r.verify_url, { order_number: r.order_number, ...res }, { headers: { Accept: 'application/json' } });
+                                window.location.href = verified.data.redirect;
+                                resolve();
+                            } catch (e) {
+                                reject(e);
+                            }
+                        },
+                        modal: { ondismiss: () => resolve() },
+                    });
+                    checkout.open();
+                };
+
+                if ((window as any).Razorpay) return open();
+                const script = document.createElement('script');
+                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                script.onload = open;
+                script.onerror = () => reject(new Error('Razorpay could not be loaded'));
+                document.body.appendChild(script);
+            });
+        } catch (e: any) {
+            setPayError(e.response?.data?.message ?? e.message ?? 'The payment could not be started');
+        } finally {
+            setPaying(null);
         }
     };
 
@@ -95,6 +145,21 @@ export default function Subscribe({ plan, bankTransferDetails }: Props) {
                             {quote && quote.discount > 0 && <p className="text-sm text-green-600">Coupon applied: -{quote.discount}</p>}
                         </CardContent>
                     </Card>
+
+                    {Object.keys(gateways).length > 0 && (
+                        <Card>
+                            <CardHeader><CardTitle>Pay online</CardTitle></CardHeader>
+                            <CardContent className="space-y-3">
+                                <p className="text-sm text-muted-foreground">Your plan is activated as soon as the payment is confirmed.</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(gateways).map(([key, label]) => (
+                                        <Button key={key} type="button" disabled={paying !== null} onClick={() => payOnline(key)}>{paying === key ? 'Please wait...' : `Pay ${shown.final_price} with ${label}`}</Button>
+                                    ))}
+                                </div>
+                                {payError && <p className="text-sm text-destructive">{payError}</p>}
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Card>
                         <CardHeader><CardTitle>Bank transfer</CardTitle></CardHeader>

@@ -9,13 +9,21 @@ import { cn } from '@/lib/utils';
 import { PageProps, Settings } from '@/types';
 import { THEME_COLORS } from '@/utils/theme';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import { Checkbox } from '@/Components/ui/checkbox';
 import { Check } from 'lucide-react';
 import { FormEvent, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+interface Gateways {
+    currency: string;
+    stripe: { enabled: boolean; hasSecret: boolean; hasWebhookSecret: boolean; webhookUrl: string };
+    razorpay: { enabled: boolean; keyId: string; hasSecret: boolean; hasWebhookSecret: boolean; webhookUrl: string };
+}
+
 interface Props {
     settings: Settings;
     themeColors: string[];
+    gateways?: Gateways | null;
 }
 
 const TABS = ['Brand', 'System', 'Currency', 'Payment'] as const;
@@ -207,7 +215,56 @@ function PaymentForm({ settings }: Props) {
     );
 }
 
-export default function SettingsIndex({ settings, themeColors }: Props) {
+/** Platform owner only: Stripe / Razorpay. A saved secret is never shown again; an empty field keeps it. */
+function GatewayForm({ gateways }: { gateways: Gateways }) {
+    const { t } = useTranslation();
+    const form = useForm({
+        stripeEnabled: gateways.stripe.enabled,
+        stripeSecretKey: '',
+        stripeWebhookSecret: '',
+        razorpayEnabled: gateways.razorpay.enabled,
+        razorpayKeyId: gateways.razorpay.keyId,
+        razorpayKeySecret: '',
+        razorpayWebhookSecret: '',
+    });
+
+    const saved = (has: boolean) => (has ? t('saved: leave empty to keep it') : '');
+
+    return (
+        <form onSubmit={(e) => { e.preventDefault(); form.post(route('settings.gateways.update'), { preserveScroll: true, onSuccess: () => form.setData({ ...form.data, stripeSecretKey: '', stripeWebhookSecret: '', razorpayKeySecret: '', razorpayWebhookSecret: '' }) }); }} className="space-y-6">
+            <p className="text-sm text-muted-foreground">{t('Companies pay for plans in the platform currency')}: <b>{gateways.currency}</b> ({t('Currency tab')}).</p>
+
+            <div className="space-y-3 rounded-md border p-4">
+                <label className="flex items-center gap-2 font-medium"><Checkbox checked={form.data.stripeEnabled} onCheckedChange={(v) => form.setData('stripeEnabled', v === true)} />Stripe ({t('card payments')})</label>
+                <Field label={t('Secret key') + ' (sk_live_... / sk_test_...)'} error={form.errors.stripeSecretKey}>
+                    <Input type="password" autoComplete="off" placeholder={saved(gateways.stripe.hasSecret)} value={form.data.stripeSecretKey} onChange={(e) => form.setData('stripeSecretKey', e.target.value)} />
+                </Field>
+                <Field label={t('Webhook signing secret') + ' (whsec_...)'} error={form.errors.stripeWebhookSecret}>
+                    <Input type="password" autoComplete="off" placeholder={saved(gateways.stripe.hasWebhookSecret)} value={form.data.stripeWebhookSecret} onChange={(e) => form.setData('stripeWebhookSecret', e.target.value)} />
+                </Field>
+                <p className="break-all text-xs text-muted-foreground">{t('Webhook address to add in the Stripe dashboard (event checkout.session.completed)')}: <code>{gateways.stripe.webhookUrl}</code></p>
+            </div>
+
+            <div className="space-y-3 rounded-md border p-4">
+                <label className="flex items-center gap-2 font-medium"><Checkbox checked={form.data.razorpayEnabled} onCheckedChange={(v) => form.setData('razorpayEnabled', v === true)} />Razorpay</label>
+                <Field label={t('Key id') + ' (rzp_live_... / rzp_test_...)'} error={form.errors.razorpayKeyId}>
+                    <Input value={form.data.razorpayKeyId} onChange={(e) => form.setData('razorpayKeyId', e.target.value)} />
+                </Field>
+                <Field label={t('Key secret')} error={form.errors.razorpayKeySecret}>
+                    <Input type="password" autoComplete="off" placeholder={saved(gateways.razorpay.hasSecret)} value={form.data.razorpayKeySecret} onChange={(e) => form.setData('razorpayKeySecret', e.target.value)} />
+                </Field>
+                <Field label={t('Webhook secret')} error={form.errors.razorpayWebhookSecret}>
+                    <Input type="password" autoComplete="off" placeholder={saved(gateways.razorpay.hasWebhookSecret)} value={form.data.razorpayWebhookSecret} onChange={(e) => form.setData('razorpayWebhookSecret', e.target.value)} />
+                </Field>
+                <p className="break-all text-xs text-muted-foreground">{t('Webhook address to add in the Razorpay dashboard (events payment.captured, order.paid)')}: <code>{gateways.razorpay.webhookUrl}</code></p>
+            </div>
+
+            <Button type="submit" disabled={form.processing}>{t('Save')}</Button>
+        </form>
+    );
+}
+
+export default function SettingsIndex({ settings, themeColors, gateways }: Props) {
     const { t } = useTranslation();
     const [tab, setTab] = useState<Tab>('Brand');
 
@@ -241,6 +298,7 @@ export default function SettingsIndex({ settings, themeColors }: Props) {
                         {tab === 'System' && <SystemForm settings={settings} themeColors={themeColors} />}
                         {tab === 'Currency' && <CurrencyForm settings={settings} themeColors={themeColors} />}
                         {tab === 'Payment' && <PaymentForm settings={settings} themeColors={themeColors} />}
+                        {tab === 'Payment' && gateways && <div className="mt-8 border-t pt-6"><h3 className="mb-4 font-semibold">{t('Online payment gateways')}</h3><GatewayForm gateways={gateways} /></div>}
                     </CardContent>
                 </Card>
             </div>
