@@ -2,10 +2,13 @@
 
 namespace Workdo\Hrm\Http\Controllers;
 
+use App\Events\LoanDisbursed;
+use App\Events\LoanDisbursementCancelled;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,6 +32,7 @@ class LoanController extends Controller
                 ->latest('id')->paginate((int) $request->get('per_page', 15))->withQueryString(),
             'employees' => Employee::with('user:id,name')->where('created_by', $tenant)->where('status', 'active')->orderBy('employee_code')->get(['id', 'employee_code', 'user_id'])
                 ->map(fn ($e) => ['id' => $e->id, 'code' => $e->employee_code, 'name' => $e->user->name]),
+            'accountingActive' => Module_is_active('Account', $tenant),
             'filters' => $request->only('status'),
         ]);
     }
@@ -47,9 +51,21 @@ class LoanController extends Controller
             'installment' => 'required|numeric|min:0.01|lte:amount',
             'start_month' => ['required', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'],
             'notes' => 'nullable|string|max:2000',
+            // optional: put the money that left the company in its books (needs the Accounting module)
+            'paid_from' => ['nullable', 'in:cash,bank', 'required_with:paid_on'],
+            'paid_on' => 'nullable|date|required_with:paid_from',
         ]);
 
-        Loan::create([...$data, 'start_month' => $data['start_month'] . '-01', 'status' => 'active', 'repaid' => 0, 'creator_id' => Auth::id(), 'created_by' => $tenant]);
+        DB::transaction(function () use ($data, $tenant) {
+            $loan = Loan::create(collect($data)->except(['paid_from', 'paid_on', 'start_month'])->all() + [
+                'start_month' => $data['start_month'] . '-01', 'status' => 'active', 'repaid' => 0, 'creator_id' => Auth::id(), 'created_by' => $tenant,
+                'disbursed_from' => $data['paid_from'] ?? null, 'disbursed_on' => $data['paid_on'] ?? null,
+            ]);
+
+            if ($loan->disbursed_from) {
+                LoanDisbursed::dispatch($tenant, $loan->id, $loan->title, $loan->employee->user->name, (float) $loan->amount, $loan->disbursed_on->toDateString(), $loan->disbursed_from, Auth::id());
+            }
+        });
 
         return back()->with('success', __('The loan has been created.'));
     }
@@ -78,7 +94,11 @@ class LoanController extends Controller
             return back()->with('error', __('A loan with repayments cannot be deleted. Cancel it instead.'));
         }
 
-        $loan->delete();
+        DB::transaction(function () use ($loan) {
+            // the entry booked for the disbursement goes with it
+            LoanDisbursementCancelled::dispatch($loan->created_by, $loan->id);
+            $loan->delete();
+        });
 
         return back()->with('success', __('The loan has been deleted.'));
     }

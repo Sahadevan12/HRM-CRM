@@ -5,11 +5,14 @@ namespace Workdo\Account\Providers;
 use App\Events\ApprovePurchaseReturn;
 use App\Events\ApproveSalesReturn;
 use App\Events\CompanyDeleting;
+use App\Events\LoanDisbursed;
+use App\Events\LoanDisbursementCancelled;
 use App\Events\PaySalary;
 use App\Events\PosPaymentReceived;
 use App\Events\PostPurchaseInvoice;
 use App\Events\PostSalesInvoice;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Workdo\Account\Listeners\BookLoanDisbursement;
 use Workdo\Account\Listeners\DeleteCompanyBooks;
 use Workdo\Account\Listeners\PostDocumentToLedger;
 use Workdo\Account\Listeners\RecordPosPayment;
@@ -29,6 +32,8 @@ class EventServiceProvider extends ServiceProvider
         ApprovePurchaseReturn::class => [PostDocumentToLedger::class],
         PosPaymentReceived::class => [RecordPosPayment::class],
         PaySalary::class => [RecordSalaryPayment::class],
+        LoanDisbursed::class => [BookLoanDisbursement::class],
+        LoanDisbursementCancelled::class => [BookLoanDisbursement::class],
         CompanyDeleting::class => [DeleteCompanyBooks::class],
     ];
 }

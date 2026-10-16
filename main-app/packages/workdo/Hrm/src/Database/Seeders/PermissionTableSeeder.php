@@ -129,6 +129,7 @@ class PermissionTableSeeder extends Seeder
             ['name' => 'delete-hrm-documents', 'module' => 'hrm-documents', 'label' => 'Delete HR Documents'],
             ['name' => 'view-hrm-documents', 'module' => 'hrm-documents', 'label' => 'View HR Documents'],
             ['name' => 'view-hrm-dashboard', 'module' => 'hrm-dashboard', 'label' => 'View HRM Dashboard'],
+            ['name' => 'apply-resignation', 'module' => 'resignations', 'label' => 'Resign (own resignation)'],
             // <permissions>
         ];
 
@@ -144,8 +145,9 @@ class PermissionTableSeeder extends Seeder
         // ONE call for all of them: givePermissionTo flushes spatie's permission cache every time,
         // so granting one by one gets very slow as the number of permissions grows
         $company?->givePermissionTo(array_column($permissions, 'name'));
+        $company?->revokePermissionTo('apply-resignation'); // the owner does not resign through the app: this is for employees
 
         // every employee (system "staff" role) can clock in/out, apply for leave and read their own payslips
-        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave', 'view-payslips', 'view-announcements', 'view-events', 'view-hrm-documents']);
+        Role::where('name', 'staff')->whereNull('created_by')->first()?->givePermissionTo(['clock-attendance', 'apply-leave', 'view-payslips', 'view-announcements', 'view-events', 'view-hrm-documents', 'apply-resignation']);
     }
 }

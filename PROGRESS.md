@@ -355,4 +355,11 @@ Docs: `ERPGO_ANALYSIS_AND_REBUILD_GUIDE.md`, `ERPGO_HRM_CRM_MASTER_PROMPTS.md` (
 - Model instances built with `User::create()` do not have DB column defaults loaded (e.g. is_enable_login null) -> keep `$attributes` in sync.
 - Browser pane: Inertia XHR calls need `Accept: application/json` (no X-Inertia header) when scripting axios from the console.
 - Claude Code preview tool is anchored to the ORIGINAL project's launch.json; run the clone's server manually.
-
+- [x] Phase 15: self-service resignation + loan disbursement in the ledger - 438 tests (ResignationAndLoanLedgerTest = 13)
+      - `SelfResignation` service shared by the website (`My Resignation` page, permission `apply-resignation`, given to the staff role, NOT to the owner) and the mobile
+        API (`/hrm/resignation`). It makes an ordinary PENDING resignation (notice date = today, last day not in the past, one pending at a time, only active employees),
+        HR still decides in Employee Lifecycle; the employee can withdraw while pending; the owner gets the e-mail template `hrm_resignation_submitted`.
+      - Loans: optional "Paid from" (cash / bank) + "Paid on" when a loan is created -> core event `LoanDisbursed` -> Account listener books Dr Employee Loans (1400)
+        / Cr Cash or Bank. Deleting an unrepaid loan removes the entry (`LoanDisbursementCancelled`). Payroll instalments already credited 1400, so the account now
+        shows exactly what employees still owe. Without the Accounting module nothing is booked. A loan CANCELLED (not deleted) keeps its entry: the open balance is a
+        decision for the accountant (write it off with a manual journal entry).

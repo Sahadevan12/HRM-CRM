@@ -20,6 +20,8 @@ use Workdo\Hrm\Models\Payslip;
 use Workdo\Hrm\Services\AttendanceService;
 use Workdo\Hrm\Services\LeaveService;
 use Workdo\Hrm\Services\PayslipDocument;
+use Workdo\Hrm\Services\SelfResignation;
+use Workdo\Hrm\Models\Resignation;
 
 /**
  * Employee self service for the mobile app: profile, clock in / out, own attendance, apply for leave and see the balance, own payslips (also as PDF),
@@ -141,6 +143,58 @@ class HrmApiController extends Controller
         }
 
         $leave->delete();
+
+        return response()->json(['ok' => true]);
+    }
+
+    // ───────────── resignation ─────────────
+
+    public function resignation(SelfResignation $resignations): JsonResponse
+    {
+        if ($denied = $this->need('apply-resignation')) {
+            return $denied;
+        }
+        if (!$employee = $this->employee()) {
+            return $this->noProfile();
+        }
+
+        $history = $resignations->history($employee);
+
+        return response()->json(['can_apply' => $employee->isActive() && !collect($history)->contains('status', 'pending'), 'data' => $history]);
+    }
+
+    public function resign(Request $request, SelfResignation $resignations): JsonResponse
+    {
+        if ($denied = $this->need('apply-resignation')) {
+            return $denied;
+        }
+        if (!$employee = $this->employee()) {
+            return $this->noProfile();
+        }
+
+        $data = $request->validate(['last_working_date' => 'required|date', 'reason' => 'nullable|string|max:2000']);
+
+        try {
+            $resignation = $resignations->apply($employee, $data['last_working_date'], $data['reason'] ?? null);
+        } catch (HrmException $e) {
+            return response()->json(['message' => $e->getMessage(), 'errors' => ['last_working_date' => [$e->getMessage()]]], 422);
+        }
+
+        return response()->json(['data' => ['id' => $resignation->id, 'status' => $resignation->status]], 201);
+    }
+
+    public function withdrawResignation(Resignation $resignation, SelfResignation $resignations): JsonResponse
+    {
+        $employee = $this->employee();
+        if (!$employee || !Auth::user()->can('apply-resignation')) {
+            return response()->json(['message' => __('Permission denied')], 403);
+        }
+
+        try {
+            $resignations->withdraw($resignation, $employee);
+        } catch (HrmException $e) {
+            return response()->json(['message' => $e->getMessage()], $e->getMessage() === __('Permission denied') ? 403 : 422);
+        }
 
         return response()->json(['ok' => true]);
     }

@@ -19,6 +19,15 @@ class RegisterHrmMailTemplates
         ]);
 
         $event->register([
+            'key' => 'hrm_resignation_submitted', 'module' => 'HRM', 'name' => 'Resignation submitted',
+            'description' => 'Sent to the company owner when an employee hands in their own resignation.',
+            'subject' => '{{employee}} has submitted a resignation',
+            'body' => "Hello {{name}},\n\n{{employee}} ({{code}}) has submitted a resignation. Last working day: {{last_day}}.\nReason: {{reason}}\n\nOpen Employee Lifecycle > Resignations to approve or reject it.\n\nRegards,\n{{company}}",
+            'variables' => ['name' => 'Recipient', 'employee' => 'Employee name', 'code' => 'Employee code', 'last_day' => 'Last working day', 'reason' => 'Reason (may be "-")'],
+            'sample' => ['name' => 'Meena', 'employee' => 'Asha', 'code' => 'EMP-0007', 'last_day' => '2026-12-31', 'reason' => 'Moving abroad'],
+        ]);
+
+        $event->register([
             'key' => 'hrm_payslip_ready', 'module' => 'HRM', 'name' => 'Payslip ready',
             'description' => 'Sent to every employee when a payroll is approved. The amount is not in the e-mail: the employee reads it after logging in.',
             'subject' => 'Your payslip for {{month}} is ready',

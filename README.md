@@ -92,5 +92,4 @@ Roles: `superadmin` > `company` > `staff` / `client` / `vendor`. Permissions are
 
 ## Not built (by design or not yet)
 
-Online payment gateways (bank transfer only),
-staff self-service resignation, booking a loan's disbursement in the ledger. See `PROGRESS.md` for every known limit.
+Online payment gateways (bank transfer only). See `PROGRESS.md` for every known limit.

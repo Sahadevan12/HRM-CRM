@@ -106,6 +106,7 @@ export const hrmCompanyMenu = (t: (key: string) => string): NavItem[] => [
                     { title: t('Transfers'), href: route('hrm.lifecycle.index', 'transfers'), permission: 'manage-transfers' },
                     { title: t('Resignations'), href: route('hrm.lifecycle.index', 'resignations'), permission: 'manage-resignations' },
                     { title: t('Terminations'), href: route('hrm.lifecycle.index', 'terminations'), permission: 'manage-terminations' },
+                    { title: t('My Resignation'), href: route('hrm.resignation.my'), permission: 'apply-resignation' },
                 ],
             },
             {

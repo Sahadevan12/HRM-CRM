@@ -17,6 +17,10 @@ Route::prefix('api/v1/hrm')->name('api.hrm.')->middleware(['api', 'auth:sanctum'
     Route::post('leaves', [HrmApiController::class, 'applyLeave'])->name('leaves.store');
     Route::delete('leaves/{leave}', [HrmApiController::class, 'withdrawLeave'])->whereNumber('leave')->name('leaves.withdraw');
 
+    Route::get('resignation', [HrmApiController::class, 'resignation'])->name('resignation.index');
+    Route::post('resignation', [HrmApiController::class, 'resign'])->name('resignation.store');
+    Route::delete('resignation/{resignation}', [HrmApiController::class, 'withdrawResignation'])->whereNumber('resignation')->name('resignation.withdraw');
+
     Route::get('payslips', [HrmApiController::class, 'payslips'])->name('payslips.index');
     Route::get('payslips/{payslip}', [HrmApiController::class, 'payslip'])->whereNumber('payslip')->name('payslips.show');
     Route::get('payslips/{payslip}/pdf', [HrmApiController::class, 'payslipPdf'])->whereNumber('payslip')->name('payslips.pdf');

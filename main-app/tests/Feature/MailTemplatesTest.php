@@ -75,7 +75,7 @@ class MailTemplatesTest extends TestCase
     {
         $keys = array_keys($this->mails()->definitions());
 
-        $this->assertEqualsCanonicalizing(['hrm_leave_status', 'hrm_payslip_ready', 'crm_lead_assigned', 'crm_lead_moved', 'crm_deal_won', 'crm_web_lead_received'], $keys);
+        $this->assertEqualsCanonicalizing(['hrm_leave_status', 'hrm_payslip_ready', 'hrm_resignation_submitted', 'crm_lead_assigned', 'crm_lead_moved', 'crm_deal_won', 'crm_web_lead_received'], $keys);
 
         foreach ($this->mails()->definitions() as $d) {
             // every placeholder used in the default wording is offered as a variable (otherwise it would be an empty hole)
@@ -137,11 +137,11 @@ class MailTemplatesTest extends TestCase
 
         $templates = collect($this->actingAs($this->a)->get('/email-templates')->assertOk()->assertInertia(fn ($p) => $p->component('EmailTemplates/Index'))->viewData('page')['props']['templates']);
 
-        $this->assertCount(6, $templates);
+        $this->assertCount(7, $templates);
         $won = $templates->firstWhere('key', 'crm_deal_won');
         $this->assertSame(['Won!', false, true], [$won['subject'], $won['is_enabled'], $won['customized']]);
         $this->assertFalse($templates->firstWhere('key', 'crm_lead_moved')['customized']);
-        $this->assertSame(['CRM', 'CRM', 'CRM', 'CRM', 'HRM', 'HRM'], $templates->pluck('module')->all());          // grouped by module
+        $this->assertSame(['CRM', 'CRM', 'CRM', 'CRM', 'HRM', 'HRM', 'HRM'], $templates->pluck('module')->all());          // grouped by module
     }
 
     public function test_saving_validates_the_placeholders_and_resetting_goes_back(): void

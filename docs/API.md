@@ -50,6 +50,7 @@ JSON in, JSON out. Base URL: `https://your-domain/api/v1`. Every call except log
 | `GET /hrm/leaves?year=` | apply-leave | `types`, `balances`, own `applications` |
 | `POST /hrm/leaves` | apply-leave | `leave_type_id`, `start_date`, `end_date`, `reason`; `422` for overlap / balance / no working day |
 | `DELETE /hrm/leaves/{id}` | | withdraw your own **pending** application |
+| `GET /hrm/resignation` · `POST /hrm/resignation` · `DELETE /hrm/resignation/{id}` | apply-resignation | your own resignation: history + `can_apply`, hand in (`last_working_date`, `reason`), withdraw while pending. HR decides on the website |
 | `GET /hrm/payslips` · `GET /hrm/payslips/{id}` | view-payslips | only payrolls that are approved or paid, only your own |
 | `GET /hrm/payslips/{id}/pdf` | view-payslips | the payslip as a PDF file |
 | `GET /hrm/announcements` · `POST /hrm/announcements/{id}/acknowledge` | view-announcements | running announcements for your department |

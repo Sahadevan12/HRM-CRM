@@ -29,6 +29,7 @@ use Workdo\Hrm\Http\Controllers\AnnouncementController;
 use Workdo\Hrm\Http\Controllers\EventController;
 use Workdo\Hrm\Http\Controllers\HrmDocumentController;
 use Workdo\Hrm\Http\Controllers\HrmDashboardController;
+use Workdo\Hrm\Http\Controllers\SelfResignationController;
 // <use-statements>
 
 Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(function () {
@@ -101,5 +102,8 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Hrm'])->group(fun
     Route::get('hrm/documents/{document}/download', [HrmDocumentController::class, 'download'])->name('hrm.documents.download');
     Route::post('hrm/documents/{document}/acknowledge', [HrmDocumentController::class, 'acknowledge'])->name('hrm.documents.acknowledge');
     Route::delete('hrm/documents/{document}', [HrmDocumentController::class, 'destroy'])->name('hrm.documents.destroy');
+    Route::get('hrm/my-resignation', [SelfResignationController::class, 'index'])->name('hrm.resignation.my');
+    Route::post('hrm/my-resignation', [SelfResignationController::class, 'store'])->name('hrm.resignation.store');
+    Route::delete('hrm/my-resignation/{resignation}', [SelfResignationController::class, 'withdraw'])->whereNumber('resignation')->name('hrm.resignation.withdraw');
     // <crud-routes>
 });

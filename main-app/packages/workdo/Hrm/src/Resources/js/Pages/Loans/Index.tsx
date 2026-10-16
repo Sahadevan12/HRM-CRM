@@ -40,13 +40,15 @@ interface Row {
 interface Props {
     loans: Paginated<Row>;
     employees: { id: number; code: string; name: string }[];
+    accountingActive: boolean;
     filters: { status?: string };
 }
 
-const empty = { employee_id: '', title: '', amount: '', installment: '', start_month: new Date().toISOString().slice(0, 7), notes: '' };
+const NOT = 'none';
+const empty = { employee_id: '', title: '', amount: '', installment: '', start_month: new Date().toISOString().slice(0, 7), notes: '', paid_from: NOT, paid_on: new Date().toISOString().slice(0, 10) };
 const ALL = 'all';
 
-export default function LoansIndex({ loans, employees, filters }: Props) {
+export default function LoansIndex({ loans, employees, accountingActive, filters }: Props) {
     const { t } = useTranslation();
     const money = useMoney();
     const { auth } = usePage<PageProps>().props;
@@ -58,6 +60,7 @@ export default function LoansIndex({ loans, employees, filters }: Props) {
 
     const submit = (e: FormEvent) => {
         e.preventDefault();
+        form.transform((d) => ({ ...d, paid_from: d.paid_from === NOT ? null : d.paid_from, paid_on: d.paid_from === NOT ? null : d.paid_on }));
         form.post(route('hrm.loans.store'), { preserveScroll: true, onSuccess: () => { setOpen(false); form.reset(); } });
     };
 
@@ -137,6 +140,23 @@ export default function LoansIndex({ loans, employees, filters }: Props) {
                             <div className="space-y-1"><Label>{t('Monthly instalment')}</Label><Input type="number" step="0.01" value={form.data.installment} onChange={(e) => form.setData('installment', e.target.value)} />{err('installment')}</div>
                         </div>
                         <div className="space-y-1"><Label>{t('First deduction month')}</Label><Input type="month" value={form.data.start_month} onChange={(e) => form.setData('start_month', e.target.value)} />{err('start_month')}</div>
+                        {accountingActive && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1">
+                                    <Label>{t('Paid from')}</Label>
+                                    <Select value={form.data.paid_from} onValueChange={(v) => form.setData('paid_from', v)}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={NOT}>{t('Do not record in accounts')}</SelectItem>
+                                            <SelectItem value="bank">{t('Bank')}</SelectItem>
+                                            <SelectItem value="cash">{t('Cash')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {err('paid_from')}
+                                </div>
+                                {form.data.paid_from !== NOT && <div className="space-y-1"><Label>{t('Paid on')}</Label><Input type="date" value={form.data.paid_on} onChange={(e) => form.setData('paid_on', e.target.value)} />{err('paid_on')}</div>}
+                            </div>
+                        )}
                         <div className="space-y-1"><Label>{t('Notes')}</Label><Textarea value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} />{err('notes')}</div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>{t('Cancel')}</Button>
