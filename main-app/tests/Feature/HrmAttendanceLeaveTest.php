@@ -7,17 +7,17 @@ use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use Workdo\Hrm\Exceptions\HrmException;
-use Workdo\Hrm\Models\Attendance;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\Holiday;
-use Workdo\Hrm\Models\IpRestriction;
-use Workdo\Hrm\Models\LeaveApplication;
-use Workdo\Hrm\Models\LeaveType;
-use Workdo\Hrm\Models\Shift;
-use Workdo\Hrm\Services\AttendanceService;
-use Workdo\Hrm\Services\AttendanceSummary;
-use Workdo\Hrm\Services\LeaveService;
+use Modules\Hrm\Exceptions\HrmException;
+use Modules\Hrm\Models\Attendance;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\Holiday;
+use Modules\Hrm\Models\IpRestriction;
+use Modules\Hrm\Models\LeaveApplication;
+use Modules\Hrm\Models\LeaveType;
+use Modules\Hrm\Models\Shift;
+use Modules\Hrm\Services\AttendanceService;
+use Modules\Hrm\Services\AttendanceSummary;
+use Modules\Hrm\Services\LeaveService;
 
 class HrmAttendanceLeaveTest extends TestCase
 {

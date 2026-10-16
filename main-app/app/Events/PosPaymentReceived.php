@@ -8,7 +8,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 /**
  * A POS sale was paid at the counter. Accounting listens and records the customer payment (Dr Cash/Bank, Cr Receivable).
  * A listener that books the payment sets `handled = true`; when nobody does, the POS marks the invoice as paid itself.
- * `document` is a Workdo\SalesPurchase\Models\Document (the posted sales invoice).
+ * `document` is a Modules\SalesPurchase\Models\Document (the posted sales invoice).
  */
 class PosPaymentReceived
 {

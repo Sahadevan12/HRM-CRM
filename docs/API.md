@@ -65,4 +65,4 @@ curl -s -X POST https://your-domain/api/v1/auth/login \
 curl -s https://your-domain/api/v1/hrm/attendance -H 'Authorization: Bearer 1|abc...'
 ```
 
-New modules add their own routes in `packages/workdo/<Module>/src/Routes/api.php` behind `auth:sanctum` and `api.access:<Module>`.
+New modules add their own routes in `packages/modules/<Module>/src/Routes/api.php` behind `auth:sanctum` and `api.access:<Module>`.

@@ -9,17 +9,17 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Workdo\Lead\Events\LeadCallAdded;
-use Workdo\Lead\Events\LeadFileUploaded;
-use Workdo\Lead\Models\Label;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadActivityLog;
-use Workdo\Lead\Models\LeadCall;
-use Workdo\Lead\Models\LeadFile;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Models\Source;
-use Workdo\ProductService\Models\Product;
+use Modules\Lead\Events\LeadCallAdded;
+use Modules\Lead\Events\LeadFileUploaded;
+use Modules\Lead\Models\Label;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadActivityLog;
+use Modules\Lead\Models\LeadCall;
+use Modules\Lead\Models\LeadFile;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Models\Source;
+use Modules\ProductService\Models\Product;
 
 class CrmLeadDetailTest extends TestCase
 {

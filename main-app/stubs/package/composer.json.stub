@@ -1,18 +1,18 @@
 {
-    "name": "workdo/%%moduleKebab%%",
+    "name": "modules/%%moduleKebab%%",
     "description": "%%Alias%% add-on module",
     "type": "library",
     "license": "MIT",
     "require": {},
     "autoload": {
         "psr-4": {
-            "Workdo\\%%Module%%\\": "src/"
+            "Modules\\%%Module%%\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Workdo\\%%Module%%\\Providers\\%%Module%%ServiceProvider"
+                "Modules\\%%Module%%\\Providers\\%%Module%%ServiceProvider"
             ]
         }
     }

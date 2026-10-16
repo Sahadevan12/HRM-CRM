@@ -60,8 +60,8 @@ class PackageGeneratorTest extends TestCase
         $this->assertSame(70, $module['priority']);
 
         $composer = json_decode($this->read('SupportTicket/composer.json'), true);
-        $this->assertSame('src/', $composer['autoload']['psr-4']['Workdo\\SupportTicket\\']);
-        $this->assertSame(['Workdo\\SupportTicket\\Providers\\SupportTicketServiceProvider'], $composer['extra']['laravel']['providers']);
+        $this->assertSame('src/', $composer['autoload']['psr-4']['Modules\\SupportTicket\\']);
+        $this->assertSame(['Modules\\SupportTicket\\Providers\\SupportTicketServiceProvider'], $composer['extra']['laravel']['providers']);
 
         $this->assertStringContainsString("PlanModuleCheck:SupportTicket", $this->read('SupportTicket/src/Routes/web.php'));
         $this->assertStringContainsString('supportTicketCompanyMenu', $this->read('SupportTicket/src/Resources/js/menus/company-menu.ts'));
@@ -177,7 +177,7 @@ class PackageGeneratorTest extends TestCase
         $controller = $this->read('Org/src/Http/Controllers/DepartmentController.php');
         $this->assertStringContainsString("with(['branch:id,name', 'head:id,name'])", $controller);
         $this->assertStringContainsString("'branchOptions' => Branch::where('created_by', creatorId())", $controller);
-        $this->assertStringContainsString('use Workdo\Org\Models\Branch;', $controller);
+        $this->assertStringContainsString('use Modules\Org\Models\Branch;', $controller);
 
         $page = $this->read('Org/src/Resources/js/Pages/Departments/Index.tsx');
         $this->assertStringContainsString('branchOptions: { id: number; name: string }[];', $page);
@@ -221,7 +221,7 @@ class PackageGeneratorTest extends TestCase
         $g->makeCrud('Dup', 'Complaint', 'from_id:ref=Person,against_id:ref=Person?');
 
         $controller = $this->read('Dup/src/Http/Controllers/ComplaintController.php');
-        $this->assertSame(1, substr_count($controller, 'use Workdo\Dup\Models\Person;'));
+        $this->assertSame(1, substr_count($controller, 'use Modules\Dup\Models\Person;'));
         $this->assertSame(1, substr_count($controller, "'personOptions' =>"));
 
         $page = $this->read('Dup/src/Resources/js/Pages/Complaints/Index.tsx');
@@ -262,7 +262,7 @@ class PackageGeneratorTest extends TestCase
 
     public static function invalidModuleNames(): array
     {
-        return [['hrm'], ['my-module'], ['9Module'], ['Has Space'], ['App'], ['Workdo'], ['']];
+        return [['hrm'], ['my-module'], ['9Module'], ['Has Space'], ['App'], ['Modules'], ['']];
     }
 
     public function test_existing_module_or_entity_is_never_overwritten(): void

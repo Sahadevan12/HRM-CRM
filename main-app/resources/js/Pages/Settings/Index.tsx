@@ -42,7 +42,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
 function BrandForm({ settings, themeColors }: Props) {
     const { t } = useTranslation();
     const form = useForm({
-        titleText: settings.titleText ?? 'ERP Clone',
+        titleText: settings.titleText ?? 'ERP Suite',
         footerText: settings.footerText ?? '',
         themeColor: settings.themeColor ?? 'slate',
         themeMode: settings.themeMode ?? 'light',

@@ -9,17 +9,17 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Workdo\Lead\Events\DealStatusChanged;
-use Workdo\Lead\Events\LeadConverted;
-use Workdo\Lead\Models\Deal;
-use Workdo\Lead\Models\DealActivityLog;
-use Workdo\Lead\Models\DealStage;
-use Workdo\Lead\Models\Label;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Models\Source;
-use Workdo\ProductService\Models\Product;
+use Modules\Lead\Events\DealStatusChanged;
+use Modules\Lead\Events\LeadConverted;
+use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\DealActivityLog;
+use Modules\Lead\Models\DealStage;
+use Modules\Lead\Models\Label;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Models\Source;
+use Modules\ProductService\Models\Product;
 
 class CrmDealsTest extends TestCase
 {
@@ -349,7 +349,7 @@ class CrmDealsTest extends TestCase
 
         $this->assertTrue($lead->refresh()->is_converted);
         $this->assertSame('converted', DealActivityLog::where('deal_id', $deal->id)->latest('id')->value('type'));
-        $this->assertSame(1, \Workdo\Lead\Models\LeadActivityLog::where('lead_id', $lead->id)->where('type', 'converted')->count());
+        $this->assertSame(1, \Modules\Lead\Models\LeadActivityLog::where('lead_id', $lead->id)->where('type', 'converted')->count());
         Event::assertDispatched(LeadConverted::class);
     }
 

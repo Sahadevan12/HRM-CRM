@@ -10,17 +10,17 @@ use Illuminate\Support\Facades\File;
 use Spatie\Permission\Models\Permission;
 
 /**
- * Registry of add-on modules (packages/workdo/*).
+ * Registry of add-on modules (packages/modules/*).
  * Source of truth for "exists" = module.json on disk; for "enabled platform-wide" = add_ons.is_enable.
  */
 class Module
 {
     private const CACHE_KEY = 'enabled_modules';
 
-    /** Read packages/workdo/<name>/module.json (null when missing). */
+    /** Read packages/modules/<name>/module.json (null when missing). */
     public function json(string $name): ?array
     {
-        $path = base_path("packages/workdo/{$name}/module.json");
+        $path = base_path("packages/modules/{$name}/module.json");
 
         return File::exists($path) ? json_decode(File::get($path), true) : null;
     }
@@ -28,11 +28,11 @@ class Module
     /** Names of all module folders that ship a module.json. */
     public function installed(): array
     {
-        if (!File::isDirectory(base_path('packages/workdo'))) {
+        if (!File::isDirectory(base_path('packages/modules'))) {
             return [];
         }
 
-        return collect(File::directories(base_path('packages/workdo')))
+        return collect(File::directories(base_path('packages/modules')))
             ->map(fn ($dir) => basename($dir))
             ->filter(fn ($name) => $this->json($name) !== null)
             ->values()
@@ -68,7 +68,7 @@ class Module
     }
 
     /**
-     * A module folder that was deleted from packages/workdo is UNINSTALLED: its add-on row, the companies' grants, the entry in every plan and its
+     * A module folder that was deleted from packages/modules is UNINSTALLED: its add-on row, the companies' grants, the entry in every plan and its
      * permissions go too, so no plan keeps offering something that no longer exists. (The module's own tables stay: dropping data is a decision for
      * a person, not for a sync.)
      */

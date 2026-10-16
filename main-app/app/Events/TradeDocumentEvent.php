@@ -7,7 +7,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 
 /**
  * Base of the trade events. They live in core so that any module (Account, POS, ...) can listen
- * without importing the SalesPurchase module. document is a Workdo\SalesPurchase\Models\Document.
+ * without importing the SalesPurchase module. document is a Modules\SalesPurchase\Models\Document.
  */
 abstract class TradeDocumentEvent
 {

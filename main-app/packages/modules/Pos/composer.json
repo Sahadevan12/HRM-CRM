@@ -1,0 +1,19 @@
+{
+    "name": "modules/pos",
+    "description": "Point of Sale add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\Pos\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Pos\\Providers\\PosServiceProvider"
+            ]
+        }
+    }
+}

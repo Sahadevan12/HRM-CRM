@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Auto-discovers add-on modules in packages/workdo/* :
+ * Auto-discovers add-on modules in packages/modules/* :
  *  - registers each module's PSR-4 namespace at runtime (no composer dump-autoload needed)
  *  - registers every provider listed in the module's composer.json extra.laravel.providers
  */
@@ -15,7 +15,7 @@ class PackageServiceProvider extends ServiceProvider
     {
         $loader = require base_path('vendor/autoload.php');
 
-        foreach (glob(base_path('packages/workdo/*'), GLOB_ONLYDIR) as $packageDir) {
+        foreach (glob(base_path('packages/modules/*'), GLOB_ONLYDIR) as $packageDir) {
             $composerFile = $packageDir . '/composer.json';
 
             if (!file_exists($composerFile)) {

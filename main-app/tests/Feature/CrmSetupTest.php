@@ -6,11 +6,11 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
 use Tests\TestCase;
-use Workdo\Lead\Models\DealStage;
-use Workdo\Lead\Models\Label;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Models\Source;
+use Modules\Lead\Models\DealStage;
+use Modules\Lead\Models\Label;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Models\Source;
 
 class CrmSetupTest extends TestCase
 {

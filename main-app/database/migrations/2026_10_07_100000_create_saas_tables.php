@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Add-on modules known to the platform (synced from packages/workdo/*/module.json)
+        // Add-on modules known to the platform (synced from packages/modules/*/module.json)
         Schema::create('add_ons', function (Blueprint $table) {
             $table->id();
             $table->string('module')->unique();       // folder / namespace name, e.g. "Hello"

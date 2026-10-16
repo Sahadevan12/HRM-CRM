@@ -1,0 +1,19 @@
+{
+    "name": "modules/account",
+    "description": "Accounting add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\Account\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Account\\Providers\\AccountServiceProvider"
+            ]
+        }
+    }
+}

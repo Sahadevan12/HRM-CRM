@@ -7,18 +7,18 @@ use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use Workdo\Account\Models\JournalEntry;
-use Workdo\Hrm\Exceptions\HrmException;
-use Workdo\Hrm\Models\Attendance;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\LeaveType;
-use Workdo\Hrm\Models\Loan;
-use Workdo\Hrm\Models\Payroll;
-use Workdo\Hrm\Models\Payslip;
-use Workdo\Hrm\Models\SalaryComponent;
-use Workdo\Hrm\Services\LeaveService;
-use Workdo\Hrm\Services\PayrollService;
-use Workdo\Hrm\Services\WorkCalendar;
+use Modules\Account\Models\JournalEntry;
+use Modules\Hrm\Exceptions\HrmException;
+use Modules\Hrm\Models\Attendance;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\LeaveType;
+use Modules\Hrm\Models\Loan;
+use Modules\Hrm\Models\Payroll;
+use Modules\Hrm\Models\Payslip;
+use Modules\Hrm\Models\SalaryComponent;
+use Modules\Hrm\Services\LeaveService;
+use Modules\Hrm\Services\PayrollService;
+use Modules\Hrm\Services\WorkCalendar;
 
 /**
  * March 2026 has 31 days, 5 Sundays (1, 8, 15, 22, 29) => 26 working days with the default Mon-Sat week.
@@ -375,14 +375,14 @@ class HrmPayrollTest extends TestCase
         $p = $this->generate();
         $svc->approve($p, $this->a->id);
 
-        app(\Workdo\Account\Services\AccountService::class)->ensureDefaults($this->a->id); // the chart is created lazily
-        \Workdo\Account\Models\ChartOfAccount::where('created_by', $this->a->id)->where('code', '5300')->delete();
-        \Workdo\Account\Models\ChartOfAccount::where('created_by', $this->a->id)->update(['is_active' => false]);
+        app(\Modules\Account\Services\AccountService::class)->ensureDefaults($this->a->id); // the chart is created lazily
+        \Modules\Account\Models\ChartOfAccount::where('created_by', $this->a->id)->where('code', '5300')->delete();
+        \Modules\Account\Models\ChartOfAccount::where('created_by', $this->a->id)->update(['is_active' => false]);
 
         try {
             $svc->pay($p, '2026-04-01', 'bank', $this->a->id);
             $this->fail('the journal needs active accounts');
-        } catch (\Workdo\Account\Exceptions\UnbalancedJournalException) {
+        } catch (\Modules\Account\Exceptions\UnbalancedJournalException) {
             $this->assertSame('approved', $p->refresh()->status);
             $this->assertNull($p->paid_on);
         }

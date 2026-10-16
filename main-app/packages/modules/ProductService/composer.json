@@ -1,0 +1,19 @@
+{
+    "name": "modules/product-service",
+    "description": "Products & Services add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\ProductService\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\ProductService\\Providers\\ProductServiceServiceProvider"
+            ]
+        }
+    }
+}

@@ -1,6 +1,6 @@
 <?php
 
-namespace Workdo\%%Module%%\Providers;
+namespace Modules\%%Module%%\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -12,6 +12,6 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        // \App\Events\SomeEvent::class => [\Workdo\%%Module%%\Listeners\SomeListener::class],
+        // \App\Events\SomeEvent::class => [\Modules\%%Module%%\Listeners\SomeListener::class],
     ];
 }

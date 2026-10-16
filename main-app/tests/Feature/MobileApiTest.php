@@ -9,21 +9,21 @@ use App\Services\PlanService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
-use Workdo\Hrm\Models\Attendance;
-use Workdo\Hrm\Models\Announcement;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\IpRestriction;
-use Workdo\Hrm\Models\LeaveApplication;
-use Workdo\Hrm\Models\LeaveType;
-use Workdo\Hrm\Models\Payroll;
-use Workdo\Hrm\Models\Payslip;
-use Workdo\Hrm\Services\PayrollService;
-use Workdo\Hrm\Services\WorkCalendar;
-use Workdo\Lead\Models\Deal;
-use Workdo\Lead\Models\DealStage;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
+use Modules\Hrm\Models\Attendance;
+use Modules\Hrm\Models\Announcement;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\IpRestriction;
+use Modules\Hrm\Models\LeaveApplication;
+use Modules\Hrm\Models\LeaveType;
+use Modules\Hrm\Models\Payroll;
+use Modules\Hrm\Models\Payslip;
+use Modules\Hrm\Services\PayrollService;
+use Modules\Hrm\Services\WorkCalendar;
+use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\DealStage;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
 
 /** The mobile API: token login, the same rules as the website, JSON everywhere. */
 class MobileApiTest extends TestCase
@@ -224,7 +224,7 @@ class MobileApiTest extends TestCase
 
         $this->api($creator, 'POST', "/api/v1/crm/leads/{$id}/move", ['lead_stage_id' => $stages['Qualified']])->assertOk()->assertJsonPath('data.stage.name', 'Qualified');
         $this->api($creator, 'POST', "/api/v1/crm/leads/{$id}/move", ['lead_stage_id' => 999999])->assertStatus(422);
-        $this->assertSame('moved', \Workdo\Lead\Models\LeadActivityLog::where('lead_id', $id)->latest('id')->value('type'));
+        $this->assertSame('moved', \Modules\Lead\Models\LeadActivityLog::where('lead_id', $id)->latest('id')->value('type'));
 
         // no create / move permission, or a lead of somebody else
         $viewer = $this->staff('v@test.com', ['manage-leads']);
@@ -329,8 +329,8 @@ class MobileApiTest extends TestCase
         $this->api($e->user, 'DELETE', "/api/v1/hrm/leaves/{$id}")->assertOk();
         $this->assertSame(0, LeaveApplication::count());
 
-        $approved = app(\Workdo\Hrm\Services\LeaveService::class)->apply($e, $type, '2026-03-09', '2026-03-09', null, $this->a->id);
-        app(\Workdo\Hrm\Services\LeaveService::class)->approve($approved, null, $this->a->id);
+        $approved = app(\Modules\Hrm\Services\LeaveService::class)->apply($e, $type, '2026-03-09', '2026-03-09', null, $this->a->id);
+        app(\Modules\Hrm\Services\LeaveService::class)->approve($approved, null, $this->a->id);
         $this->api($e->user, 'DELETE', "/api/v1/hrm/leaves/{$approved->id}")->assertStatus(422);                                    // decided: too late
     }
 

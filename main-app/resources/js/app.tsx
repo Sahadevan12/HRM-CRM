@@ -18,7 +18,7 @@ createInertiaApp({
     resolve: (name) => {
         const allPages = {
             ...import.meta.glob('./Pages/**/*.tsx'),
-            ...import.meta.glob('../../packages/workdo/*/src/Resources/js/Pages/**/*.tsx'),
+            ...import.meta.glob('../../packages/modules/*/src/Resources/js/Pages/**/*.tsx'),
         };
 
         // Core page: "Dashboard" -> resources/js/Pages/Dashboard.tsx
@@ -27,9 +27,9 @@ createInertiaApp({
             return resolvePageComponent(corePath, allPages);
         }
 
-        // Module page: "Pos/PosOrder/Index" -> packages/workdo/Pos/src/Resources/js/Pages/PosOrder/Index.tsx
+        // Module page: "Pos/PosOrder/Index" -> packages/modules/Pos/src/Resources/js/Pages/PosOrder/Index.tsx
         const [packageName, ...pagePath] = name.split('/');
-        const packagePath = `../../packages/workdo/${packageName}/src/Resources/js/Pages/${pagePath.join('/')}.tsx`;
+        const packagePath = `../../packages/modules/${packageName}/src/Resources/js/Pages/${pagePath.join('/')}.tsx`;
 
         return resolvePageComponent(packagePath, allPages);
     },

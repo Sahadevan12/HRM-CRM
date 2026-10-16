@@ -25,7 +25,7 @@ export interface Paginated<T> {
 
 /**
  * Sidebar item. Add-on modules export these from
- * packages/workdo/<Module>/src/Resources/js/menus/company-menu.ts
+ * packages/modules/<Module>/src/Resources/js/menus/company-menu.ts
  *  - `name`   : lets other items attach to this one via `parent`
  *  - `parent` : name of the core item to nest under
  *  - `order`  : sort position (lower = higher up)

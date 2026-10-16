@@ -7,18 +7,18 @@ use App\Models\User;
 use App\Services\PlanService;
 use Database\Seeders\DatabaseSeeder;
 use Tests\TestCase;
-use Workdo\Account\Models\ChartOfAccount;
-use Workdo\Account\Models\JournalEntry;
-use Workdo\Account\Models\Payment;
-use Workdo\Account\Services\AccountService;
-use Workdo\Account\Services\JournalService;
-use Workdo\Account\Services\PaymentService;
-use Workdo\Account\Services\ReportService;
-use Workdo\ProductService\Models\Product;
-use Workdo\ProductService\Models\ProductTax;
-use Workdo\ProductService\Models\Warehouse;
-use Workdo\ProductService\Services\StockService;
-use Workdo\SalesPurchase\Models\Document;
+use Modules\Account\Models\ChartOfAccount;
+use Modules\Account\Models\JournalEntry;
+use Modules\Account\Models\Payment;
+use Modules\Account\Services\AccountService;
+use Modules\Account\Services\JournalService;
+use Modules\Account\Services\PaymentService;
+use Modules\Account\Services\ReportService;
+use Modules\ProductService\Models\Product;
+use Modules\ProductService\Models\ProductTax;
+use Modules\ProductService\Models\Warehouse;
+use Modules\ProductService\Services\StockService;
+use Modules\SalesPurchase\Models\Document;
 
 class AccountingTest extends TestCase
 {

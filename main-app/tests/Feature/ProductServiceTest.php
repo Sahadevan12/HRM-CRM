@@ -9,18 +9,18 @@ use Database\Seeders\PermissionRoleSeeder;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
-use Workdo\ProductService\Database\Seeders\PermissionTableSeeder;
-use Workdo\ProductService\Events\CreateStockTransfer;
-use Workdo\ProductService\Events\DestroyStockTransfer;
-use Workdo\ProductService\Exceptions\InsufficientStockException;
-use Workdo\ProductService\Models\Product;
-use Workdo\ProductService\Models\ProductCategory;
-use Workdo\ProductService\Models\ProductStock;
-use Workdo\ProductService\Models\ProductTax;
-use Workdo\ProductService\Models\ProductUnit;
-use Workdo\ProductService\Models\StockTransfer;
-use Workdo\ProductService\Models\Warehouse;
-use Workdo\ProductService\Services\StockService;
+use Modules\ProductService\Database\Seeders\PermissionTableSeeder;
+use Modules\ProductService\Events\CreateStockTransfer;
+use Modules\ProductService\Events\DestroyStockTransfer;
+use Modules\ProductService\Exceptions\InsufficientStockException;
+use Modules\ProductService\Models\Product;
+use Modules\ProductService\Models\ProductCategory;
+use Modules\ProductService\Models\ProductStock;
+use Modules\ProductService\Models\ProductTax;
+use Modules\ProductService\Models\ProductUnit;
+use Modules\ProductService\Models\StockTransfer;
+use Modules\ProductService\Models\Warehouse;
+use Modules\ProductService\Services\StockService;
 
 class ProductServiceTest extends TestCase
 {

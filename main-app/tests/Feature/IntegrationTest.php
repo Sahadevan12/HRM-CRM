@@ -8,16 +8,16 @@ use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
-use Workdo\Lead\Models\Deal;
-use Workdo\Lead\Models\DealActivityLog;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadActivityLog;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Services\DealService;
-use Workdo\ProductService\Models\Product;
-use Workdo\ProductService\Models\Warehouse;
-use Workdo\SalesPurchase\Models\Document;
+use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\DealActivityLog;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadActivityLog;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Services\DealService;
+use Modules\ProductService\Models\Product;
+use Modules\ProductService\Models\Warehouse;
+use Modules\SalesPurchase\Models\Document;
 
 /** CRM / HRM / Sales talking to each other through core events only (I1). */
 class IntegrationTest extends TestCase
@@ -291,7 +291,7 @@ class IntegrationTest extends TestCase
 
         $deal = $this->deal();
         $deal->update(['price' => 1234]);
-        Deal::create(['name' => 'B deal', 'price' => 99999, 'pipeline_id' => $pipelineB->id, 'deal_stage_id' => \Workdo\Lead\Models\DealStage::where('pipeline_id', $pipelineB->id)->value('id'), 'creator_id' => $b->id, 'created_by' => $b->id]);
+        Deal::create(['name' => 'B deal', 'price' => 99999, 'pipeline_id' => $pipelineB->id, 'deal_stage_id' => \Modules\Lead\Models\DealStage::where('pipeline_id', $pipelineB->id)->value('id'), 'creator_id' => $b->id, 'created_by' => $b->id]);
 
         $crm = collect($this->actingAs($this->a)->get('/dashboard')->viewData('page')['props']['widgets'])->firstWhere('key', 'crm');
         $stats = collect($crm['stats'])->pluck('value', 'label');

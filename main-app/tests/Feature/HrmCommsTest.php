@@ -8,15 +8,15 @@ use App\Services\PlanService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Workdo\Hrm\Models\Acknowledgment;
-use Workdo\Hrm\Models\Announcement;
-use Workdo\Hrm\Models\AnnouncementCategory;
-use Workdo\Hrm\Models\Department;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\Event;
-use Workdo\Hrm\Models\EventType;
-use Workdo\Hrm\Models\HrmDocument;
-use Workdo\Hrm\Models\LeaveType;
+use Modules\Hrm\Models\Acknowledgment;
+use Modules\Hrm\Models\Announcement;
+use Modules\Hrm\Models\AnnouncementCategory;
+use Modules\Hrm\Models\Department;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\Event;
+use Modules\Hrm\Models\EventType;
+use Modules\Hrm\Models\HrmDocument;
+use Modules\Hrm\Models\LeaveType;
 
 class HrmCommsTest extends TestCase
 {
@@ -294,7 +294,7 @@ class HrmCommsTest extends TestCase
         $e2 = $this->hire('e2@test.com', $sales);
         $e2->update(['status' => 'resigned']);
 
-        \Workdo\Hrm\Models\Attendance::create(['employee_id' => $e1->id, 'date' => now()->toDateString(), 'status' => 'present', 'total_hours' => 8, 'source' => 'manual', 'created_by' => $this->a->id]);
+        \Modules\Hrm\Models\Attendance::create(['employee_id' => $e1->id, 'date' => now()->toDateString(), 'status' => 'present', 'total_hours' => 8, 'source' => 'manual', 'created_by' => $this->a->id]);
 
         $page = $this->actingAs($this->a)->get('/hrm/dashboard')->viewData('page')['props'];
 

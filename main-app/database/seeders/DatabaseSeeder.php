@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         // every installed add-on registers its permissions (same as `php artisan package:seed <Module>`)
         foreach ($modules->installed() as $name) {
-            $seeder = "Workdo\\{$name}\\Database\\Seeders\\PermissionTableSeeder";
+            $seeder = "Modules\\{$name}\\Database\\Seeders\\PermissionTableSeeder";
 
             if (class_exists($seeder)) {
                 $this->call($seeder);

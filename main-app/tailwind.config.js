@@ -10,7 +10,7 @@ export default {
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
         './resources/js/**/*.tsx',
-        './packages/workdo/**/*.{ts,tsx}',
+        './packages/modules/**/*.{ts,tsx}',
     ],
 
     theme: {

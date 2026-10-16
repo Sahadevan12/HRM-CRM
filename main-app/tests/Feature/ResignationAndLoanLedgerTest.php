@@ -10,13 +10,13 @@ use App\Services\PlanService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
-use Workdo\Account\Models\JournalEntry;
-use Workdo\Hrm\Models\Attendance;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\Loan;
-use Workdo\Hrm\Models\Resignation;
-use Workdo\Hrm\Services\PayrollService;
-use Workdo\Hrm\Services\WorkCalendar;
+use Modules\Account\Models\JournalEntry;
+use Modules\Hrm\Models\Attendance;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\Loan;
+use Modules\Hrm\Models\Resignation;
+use Modules\Hrm\Services\PayrollService;
+use Modules\Hrm\Services\WorkCalendar;
 
 /** Staff resign for themselves; a loan to an employee is booked in the ledger. */
 class ResignationAndLoanLedgerTest extends TestCase
@@ -255,7 +255,7 @@ class ResignationAndLoanLedgerTest extends TestCase
         $service->pay($payroll, '2026-04-01', 'bank', $this->a->id);
 
         // the account holds what the employee still owes: 1500 lent - 500 recovered
-        $items = \Workdo\Account\Models\JournalEntryItem::whereHas('account', fn ($q) => $q->where('created_by', $this->a->id)->where('code', '1400'))->get();
+        $items = \Modules\Account\Models\JournalEntryItem::whereHas('account', fn ($q) => $q->where('created_by', $this->a->id)->where('code', '1400'))->get();
         $this->assertEquals(1000, $items->sum('debit') - $items->sum('credit'));
         $this->assertEquals(Loan::firstOrFail()->remaining(), $items->sum('debit') - $items->sum('credit'));
     }

@@ -9,7 +9,7 @@ class PackageSync extends Command
 {
     protected $signature = 'package:sync';
 
-    protected $description = 'Register/refresh every packages/workdo/* module (module.json) in the add_ons table';
+    protected $description = 'Register/refresh every packages/modules/* module (module.json) in the add_ons table';
 
     public function handle(): int
     {

@@ -6,18 +6,18 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
 use Tests\TestCase;
-use Workdo\Account\Models\ChartOfAccount;
-use Workdo\Account\Models\JournalEntry;
-use Workdo\Account\Models\Payment;
-use Workdo\Account\Services\AccountService;
-use Workdo\Pos\Models\PosSale;
-use Workdo\Pos\Support\WalkInCustomer;
-use Workdo\ProductService\Models\Product;
-use Workdo\ProductService\Models\ProductCategory;
-use Workdo\ProductService\Models\ProductTax;
-use Workdo\ProductService\Models\Warehouse;
-use Workdo\ProductService\Services\StockService;
-use Workdo\SalesPurchase\Models\Document;
+use Modules\Account\Models\ChartOfAccount;
+use Modules\Account\Models\JournalEntry;
+use Modules\Account\Models\Payment;
+use Modules\Account\Services\AccountService;
+use Modules\Pos\Models\PosSale;
+use Modules\Pos\Support\WalkInCustomer;
+use Modules\ProductService\Models\Product;
+use Modules\ProductService\Models\ProductCategory;
+use Modules\ProductService\Models\ProductTax;
+use Modules\ProductService\Models\Warehouse;
+use Modules\ProductService\Services\StockService;
+use Modules\SalesPurchase\Models\Document;
 
 class PosTest extends TestCase
 {

@@ -1,10 +1,10 @@
-# ERP Clone
+# ERP Suite
 
 A modular, multi-tenant SaaS ERP: **Laravel 12 + Inertia v2 + React 18 + TypeScript** (Tailwind 3, shadcn/ui).
 One platform owner (super admin) sells **plans**; every **company** is a tenant with its own staff, clients and data.
 Business features ship as **add-on modules** that a plan switches on.
 
-The app lives in [`main-app/`](main-app). `PROGRESS.md` is the detailed build log (every phase, every rule, every known limit).
+The app lives in [`main-app/`](main-app). `docs/DEVELOPMENT_LOG.md` is the detailed build log (every phase, every rule, every known limit).
 
 ## Modules
 
@@ -73,7 +73,7 @@ npx tsc --noEmit            # type check
 
 | Command | Purpose |
 |---|---|
-| `php artisan package:sync` | Register / refresh add-ons from `packages/workdo/*/module.json`. **A module folder that was deleted is uninstalled**: its add-on row, plan entries, company grants and permissions are removed (its tables are kept) |
+| `php artisan package:sync` | Register / refresh add-ons from `packages/modules/*/module.json`. **A module folder that was deleted is uninstalled**: its add-on row, plan entries, company grants and permissions are removed (its tables are kept) |
 | `php artisan package:seed <Module>` | Re-run one module's permission seeder |
 | `php artisan make:package <Name>` | New module skeleton (provider, routes, permissions, menu, React page) |
 | `php artisan make:crud <Module> <Entity> --fields="name:string,price:decimal,branch_id:ref=Branch?"` | Full CRUD layer (migration, model, request, controller, events, React page, permissions, menu, routes) |
@@ -97,4 +97,4 @@ Companies buy plans by **bank transfer** (approved by the platform owner), **Str
 
 ## Not built (by design or not yet)
 
-Invoices / receipts for plan payments, recurring (auto-renewing) subscriptions, refunds through the gateways (do them in the gateway dashboard), more gateways (PayPal ...). See `PROGRESS.md` for every known limit.
+Invoices / receipts for plan payments, recurring (auto-renewing) subscriptions, refunds through the gateways (do them in the gateway dashboard), more gateways (PayPal ...). See `docs/DEVELOPMENT_LOG.md` for every known limit.

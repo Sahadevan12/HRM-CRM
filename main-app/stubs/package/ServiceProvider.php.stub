@@ -1,6 +1,6 @@
 <?php
 
-namespace Workdo\%%Module%%\Providers;
+namespace Modules\%%Module%%\Providers;
 
 use Illuminate\Support\ServiceProvider;
 

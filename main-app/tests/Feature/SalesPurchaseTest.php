@@ -14,13 +14,13 @@ use App\Services\PlanService;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
-use Workdo\ProductService\Models\Product;
-use Workdo\ProductService\Models\ProductTax;
-use Workdo\ProductService\Models\Warehouse;
-use Workdo\ProductService\Services\StockService;
-use Workdo\SalesPurchase\Models\Document;
-use Workdo\SalesPurchase\Services\DocumentCalculator;
-use Workdo\SalesPurchase\Support\DocumentType;
+use Modules\ProductService\Models\Product;
+use Modules\ProductService\Models\ProductTax;
+use Modules\ProductService\Models\Warehouse;
+use Modules\ProductService\Services\StockService;
+use Modules\SalesPurchase\Models\Document;
+use Modules\SalesPurchase\Services\DocumentCalculator;
+use Modules\SalesPurchase\Support\DocumentType;
 
 class SalesPurchaseTest extends TestCase
 {

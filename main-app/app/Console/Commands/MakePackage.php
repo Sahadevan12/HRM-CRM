@@ -14,7 +14,7 @@ class MakePackage extends Command
         {--priority=50 : Module / menu ordering}
         {--entity=* : CRUD entity to scaffold right away (repeatable). Use make:crud for custom fields}';
 
-    protected $description = 'Scaffold a new add-on module in packages/workdo (provider, routes, permissions, menu, React page)';
+    protected $description = 'Scaffold a new add-on module in packages/modules (provider, routes, permissions, menu, React page)';
 
     public function handle(PackageGenerator $generator): int
     {
@@ -33,7 +33,7 @@ class MakePackage extends Command
         }
 
         foreach ($files as $file) {
-            $this->line("  <info>+</info> packages/workdo/{$name}/{$file}");
+            $this->line("  <info>+</info> packages/modules/{$name}/{$file}");
         }
 
         $this->newLine();

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
  * Every add-on module may ship menus/company-menu.ts (and superadmin-menu.ts).
  * Vite bundles them all; we only USE the ones of the user's activated packages.
  */
-const moduleMenus = import.meta.glob('../../../packages/workdo/*/src/Resources/js/menus/*.ts', { eager: true }) as Record<
+const moduleMenus = import.meta.glob('../../../packages/modules/*/src/Resources/js/menus/*.ts', { eager: true }) as Record<
     string,
     Record<string, unknown>
 >;
@@ -19,7 +19,7 @@ function loadModuleItems(packages: string[], menuFile: string, t: MenuT): NavIte
     const items: NavItem[] = [];
 
     packages.forEach((pkg) => {
-        const mod = moduleMenus[`../../../packages/workdo/${pkg}/src/Resources/js/menus/${menuFile}.ts`];
+        const mod = moduleMenus[`../../../packages/modules/${pkg}/src/Resources/js/menus/${menuFile}.ts`];
         if (!mod) return;
 
         Object.values(mod).forEach((exported) => {

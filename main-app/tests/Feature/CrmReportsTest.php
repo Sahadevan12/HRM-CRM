@@ -7,13 +7,13 @@ use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use Workdo\Lead\Models\Deal;
-use Workdo\Lead\Models\DealStage;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Models\Source;
-use Workdo\Lead\Services\DealService;
+use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\DealStage;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Models\Source;
+use Modules\Lead\Services\DealService;
 
 class CrmReportsTest extends TestCase
 {
@@ -267,7 +267,7 @@ class CrmReportsTest extends TestCase
         $this->assertSame(1, collect($p['leadsByStage'])->firstWhere('name', 'Contacted')['value']);
         // the trail is written by the services: this lead was made directly, so look at one created the normal way
         $this->assertIsArray($p['activity']);
-        $made = app(\Workdo\Lead\Services\LeadService::class)->create($this->a->id, $this->a->id, ['subject' => 'Via service', 'name' => 'X', 'pipeline_id' => $this->sales->id], []);
+        $made = app(\Modules\Lead\Services\LeadService::class)->create($this->a->id, $this->a->id, ['subject' => 'Via service', 'name' => 'X', 'pipeline_id' => $this->sales->id], []);
         app(DealService::class)->create($this->a->id, $this->a->id, ['name' => 'Deal via service', 'price' => 1, 'pipeline_id' => $this->sales->id], [], []);
         $activity = $this->actingAs($this->a)->get('/crm/dashboard')->viewData('page')['props']['activity'];
         $this->assertEqualsCanonicalizing(['Via service', 'Deal via service'], collect($activity)->pluck('title')->all());

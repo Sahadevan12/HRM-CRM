@@ -16,12 +16,12 @@ class PackageSeed extends Command
         $name = $this->argument('packageName');
 
         if (!(new Module())->has($name)) {
-            $this->error("Module '{$name}' not found in packages/workdo.");
+            $this->error("Module '{$name}' not found in packages/modules.");
 
             return self::FAILURE;
         }
 
-        $seeder = "Workdo\\{$name}\\Database\\Seeders\\PermissionTableSeeder";
+        $seeder = "Modules\\{$name}\\Database\\Seeders\\PermissionTableSeeder";
 
         if (!class_exists($seeder)) {
             $this->warn("{$name} has no PermissionTableSeeder – nothing to seed.");

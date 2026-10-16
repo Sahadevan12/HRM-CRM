@@ -10,18 +10,18 @@ use App\Services\PlanService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
-use Workdo\Hrm\Models\Attendance;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\LeaveType;
-use Workdo\Hrm\Services\LeaveService;
-use Workdo\Hrm\Services\PayrollService;
-use Workdo\Hrm\Services\WorkCalendar;
-use Workdo\Lead\Models\Deal;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
-use Workdo\Lead\Services\DealService;
-use Workdo\Lead\Services\LeadService;
+use Modules\Hrm\Models\Attendance;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\LeaveType;
+use Modules\Hrm\Services\LeaveService;
+use Modules\Hrm\Services\PayrollService;
+use Modules\Hrm\Services\WorkCalendar;
+use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
+use Modules\Lead\Services\DealService;
+use Modules\Lead\Services\LeadService;
 
 class MailTemplatesTest extends TestCase
 {

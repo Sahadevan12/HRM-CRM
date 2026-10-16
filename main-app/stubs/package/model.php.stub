@@ -1,6 +1,6 @@
 <?php
 
-namespace Workdo\%%Module%%\Models;
+namespace Modules\%%Module%%\Models;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;

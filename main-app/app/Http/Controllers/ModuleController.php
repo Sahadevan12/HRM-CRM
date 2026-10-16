@@ -20,7 +20,7 @@ class ModuleController extends Controller
         }
 
         $modules = new Module();
-        $modules->sync(); // pick up modules dropped into packages/workdo
+        $modules->sync(); // pick up modules dropped into packages/modules
 
         return Inertia::render('AddOns/Index', [
             'addOns' => AddOn::orderBy('priority')->get()

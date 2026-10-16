@@ -1,0 +1,19 @@
+{
+    "name": "modules/sales-purchase",
+    "description": "Sales & Purchases add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\SalesPurchase\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\SalesPurchase\\Providers\\SalesPurchaseServiceProvider"
+            ]
+        }
+    }
+}

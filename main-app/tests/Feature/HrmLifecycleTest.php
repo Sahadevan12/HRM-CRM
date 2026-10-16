@@ -7,19 +7,19 @@ use App\Models\User;
 use App\Services\PlanService;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
-use Workdo\Hrm\Models\Award;
-use Workdo\Hrm\Models\AwardType;
-use Workdo\Hrm\Models\Branch;
-use Workdo\Hrm\Models\Complaint;
-use Workdo\Hrm\Models\Department;
-use Workdo\Hrm\Models\Designation;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\Promotion;
-use Workdo\Hrm\Models\Resignation;
-use Workdo\Hrm\Models\Termination;
-use Workdo\Hrm\Models\Transfer;
-use Workdo\Hrm\Models\Warning;
-use Workdo\Hrm\Services\LifecycleService;
+use Modules\Hrm\Models\Award;
+use Modules\Hrm\Models\AwardType;
+use Modules\Hrm\Models\Branch;
+use Modules\Hrm\Models\Complaint;
+use Modules\Hrm\Models\Department;
+use Modules\Hrm\Models\Designation;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\Promotion;
+use Modules\Hrm\Models\Resignation;
+use Modules\Hrm\Models\Termination;
+use Modules\Hrm\Models\Transfer;
+use Modules\Hrm\Models\Warning;
+use Modules\Hrm\Services\LifecycleService;
 
 class HrmLifecycleTest extends TestCase
 {
@@ -256,8 +256,8 @@ class HrmLifecycleTest extends TestCase
         $e = $this->hire(extra: ['date_of_joining' => '2025-01-01']);
         $e->update(['status' => 'resigned']);
 
-        $this->expectException(\Workdo\Hrm\Exceptions\HrmException::class); // nobody active to pay
-        app(\Workdo\Hrm\Services\PayrollService::class)->generate($this->a->id, '2026-03', $this->a->id);
+        $this->expectException(\Modules\Hrm\Exceptions\HrmException::class); // nobody active to pay
+        app(\Modules\Hrm\Services\PayrollService::class)->generate($this->a->id, '2026-03', $this->a->id);
     }
 
     // ───────────── awards / warnings / complaints (generated CRUD) ─────────────

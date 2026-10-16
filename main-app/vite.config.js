@@ -3,8 +3,8 @@ import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { globSync } from 'node:fs';
 
-// Add-on modules can ship their own entry (packages/workdo/<Module>/src/Resources/js/app.tsx)
-const modulePackages = globSync('packages/workdo/*/src/Resources/js/app.tsx');
+// Add-on modules can ship their own entry (packages/modules/<Module>/src/Resources/js/app.tsx)
+const modulePackages = globSync('packages/modules/*/src/Resources/js/app.tsx');
 
 export default defineConfig({
     plugins: [

@@ -27,7 +27,7 @@ export default function AddOnsIndex({ addOns }: { addOns: AddOnRow[] }) {
 
             <div className="mx-auto max-w-5xl space-y-4 px-4 py-8 sm:px-6">
                 <p className="text-sm text-muted-foreground">
-                    Modules found in <code>packages/workdo</code>. Disabling a module hides it for every company, whatever their plan.
+                    Modules found in <code>packages/modules</code>. Disabling a module hides it for every company, whatever their plan.
                 </p>
                 <Card>
                     <CardContent className="p-0">

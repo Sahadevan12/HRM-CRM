@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
- * Scaffolds add-on modules (packages/workdo/<Module>) and tenant-scoped CRUD entities inside them.
+ * Scaffolds add-on modules (packages/modules/<Module>) and tenant-scoped CRUD entities inside them.
  * Everything it writes follows the conventions in PROGRESS.md / the master prompt.
  */
 class PackageGenerator
@@ -18,7 +18,7 @@ class PackageGenerator
     private const RESERVED_FIELDS = ['id', 'creator_id', 'created_by', 'created_at', 'updated_at'];
 
     /** Names that would clash with core namespaces / folders. */
-    private const RESERVED_MODULES = ['App', 'Core', 'Tests', 'Illuminate', 'Workdo', 'Database'];
+    private const RESERVED_MODULES = ['App', 'Core', 'Tests', 'Illuminate', 'Modules', 'Database'];
 
     private string $root;
 
@@ -26,7 +26,7 @@ class PackageGenerator
 
     public function __construct(?string $packagesRoot = null, private ?string $stubsPath = null)
     {
-        $this->root = rtrim($packagesRoot ?? base_path('packages/workdo'), '/\\');
+        $this->root = rtrim($packagesRoot ?? base_path('packages/modules'), '/\\');
         $this->stubsPath ??= base_path('stubs/package');
     }
 
@@ -116,7 +116,7 @@ class PackageGenerator
 
         // Wire the entity into the module files (marker comments keep these insertions predictable).
         $this->insertBefore("{$dir}/src/Routes/web.php", '// <use-statements>',
-            "use Workdo\\{$module}\\Http\\Controllers\\{$entity}Controller;");
+            "use Modules\\{$module}\\Http\\Controllers\\{$entity}Controller;");
         $this->insertBefore("{$dir}/src/Routes/web.php", '// <crud-routes>', $this->routeLine($t));
         $this->insertBefore("{$dir}/src/Database/Seeders/PermissionTableSeeder.php", '// <permissions>', $this->permissionLines($t));
         $this->insertBefore("{$dir}/src/Resources/js/menus/company-menu.ts", '// <menu-items>', $this->menuItem($t));
@@ -231,7 +231,7 @@ class PackageGenerator
             '%%relations%%' => $this->lines($this->refs($fields), fn ($f) => "\n    public function {$this->relationName($f)}(): BelongsTo\n    {\n        return \$this->belongsTo({$f['ref']}::class, '{$f['name']}');\n    }"),
             '%%withList%%' => implode(', ', array_map(fn ($f) => "'{$this->relationName($f)}:id,name'", $this->refs($fields))),
             '%%refProps%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "            '{$this->refOptionsName($f)}' => {$f['ref']}::where('created_by', creatorId())->orderBy('name')->get(['id', 'name']),"),
-            '%%refImports%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "use Workdo\\{$module}\\Models\\{$f['ref']};"),
+            '%%refImports%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "use Modules\\{$module}\\Models\\{$f['ref']};"),
             '%%refPropTypes%%' => $this->lines($this->uniqueRefs($fields), fn ($f) => "    {$this->refOptionsName($f)}: { id: number; name: string }[];"),
             '%%refArgs%%' => implode('', array_map(fn ($f) => ', ' . $this->refOptionsName($f), $this->uniqueRefs($fields))),
             '%%tsTransform%%' => implode(' ', array_map(fn ($f) => "{$f['name']}: data.{$f['name']} === 'none' ? null : data.{$f['name']},", $this->refs($fields))),

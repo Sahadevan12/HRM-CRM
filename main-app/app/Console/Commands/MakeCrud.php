@@ -26,7 +26,7 @@ class MakeCrud extends Command
         }
 
         foreach ($files as $file) {
-            $this->line("  <info>+</info> packages/workdo/{$this->argument('module')}/{$file}");
+            $this->line("  <info>+</info> packages/modules/{$this->argument('module')}/{$file}");
         }
 
         $this->newLine();

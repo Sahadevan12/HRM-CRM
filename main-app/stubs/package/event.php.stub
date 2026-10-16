@@ -1,10 +1,10 @@
 <?php
 
-namespace Workdo\%%Module%%\Events;
+namespace Modules\%%Module%%\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Http\Request;
-use Workdo\%%Module%%\Models\%%Entity%%;
+use Modules\%%Module%%\Models\%%Entity%%;
 
 /** Fired after a %%entityLabel%% is %%action%%. Other modules can listen to it. */
 class %%EventName%%

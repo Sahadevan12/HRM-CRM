@@ -1,0 +1,19 @@
+{
+    "name": "modules/hrm",
+    "description": "HRM add-on module",
+    "type": "library",
+    "license": "MIT",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Modules\\Hrm\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Hrm\\Providers\\HrmServiceProvider"
+            ]
+        }
+    }
+}

@@ -13,7 +13,7 @@
         <!-- Scripts -->
         @routes
         @viteReactRefresh
-        {{-- Core pages are preloaded by path; module pages (packages/workdo/*) are resolved by app.tsx --}}
+        {{-- Core pages are preloaded by path; module pages (packages/modules/*) are resolved by app.tsx --}}
         @php
             $viteEntries = ['resources/js/app.tsx'];
             if (file_exists(resource_path("js/Pages/{$page['component']}.tsx"))) {

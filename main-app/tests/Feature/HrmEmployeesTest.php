@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
-use Workdo\Hrm\Models\Branch;
-use Workdo\Hrm\Models\Department;
-use Workdo\Hrm\Models\Designation;
-use Workdo\Hrm\Models\Employee;
-use Workdo\Hrm\Models\EmployeeDocument;
-use Workdo\Hrm\Models\EmployeeDocumentType;
+use Modules\Hrm\Models\Branch;
+use Modules\Hrm\Models\Department;
+use Modules\Hrm\Models\Designation;
+use Modules\Hrm\Models\Employee;
+use Modules\Hrm\Models\EmployeeDocument;
+use Modules\Hrm\Models\EmployeeDocumentType;
 
 class HrmEmployeesTest extends TestCase
 {

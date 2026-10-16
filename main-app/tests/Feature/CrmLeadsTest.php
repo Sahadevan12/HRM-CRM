@@ -6,11 +6,11 @@ use App\Models\Plan;
 use App\Models\User;
 use App\Services\PlanService;
 use Tests\TestCase;
-use Workdo\Lead\Models\CrmPreference;
-use Workdo\Lead\Models\Lead;
-use Workdo\Lead\Models\LeadActivityLog;
-use Workdo\Lead\Models\LeadStage;
-use Workdo\Lead\Models\Pipeline;
+use Modules\Lead\Models\CrmPreference;
+use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadActivityLog;
+use Modules\Lead\Models\LeadStage;
+use Modules\Lead\Models\Pipeline;
 
 class CrmLeadsTest extends TestCase
 {
