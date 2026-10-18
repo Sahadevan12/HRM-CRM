@@ -82,7 +82,9 @@ export default function HrmDashboard(p: Props) {
                                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                                     <YAxis allowDecimals={false} />
                                     <Tooltip />
-                                    <Bar dataKey="value" fill="#2563eb" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="value" fill="#7c3aed" radius={[6, 6, 0, 0]}>
+                                        {p.byDepartment.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                    </Bar>
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>
@@ -96,7 +98,7 @@ export default function HrmDashboard(p: Props) {
                                     <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                                     <YAxis allowDecimals={false} />
                                     <Tooltip />
-                                    <Bar dataKey="present" fill="#16a34a" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="present" fill="#0d9488" radius={[6, 6, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </CardContent>

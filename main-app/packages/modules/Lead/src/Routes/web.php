@@ -39,6 +39,7 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(fu
         Route::post('files', [LeadDetailController::class, 'upload'])->name('files.upload');
         Route::get('files/{file}', [LeadDetailController::class, 'download'])->whereNumber('file')->name('files.download');
     });
+    Route::get('crm/tasks', \Modules\Lead\Http\Controllers\TaskHubController::class.'@index')->name('crm.tasks');
     Route::get('crm/dashboard', [CrmDashboardController::class, 'dashboard'])->name('crm.dashboard');
     Route::get('crm/reports', [CrmDashboardController::class, 'reports'])->name('crm.reports');
     Route::post('crm/leads/{lead}/convert', [LeadController::class, 'convert'])->whereNumber('lead')->name('crm.leads.convert');

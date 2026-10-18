@@ -79,6 +79,11 @@ export default function DealsIndex({ pipelines, pipeline, stages, view, deals, u
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState<Deal | null>(null);
     const [detailId, setDetailId] = useState<number | null>(null);
+    // a link from My Tasks (?open=ID) opens that record's drawer straight away
+    useEffect(() => {
+        const id = Number(new URLSearchParams(window.location.search).get('open'));
+        if (id) setDetailId(id);
+    }, []);
     const [search, setSearch] = useState(filters.search ?? '');
     const form = useForm(empty);
 

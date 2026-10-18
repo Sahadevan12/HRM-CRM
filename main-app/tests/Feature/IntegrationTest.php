@@ -279,7 +279,7 @@ class IntegrationTest extends TestCase
         $this->assertContains('crm', $keys);
         $this->assertSame(['hrm', 'crm'], array_values(array_intersect($keys, ['hrm', 'crm'])));       // ordered
         $crm = collect($widgets)->firstWhere('key', 'crm');
-        $this->assertSame(['Open leads', 'Open deals', 'Open pipeline value', 'Won this month'], collect($crm['stats'])->pluck('label')->all());
+        $this->assertSame(['Open leads', 'Open deals', 'Open pipeline value', 'Follow-ups due', 'Won this month'], collect($crm['stats'])->pluck('label')->all());
         $this->assertSame(route('crm.dashboard'), $crm['href']);
     }
 

@@ -1,0 +1,59 @@
+<!doctype html><html><head><meta charset="utf-8"><title>happyX poster</title>
+<style>
+*{box-sizing:border-box;margin:0}
+html{background:#060a1f;min-height:100%}
+body{width:1080px;height:1350px;margin:0 auto;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;background:radial-gradient(circle at 20% 0%,#2b1b6b,#0b1030 55%,#060a1f);overflow:hidden;position:relative}
+.logo{text-align:center;padding-top:22px}
+.logo b{font-size:80px;font-weight:900;letter-spacing:-3px}.logo b i{font-style:normal;background:linear-gradient(135deg,#38bdf8,#4f46e5);-webkit-background-clip:text;color:transparent}
+.logo small{display:block;font-size:22px;letter-spacing:2px;color:#cbd5e1;margin-top:-6px}
+.h{text-align:center;margin-top:12px;padding:0 180px 0 30px}
+.h1{display:inline-block;background:#fff;color:#0b1030;font-weight:900;font-size:46px;padding:2px 18px;transform:rotate(-1deg)}
+.h2{display:inline-block;background:#fde047;color:#0b1030;font-weight:900;font-size:40px;padding:2px 18px;margin-top:6px;transform:rotate(-1deg)}
+.checks{display:flex;justify-content:center;gap:34px;margin-top:14px;font-size:19px;font-weight:600;padding-right:150px}.checks span:before{content:'✔';background:#22c55e;border-radius:6px;padding:0 6px;margin-right:8px;font-size:18px}
+.offer{position:absolute;right:22px;top:128px;width:170px;height:170px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#f97316);display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(10deg);box-shadow:0 10px 40px rgba(239,68,68,.6);text-align:center;border:4px dashed #fff;z-index:5}
+.offer small{font-size:16px;font-weight:800}.offer b{font-size:38px;font-weight:900;line-height:1}.offer em{font-style:normal;font-size:14px;font-weight:700}
+.mock{position:relative;height:385px;margin-top:16px}
+.laptop{position:absolute;left:150px;top:0;width:560px;border:10px solid #1e293b;border-radius:16px 16px 4px 4px;background:#000;box-shadow:0 25px 60px rgba(0,0,0,.6)}.laptop img{width:100%;display:block}
+.phone{position:absolute;left:700px;top:20px;width:170px;border:8px solid #0f172a;border-radius:30px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,.6);background:#fff}.phone img{width:100%;display:block}
+.tag{position:absolute;left:30px;top:120px;background:#fde047;color:#0b1030;font-weight:900;font-size:26px;padding:10px 16px;transform:rotate(-8deg);line-height:1.1;z-index:3}
+.lang{position:absolute;right:40px;top:335px;background:#fff;color:#0b1030;font-weight:800;padding:8px 14px;border-radius:8px;transform:rotate(4deg);font-size:19px;z-index:3}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 28px;margin-top:0}
+.c{border-radius:18px;padding:14px 16px;font-size:15px;line-height:1.4;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.c h3{font-size:21px;font-weight:900;margin-bottom:4px;letter-spacing:.5px}.c div:before{content:'✔ ';opacity:.85}
+.p{background:linear-gradient(160deg,#1d4ed8,#1e3a8a)}.hr{background:linear-gradient(160deg,#7c3aed,#4c1d95)}.cr{background:linear-gradient(160deg,#16a34a,#14532d)}.po{background:linear-gradient(160deg,#ea580c,#7c2d12)}
+.pr{background:linear-gradient(160deg,#dc2626,#7f1d1d)}.sp{background:linear-gradient(160deg,#d97706,#78350f)}.ac{background:linear-gradient(160deg,#0d9488,#134e4a)}
+.row2{display:grid;grid-template-columns:1fr 1fr 1fr 1.25fr;gap:14px;padding:0 28px;margin-top:14px}
+.biz{background:#fff;color:#0b1030;border-radius:18px;padding:12px 14px;text-align:center}.biz h4{font-size:15px;font-weight:900;margin-bottom:6px}.biz span{display:inline-block;background:#ede9fe;border-radius:8px;padding:3px 8px;margin:2px;font-size:14px;font-weight:700}
+.bonus{margin:12px 28px 0;background:linear-gradient(90deg,#fde047,#f59e0b);color:#0b1030;border-radius:16px;padding:8px 20px;font-size:21px;font-weight:900;text-align:center}
+.bonus small{display:block;font-size:15px;font-weight:600}
+.cta{display:flex;align-items:center;justify-content:space-between;margin:12px 28px 0}
+.cta .b{background:#ef4444;border-radius:40px;padding:12px 30px;font-size:25px;font-weight:900;box-shadow:0 8px 30px rgba(239,68,68,.5)}
+.cta .w{font-size:23px;font-weight:800;text-align:right}.cta .w small{display:block;font-size:20px;font-weight:600;color:#cbd5e1}
+.foot{display:flex;justify-content:space-around;margin-top:10px;font-size:14px;color:#cbd5e1;font-weight:600}
+</style></head><body>
+<div class="logo"><b>happy<i>X</i></b><small>Creative &amp; Digital Solutions</small></div>
+<div class="h"><div class="h1">ONE PLATFORM.</div><br><div class="h2">COMPLETE BUSINESS CONTROL.</div></div>
+<div class="checks"><span>All-in-One Software</span><span>Easy to Use</span><span>Scalable for Any Business</span></div>
+<div class="offer"><small>LIMITED TIME</small><b>₹7,999</b><em>Launch offer<br>ends 24 Oct</em></div>
+<div class="mock">
+  <div class="tag">Manage Your<br>Entire Business<br>in One Place!</div>
+  <div class="laptop"><img src="assets/desktop-dashboard.png"></div>
+  <div class="phone"><img src="assets/mobile-dashboard.png"></div>
+  <div class="lang">Available in English &amp; தமிழ்</div>
+</div>
+<div class="grid">
+ <div class="c p"><h3>PLATFORM</h3><div>Multi-tenant</div><div>Roles &amp; Permissions</div><div>Subscription Plans</div><div>Stripe + Razorpay</div><div>E-mail Templates</div><div>6 Themes + Dark Mode</div><div>Mobile API</div></div>
+ <div class="c hr"><h3>HRM</h3><div>Employees</div><div>Attendance</div><div>Leave Management</div><div>Payroll (PDF Payslips)</div><div>Branches &amp; Departments</div><div>Promotions / Transfers</div><div>Announcements</div></div>
+ <div class="c cr"><h3>CRM</h3><div>Leads &amp; Deals (Kanban)</div><div>Pipelines &amp; Stages</div><div>Lead → Deal</div><div>Web-to-Lead Form</div><div>Labels &amp; Sources</div><div>Reports</div></div>
+ <div class="c po"><h3>POS</h3><div>Barcode / SKU Search</div><div>Cash / Card / Bank</div><div>On-account</div><div>Auto Stock-out</div><div>Orders &amp; Reports</div></div>
+</div>
+<div class="row2">
+ <div class="c pr"><h3>PRODUCTS</h3><div>Categories &amp; Units</div><div>Taxes</div><div>Warehouses</div><div>Stock Transfers</div></div>
+ <div class="c sp"><h3>SALES &amp; PURCHASES</h3><div>Proposals</div><div>Sales Invoices</div><div>Sales Returns</div><div>Purchase Invoices</div></div>
+ <div class="c ac"><h3>ACCOUNTING</h3><div>Chart of Accounts</div><div>Journal Entries</div><div>Customer &amp; Vendor Payments</div><div>Reports</div></div>
+ <div class="biz"><h4>PERFECT FOR</h4><span>Retail Shops</span><span>Distributors</span><span>Service Business</span><span>Agencies</span><span>Startups</span></div>
+</div>
+<div class="bonus">🎁 BONUS: Android &amp; iOS app source code – FREE for early buyers when released<small>Launch offer valid until 24 Oct 2026 · Full source code included</small></div>
+<div class="cta"><div class="b">BOOK A FREE DEMO ➜</div><div class="w">WhatsApp: +91 XXXXX XXXXX<small>Let us automate your business today!</small></div></div>
+<div class="foot"><span>🔒 Multi-tenant data isolation</span><span>☁ Host anywhere</span><span>📱 Works on all devices</span><span>🧪 456 automated tests</span></div>
+</body></html>

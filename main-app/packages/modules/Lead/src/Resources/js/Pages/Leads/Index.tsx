@@ -78,6 +78,11 @@ export default function LeadsIndex({ pipelines, pipeline, stages, view, leads, u
     const [open, setOpen] = useState(false);
     const [deleting, setDeleting] = useState<Lead | null>(null);
     const [detailId, setDetailId] = useState<number | null>(null);
+    // a link from My Tasks (?open=ID) opens that record's drawer straight away
+    useEffect(() => {
+        const id = Number(new URLSearchParams(window.location.search).get('open'));
+        if (id) setDetailId(id);
+    }, []);
     const [converting, setConverting] = useState<Lead | null>(null);
     const [search, setSearch] = useState(filters.search ?? '');
     const form = useForm(empty);

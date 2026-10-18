@@ -29,7 +29,7 @@ function Item({ item, depth = 0 }: { item: NavItem; depth?: number }) {
     const base = cn(
         'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
         depth > 0 && 'pl-9',
-        active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+        active ? 'bg-white/20 text-white shadow-sm' : 'text-white/75 hover:bg-white/10 hover:text-white',
     );
 
     if (item.children?.length) {
@@ -62,8 +62,8 @@ function Item({ item, depth = 0 }: { item: NavItem; depth?: number }) {
 export default function AppSidebar({ items, title }: { items: NavItem[]; title: string }) {
     return (
         <div className="flex h-full flex-col">
-            <div className="flex h-16 shrink-0 items-center border-b px-5">
-                <Link href={route('dashboard')} className="truncate text-lg font-bold text-primary">
+            <div className="flex h-16 shrink-0 items-center border-b border-white/15 px-5">
+                <Link href={route('dashboard')} className="truncate text-lg font-bold tracking-tight text-white">
                     {title}
                 </Link>
             </div>

@@ -4,7 +4,9 @@ namespace Modules\Lead\Listeners;
 
 use App\Events\CollectDashboardWidgets;
 use Modules\Lead\Models\Deal;
+use Modules\Lead\Models\DealTask;
 use Modules\Lead\Models\Lead;
+use Modules\Lead\Models\LeadTask;
 
 /** The CRM card of the company dashboard (only for users who may open the CRM dashboard; they see what they may see). */
 class AddCrmDashboardWidget
@@ -21,12 +23,19 @@ class AddCrmDashboardWidget
         $deals = fn () => Deal::visibleTo($event->user)->where('deals.created_by', $tenant);
         $open = $deals()->where('deals.status', 'active');
 
+        $due = now()->toDateString();
+        $followUps = ($event->user->can('manage-lead-tasks') ? LeadTask::where('status', '!=', 'completed')->where('due_date', '<=', $due)
+                ->whereHas('lead', fn ($q) => $q->visibleTo($event->user)->where('leads.created_by', $tenant))->count() : 0)
+            + ($event->user->can('manage-deal-tasks') ? DealTask::where('status', '!=', 'completed')->where('due_date', '<=', $due)
+                ->whereHas('deal', fn ($q) => $q->visibleTo($event->user)->where('deals.created_by', $tenant))->count() : 0);
+
         $event->add([
             'key' => 'crm', 'title' => 'CRM', 'href' => route('crm.dashboard'), 'order' => 30,
             'stats' => [
                 ['label' => 'Open leads', 'value' => $leads()->where('is_active', true)->where('is_converted', false)->count(), 'format' => 'number'],
                 ['label' => 'Open deals', 'value' => (clone $open)->count(), 'format' => 'number', 'hint' => null],
                 ['label' => 'Open pipeline value', 'value' => round((float) (clone $open)->sum('deals.price'), 2), 'format' => 'money'],
+                ['label' => 'Follow-ups due', 'value' => $followUps, 'format' => 'number', 'hint' => __('today and overdue')],
                 ['label' => 'Won this month', 'value' => round((float) $deals()->where('deals.status', 'won')->where('deals.closed_at', '>=', now()->startOfMonth())->sum('deals.price'), 2), 'format' => 'money'],
             ],
         ]);

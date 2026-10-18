@@ -11,7 +11,7 @@ export function useAppearance() {
     const { companyAllSetting, adminAllSetting } = usePage<PageProps>().props;
     const settings = { ...adminAllSetting, ...companyAllSetting };
 
-    const color = settings.themeColor ?? 'slate';
+    const color = settings.themeColor ?? 'violet';
     const [mode, setModeState] = useState<ThemeMode>(readStoredMode() ?? (settings.themeMode as ThemeMode) ?? 'light');
 
     useEffect(() => {

@@ -16,7 +16,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter Variable', 'Inter', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 border: 'hsl(var(--border))',
