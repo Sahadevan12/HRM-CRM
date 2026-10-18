@@ -9,9 +9,10 @@
 - Editable e-mail templates (per-company overrides)
 - Settings: brand, title, logo, theme colour (6 presets), light/dark mode
 - English and Tamil interface
+- Modern UI: refreshed light and dark themes, Ctrl+K page search, colour-coded status badges
 - Mobile REST API with Sanctum tokens (`docs/API.md`)
 - Demo data command: `php artisan app:demo <company email>`
-- 456 automated tests
+- 473 automated tests
 
 ## HRM
 - Dashboard: headcount by department, 7-day attendance, new joiners, gender / employment-type charts, pending approvals

@@ -13,7 +13,7 @@ Fill the `[ ]` placeholders (price, WhatsApp number, demo URL) before using. Cla
 
 **What you get (feature blocks)**
 1. **HRM** – employees, attendance, leave, shifts, payroll with PDF payslips, loans, resignation, announcements.
-2. **CRM** – leads, deals, drag-and-drop kanban, pipelines, web-to-lead form, reports.
+2. **CRM** – leads, deals, drag-and-drop kanban, pipelines, My Tasks, workflow automation rules (task / e-mail / move / assign), web-to-lead form, reports.
 3. **POS** – barcode/SKU search, cash/card/bank/on-account, stock-out and ledger posting automatically.
 4. **Accounting + Sales & Purchases** – invoices, bills, payments, ledgers, taxes, warehouses and stock.
 5. **Multi-tenant SaaS** – plans, company accounts, roles & permissions, per-company data isolation.
@@ -23,7 +23,7 @@ Fill the `[ ]` placeholders (price, WhatsApp number, demo URL) before using. Cla
 9. **English + Tamil** UI, light/dark mode, selectable colour themes.
 
 **Tech (for buyers who are developers)**
-Laravel 12 · React 18 + TypeScript · Inertia 2 · Tailwind + shadcn/ui · MySQL · spatie permission · Sanctum. 456 automated tests.
+Laravel 12 · React 18 + TypeScript · Inertia 2 · Tailwind + shadcn/ui · MySQL · spatie permission · Sanctum. 473 automated tests.
 
 **Who is it for**
 - Freelancers / agencies who want a ready ERP product to resell or customise per client.
@@ -63,7 +63,7 @@ Use the demo video (or 3–4 screenshots from `docs/demo/`) as creative. Test 2�
 - CTA: `Send WhatsApp message`
 
 **Ad B – agencies**
-- Primary text: One ERP codebase, unlimited client projects. Payroll, attendance, CRM kanban, POS and invoicing already built and tested (456 tests). Customise it, host it, charge monthly.
+- Primary text: One ERP codebase, unlimited client projects. Payroll, attendance, CRM kanban, POS and invoicing already built and tested (473 tests). Customise it, host it, charge monthly.
 - Headline: Launch your own ERP SaaS this week
 - CTA: `Learn more` → landing page
 
