@@ -47,6 +47,7 @@ class DealService
             $deal->users()->sync($userIds);
             $deal->clients()->sync($clientIds);
             $this->log($deal, $actorId, 'created', __('Deal created in :stage', ['stage' => $stage->name]));
+            app(WorkflowEngine::class)->fire('created', $deal, $actorId);
 
             return $deal;
         });
@@ -116,6 +117,7 @@ class DealService
 
             if ($from->id !== $stage->id) {
                 $this->log($deal, $actorId, 'moved', __('Moved from :from to :to', ['from' => $from->name, 'to' => $stage->name]));
+                app(WorkflowEngine::class)->fire('stage_changed', $deal->refresh(), $actorId);
             }
 
             return $deal->refresh();
@@ -141,6 +143,9 @@ class DealService
             $deal->update(['status' => $status, 'closed_at' => $status === 'active' ? null : now()]);
             $this->log($deal, $actorId, 'status', __('Status changed from :from to :to', ['from' => __($from), 'to' => __($status)]));
             DealStatusChanged::dispatch($deal, $from, $status);
+            if (in_array($status, ['won', 'lost'], true)) {
+                app(WorkflowEngine::class)->fire($status, $deal, $actorId);
+            }
 
             if ($status === 'won') {
                 $this->announceWin($deal, $actorId);

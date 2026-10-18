@@ -43,6 +43,7 @@ class LeadService
 
             $lead->users()->sync($userIds);
             $this->log($lead, $actorId, 'created', __('Lead created in :stage', ['stage' => $stage->name]));
+            app(WorkflowEngine::class)->fire('created', $lead, $actorId);
 
             return $lead;
         });
@@ -106,6 +107,7 @@ class LeadService
             if ($from->id !== $stage->id) {
                 $this->log($lead, $actorId, 'moved', __('Moved from :from to :to', ['from' => $from->name, 'to' => $stage->name]));
                 $this->notify('crm_lead_moved', $lead, $lead->users()->get(), $actorId, ['from' => $from->name, 'to' => $stage->name]);
+                app(WorkflowEngine::class)->fire('stage_changed', $lead->refresh(), $actorId);
             }
 
             return $lead->refresh();

@@ -30,6 +30,8 @@
 - Deals: drag-and-drop kanban or list, won / lost, owner, value
 - Pipelines, lead stages, deal stages, labels, sources (CRM Setup)
 - Web-to-lead form for your website (secret-protected)
+- My Tasks: every follow-up on leads and deals in one list (overdue / today / upcoming)
+- Workflow rules (Zoho-style): when a lead/deal is created, moves stage, is won or lost, and conditions match, then create tasks, send e-mails, move stage, assign a user or add a note; run history per rule
 
 ## Point of Sale
 - Terminal: search or scan barcode/SKU, warehouse and category filter, customer or walk-in

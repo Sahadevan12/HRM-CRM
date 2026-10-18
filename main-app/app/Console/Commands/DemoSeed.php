@@ -109,6 +109,17 @@ class DemoSeed extends Command
             }
         }
 
+        if (class_exists(\Modules\Lead\Models\Workflow::class) && !\Modules\Lead\Models\Workflow::where('created_by', $t)->exists()) {
+            foreach ([
+                ['New lead follow-up', 'lead', 'created', [['type' => 'create_task', 'name' => 'Call {{name}} and understand the requirement', 'due_days' => 1, 'priority' => 'high'], ['type' => 'add_note', 'text' => 'Auto follow-up task created']]],
+                ['Big deal alert', 'deal', 'created', [['type' => 'create_task', 'name' => 'Prepare proposal for {{title}}', 'due_days' => 2, 'priority' => 'high']]],
+                ['Thank the customer on win', 'deal', 'won', [['type' => 'create_task', 'name' => 'Send thank-you note for {{title}}', 'due_days' => 0, 'priority' => 'medium'], ['type' => 'send_email', 'to' => 'assignees', 'subject' => 'Deal won: {{title}}', 'body' => 'Congratulations, {{title}} ({{price}}) is won.']]],
+            ] as [$name, $module, $trigger, $actions]) {
+                \Modules\Lead\Models\Workflow::create(['name' => $name, 'module' => $module, 'trigger' => $trigger, 'match' => 'all',
+                    'conditions' => $name === 'Big deal alert' ? [['field' => 'price', 'operator' => 'gt', 'value' => '10000']] : [], 'actions' => $actions, 'is_active' => true] + $own);
+            }
+        }
+
         if (class_exists(\Modules\Lead\Services\DemoData::class)) {
             Artisan::call('crm:demo', ['email' => $company->email]);
         }

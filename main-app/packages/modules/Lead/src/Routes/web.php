@@ -39,6 +39,13 @@ Route::middleware(['web', 'auth', 'verified', 'PlanModuleCheck:Lead'])->group(fu
         Route::post('files', [LeadDetailController::class, 'upload'])->name('files.upload');
         Route::get('files/{file}', [LeadDetailController::class, 'download'])->whereNumber('file')->name('files.download');
     });
+    Route::prefix('crm/workflows')->name('crm.workflows.')->group(function () {
+        Route::get('/', [\Modules\Lead\Http\Controllers\WorkflowController::class, 'index'])->name('index');
+        Route::post('/', [\Modules\Lead\Http\Controllers\WorkflowController::class, 'store'])->name('store');
+        Route::put('{workflow}', [\Modules\Lead\Http\Controllers\WorkflowController::class, 'update'])->whereNumber('workflow')->name('update');
+        Route::post('{workflow}/toggle', [\Modules\Lead\Http\Controllers\WorkflowController::class, 'toggle'])->whereNumber('workflow')->name('toggle');
+        Route::delete('{workflow}', [\Modules\Lead\Http\Controllers\WorkflowController::class, 'destroy'])->whereNumber('workflow')->name('destroy');
+    });
     Route::get('crm/tasks', \Modules\Lead\Http\Controllers\TaskHubController::class.'@index')->name('crm.tasks');
     Route::get('crm/dashboard', [CrmDashboardController::class, 'dashboard'])->name('crm.dashboard');
     Route::get('crm/reports', [CrmDashboardController::class, 'reports'])->name('crm.reports');
