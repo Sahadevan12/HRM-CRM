@@ -36,7 +36,7 @@ interface Props {
     today: string;
 }
 
-const tone = { pending: 'secondary', approved: 'default', rejected: 'destructive' } as const;
+const tone = { pending: 'warning', approved: 'success', rejected: 'danger' } as const;
 
 export default function MyResignation({ hasProfile, history, canApply, today }: Props) {
     const { t } = useTranslation();

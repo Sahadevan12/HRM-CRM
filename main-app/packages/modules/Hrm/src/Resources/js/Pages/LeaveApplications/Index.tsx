@@ -51,7 +51,7 @@ interface Props {
 
 const ALL = 'all';
 const empty = { employee_id: '', leave_type_id: '', start_date: '', end_date: '', reason: '' };
-const tone: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = { pending: 'secondary', approved: 'default', rejected: 'destructive' };
+const tone: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'danger'> = { pending: 'warning', approved: 'success', rejected: 'danger' };
 
 export default function LeaveApplicationsIndex({ applications, leaveTypes, employees, myEmployeeId, can, balances, filters }: Props) {
     const { t } = useTranslation();

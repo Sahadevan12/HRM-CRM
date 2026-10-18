@@ -43,7 +43,7 @@ interface Props {
     filters: { search?: string; branch?: string; department?: string; status?: string };
 }
 
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = { active: 'default', inactive: 'secondary', resigned: 'outline', terminated: 'destructive' };
+const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'danger'> = { active: 'success', inactive: 'secondary', resigned: 'outline', terminated: 'danger' };
 const ALL = 'all';
 
 export default function EmployeesIndex({ employees, branches, departments, statuses, filters }: Props) {

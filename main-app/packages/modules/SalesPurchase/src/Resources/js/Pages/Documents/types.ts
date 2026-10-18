@@ -86,15 +86,15 @@ export interface Abilities {
     returnType: string;
 }
 
-export const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+export const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'danger'> = {
     draft: 'secondary',
-    sent: 'outline',
-    accepted: 'default',
-    rejected: 'destructive',
-    converted: 'default',
-    posted: 'default',
-    approved: 'outline',
-    completed: 'default',
+    sent: 'info',
+    accepted: 'success',
+    rejected: 'danger',
+    converted: 'success',
+    posted: 'success',
+    approved: 'info',
+    completed: 'success',
 };
 
 /** URL slug of a document type key, e.g. sales_invoice -> sales-invoices (used for links between documents). */

@@ -62,7 +62,7 @@ interface Props {
 
 const empty = { name: '', price: '', phone: '', notes: '', deal_stage_id: '', user_ids: [] as number[], client_ids: [] as number[], is_active: true };
 const ALL = 'all';
-const tone = { active: 'outline', won: 'default', lost: 'destructive' } as const;
+const tone = { active: 'outline', won: 'success', lost: 'danger' } as const;
 
 export default function DealsIndex({ pipelines, pipeline, stages, view, deals, users, clients, sourceOptions, labelOptions, productOptions, filters, can, can_detail }: Props) {
     const { t } = useTranslation();

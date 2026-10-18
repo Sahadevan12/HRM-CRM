@@ -25,6 +25,8 @@ import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+const ATTENDANCE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'outline'> = { present: 'success', late: 'warning', absent: 'danger', half_day: 'info', leave: 'info' };
+
 interface Row {
     id: number;
     employee_id: number;
@@ -159,7 +161,7 @@ export default function AttendancesIndex({ records, employees, departments, stat
                                         <TableCell>{r.total_hours}</TableCell>
                                         <TableCell>{r.overtime_hours}</TableCell>
                                         <TableCell>{r.late_minutes}</TableCell>
-                                        <TableCell><Badge variant={r.status === 'absent' ? 'destructive' : 'outline'}>{t(r.status)}</Badge></TableCell>
+                                        <TableCell><Badge variant={ATTENDANCE_TONE[r.status] ?? 'outline'}>{t(r.status)}</Badge></TableCell>
                                         <TableCell className="text-right">
                                             {can('edit-attendances') && <Button size="icon" variant="ghost" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>}
                                             {can('delete-attendances') && <Button size="icon" variant="ghost" onClick={() => setDeleting(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}

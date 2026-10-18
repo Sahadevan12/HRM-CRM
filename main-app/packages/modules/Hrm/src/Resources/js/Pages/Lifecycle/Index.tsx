@@ -54,7 +54,7 @@ interface Props {
 
 const NONE = 'none';
 const ALL = 'all';
-const tone = { pending: 'secondary', approved: 'default', rejected: 'destructive', applied: 'default' } as const;
+const tone = { pending: 'warning', approved: 'success', rejected: 'danger', applied: 'success' } as const;
 
 /** One page for promotions, resignations, terminations and transfers: the server describes the form and the table. */
 export default function LifecycleIndex({ kind, title, workflow, columns, fields, rows, can, filters }: Props) {

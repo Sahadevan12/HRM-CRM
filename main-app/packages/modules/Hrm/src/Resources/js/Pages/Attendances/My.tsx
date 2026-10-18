@@ -8,6 +8,8 @@ import { LogIn, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+const ATTENDANCE_TONE: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'outline'> = { present: 'success', late: 'warning', absent: 'danger', half_day: 'info', leave: 'info' };
+
 interface Row {
     id: number;
     date: string;
@@ -83,7 +85,7 @@ export default function MyAttendance({ employee, open, recent, tz }: Props) {
                                                 <TableCell>{r.total_hours}</TableCell>
                                                 <TableCell>{r.overtime_hours}</TableCell>
                                                 <TableCell>{r.late_minutes}</TableCell>
-                                                <TableCell><Badge variant="outline">{t(r.status)}</Badge></TableCell>
+                                                <TableCell><Badge variant={ATTENDANCE_TONE[r.status] ?? 'outline'}>{t(r.status)}</Badge></TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>

@@ -41,7 +41,7 @@ interface Props {
 }
 
 const NONE = 'none';
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = { active: 'default', inactive: 'secondary', resigned: 'outline', terminated: 'destructive' };
+const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' | 'danger'> = { active: 'success', inactive: 'secondary', resigned: 'outline', terminated: 'danger' };
 
 function Item({ label, children }: { label: string; children: ReactNode }) {
     return (

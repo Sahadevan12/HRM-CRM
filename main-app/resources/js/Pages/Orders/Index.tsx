@@ -24,7 +24,7 @@ interface OrderRow {
     user?: { name: string; email: string };
 }
 
-const statusVariant = { pending: 'secondary', paid: 'default', rejected: 'destructive' } as const;
+const statusVariant = { pending: 'warning', paid: 'success', rejected: 'danger' } as const;
 
 export default function OrdersIndex({ orders, filters, showCompany }: { orders: Paginated<OrderRow>; filters: { search?: string }; showCompany: boolean }) {
     const [search, setSearch] = useState(filters.search ?? '');

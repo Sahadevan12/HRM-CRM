@@ -23,7 +23,7 @@ interface Payment {
     user: { name: string; email: string };
 }
 
-const variant = { pending: 'secondary', approved: 'default', rejected: 'destructive' } as const;
+const variant = { pending: 'warning', approved: 'success', rejected: 'danger' } as const;
 
 export default function BankTransfersIndex({ payments }: { payments: Paginated<Payment> }) {
     const [rejecting, setRejecting] = useState<Payment | null>(null);

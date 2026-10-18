@@ -29,7 +29,7 @@ interface Props {
     accountingActive: boolean;
 }
 
-const tone = { draft: 'secondary', approved: 'outline', paid: 'default' } as const;
+const tone = { draft: 'secondary', approved: 'info', paid: 'success' } as const;
 
 export default function PayrollsIndex({ payrolls, suggestedMonth, accountingActive }: Props) {
     const { t } = useTranslation();
