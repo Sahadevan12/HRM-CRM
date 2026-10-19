@@ -12,7 +12,7 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
-    public const THEME_COLORS = ['slate', 'blue', 'green', 'violet', 'rose', 'orange'];
+    public const THEME_COLORS = ['indigo', 'slate', 'blue', 'green', 'violet', 'rose', 'orange'];
 
     public function index(): Response|RedirectResponse
     {

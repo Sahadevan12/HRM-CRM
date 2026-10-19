@@ -17,14 +17,14 @@ interface Props {
     activity: { kind: 'lead' | 'deal'; id: number; title: string; remark: string; who: string | null; at: string }[];
 }
 
-const COLORS = ['#2563eb', '#16a34a', '#f59e0b', '#db2777', '#7c3aed', '#0891b2', '#64748b'];
+const COLORS = ['#533afd', '#f96bee', '#ea2261', '#665efd', '#9b6829', '#0d253d', '#64748d'];
 
 function Kpi({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
     return (
         <Card>
             <CardContent className="p-4">
                 <div className="text-xs text-muted-foreground">{label}</div>
-                <div className="text-2xl font-semibold">{value}</div>
+                <div className="tnum text-2xl font-light tracking-tight">{value}</div>
                 {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
             </CardContent>
         </Card>

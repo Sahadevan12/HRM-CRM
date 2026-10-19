@@ -377,3 +377,11 @@ Docs: `README.md` (install / production), `docs/API.md` (mobile API)
         user including non-public platform settings -> now public ones only (a secret would otherwise have reached every browser).
       - UI: "Pay online" buttons on the subscribe page (Stripe = redirect, Razorpay = popup loaded from checkout.razorpay.com).
       - Not built: recurring subscriptions, refunds (do them in the gateway dashboard), receipts for plan payments, PayPal.
+
+## Design refresh (Stripe-inspired tokens)
+
+The visual system follows a "Stripe-inspired" DESIGN.md taken from the MIT-licensed collection
+https://github.com/VoltAgent/awesome-design-md: indigo primary `#533afd`, navy ink `#0d253d`, cool hairlines `#e3e8ee`,
+pill buttons, soft blue-tinted shadows (`shadow-lift` / `shadow-float`), tabular numbers, light-weight headings, an
+indigo/magenta/ruby gradient mesh (`bg-mesh`) and a dark navy sidebar (`bg-sidebar`). Tokens live in `resources/css/app.css`
+and `tailwind.config.js`; the default theme colour preset is `indigo`. It is an inspiration, not a copy of any brand's identity.

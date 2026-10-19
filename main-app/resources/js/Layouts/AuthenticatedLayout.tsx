@@ -53,7 +53,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
     return (
         <div className="min-h-screen bg-background text-foreground">
             {/* desktop sidebar */}
-            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-gradient-to-b from-violet-700 via-indigo-700 to-blue-800 shadow-xl print:hidden lg:block">
+            <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-sidebar shadow-xl print:hidden lg:block">
                 <AppSidebar items={menu} title={appTitle} />
             </aside>
 
@@ -61,7 +61,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
             {mobileOpen && (
                 <div className="fixed inset-0 z-40 lg:hidden">
                     <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
-                    <aside className="absolute inset-y-0 left-0 w-64 bg-gradient-to-b from-violet-700 via-indigo-700 to-blue-800">
+                    <aside className="absolute inset-y-0 left-0 w-64 bg-sidebar">
                         <button
                             type="button"
                             className="absolute right-2 top-4 rounded p-1 text-muted-foreground"
@@ -138,7 +138,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
                         <Dropdown>
                             <Dropdown.Trigger>
                                 <button type="button" className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-accent">
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xs font-bold text-white">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#533afd] to-[#f96bee] text-xs font-bold text-white">
                                         {auth.user.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase()}
                                     </span>
                                     <span className="hidden sm:inline">{auth.user.name}</span>
@@ -156,7 +156,7 @@ export default function Authenticated({ header, children }: PropsWithChildren<{ 
 
                 {header && (
                     <div className="border-b bg-card/50 print:hidden">
-                        <div className="px-4 py-5 sm:px-6">{header}</div>
+                        <div className="px-4 py-5 sm:px-6 [&_h2]:text-2xl [&_h2]:font-light [&_h2]:tracking-tight">{header}</div>
                     </div>
                 )}
 

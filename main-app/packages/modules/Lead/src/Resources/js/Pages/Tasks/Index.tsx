@@ -104,7 +104,7 @@ export default function Index({ overdue, dueToday, upcoming }: Props) {
                 <div className="grid gap-4 lg:grid-cols-2">
                     <Group title={t('Overdue')} icon={AlarmClock} tone="from-rose-500 to-orange-400" tasks={overdue} onDone={done} busy={busy} empty={t('Nothing overdue')} />
                     <Group title={t('Due today')} icon={CalendarCheck} tone="from-amber-500 to-yellow-400" tasks={dueToday} onDone={done} busy={busy} empty={t('Nothing due today')} />
-                    <Group title={t('Upcoming')} icon={CalendarClock} tone="from-sky-500 to-cyan-400" tasks={upcoming} onDone={done} busy={busy} empty={t('Nothing planned')} />
+                    <Group title={t('Upcoming')} icon={CalendarClock} tone="from-[#533afd] to-[#665efd]" tasks={upcoming} onDone={done} busy={busy} empty={t('Nothing planned')} />
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -14,11 +14,11 @@ interface Widget {
 
 /** The company dashboard: one card per active module (the modules add their own widget, see App\Events\CollectDashboardWidgets). */
 const ACCENTS = [
-    { bar: 'from-violet-500 to-fuchsia-500', tint: 'bg-violet-50 dark:bg-violet-500/10' },
-    { bar: 'from-sky-500 to-cyan-400', tint: 'bg-sky-50 dark:bg-sky-500/10' },
-    { bar: 'from-emerald-500 to-lime-400', tint: 'bg-emerald-50 dark:bg-emerald-500/10' },
-    { bar: 'from-orange-500 to-amber-400', tint: 'bg-orange-50 dark:bg-orange-500/10' },
-    { bar: 'from-rose-500 to-pink-400', tint: 'bg-rose-50 dark:bg-rose-500/10' },
+    { bar: 'from-[#533afd] to-[#f96bee]', tint: 'bg-[#533afd]/[0.06]' },
+    { bar: 'from-[#665efd] to-[#38bdf8]', tint: 'bg-[#665efd]/[0.07]' },
+    { bar: 'from-[#0ea5a4] to-[#84cc16]', tint: 'bg-emerald-500/[0.07]' },
+    { bar: 'from-[#9b6829] to-[#f59e0b]', tint: 'bg-amber-500/[0.08]' },
+    { bar: 'from-[#ea2261] to-[#f96bee]', tint: 'bg-[#ea2261]/[0.06]' },
 ];
 
 export default function Dashboard({ widgets }: PageProps<{ widgets: Widget[] }>) {
@@ -31,9 +31,9 @@ export default function Dashboard({ widgets }: PageProps<{ widgets: Widget[] }>)
             <Head title={t('Dashboard')} />
 
             <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-                <div className="rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 p-6 text-white shadow-lg">
+                <div className="rounded-xl bg-mesh p-7 text-white shadow-float">
                     <div className="text-sm opacity-80">{new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
-                    <div className="mt-1 text-2xl font-bold">{t('Welcome back')}, {auth.user.name}!</div>
+                    <div className="mt-1 text-3xl font-light tracking-tight">{t('Welcome back')}, {auth.user.name}!</div>
                     <div className="mt-1 text-sm opacity-90">{t("Here is what is happening in your business today.")}</div>
                 </div>
 
@@ -53,7 +53,7 @@ export default function Dashboard({ widgets }: PageProps<{ widgets: Widget[] }>)
                                 {w.stats.map((s, si) => (
                                     <div key={s.label} className={`rounded-xl p-3 ${ACCENTS[(wi + si) % ACCENTS.length].tint}`}>
                                         <div className="text-xs text-muted-foreground">{t(s.label)}</div>
-                                        <div className="text-2xl font-semibold">{s.format === 'money' ? money(Number(s.value)) : s.value}</div>
+                                        <div className="tnum text-2xl font-light tracking-tight">{s.format === 'money' ? money(Number(s.value)) : s.value}</div>
                                         {s.hint && <div className="text-xs text-muted-foreground">{s.hint}</div>}
                                     </div>
                                 ))}

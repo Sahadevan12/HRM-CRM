@@ -44,7 +44,7 @@ function BrandForm({ settings, themeColors }: Props) {
     const form = useForm({
         titleText: settings.titleText ?? 'ERP Suite',
         footerText: settings.footerText ?? '',
-        themeColor: settings.themeColor ?? 'violet',
+        themeColor: settings.themeColor ?? 'indigo',
         themeMode: settings.themeMode ?? 'light',
     });
 

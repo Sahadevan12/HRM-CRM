@@ -1,5 +1,6 @@
 /** Primary colour presets (HSL triplets for the --primary CSS variable) – [light, dark]. */
 export const THEME_COLORS: Record<string, { light: string; dark: string; swatch: string }> = {
+    indigo: { light: '248 98% 61%', dark: '248 100% 72%', swatch: '#533afd' },
     slate: { light: '222.2 47.4% 11.2%', dark: '210 40% 98%', swatch: '#0f172a' },
     blue: { light: '221.2 83.2% 53.3%', dark: '217.2 91.2% 59.8%', swatch: '#2563eb' },
     green: { light: '142.1 76.2% 36.3%', dark: '142.1 70.6% 45.3%', swatch: '#16a34a' },
@@ -35,11 +36,11 @@ export function isDark(mode: ThemeMode): boolean {
 
 export function applyTheme(mode: ThemeMode, color: string) {
     const dark = isDark(mode);
-    const preset = THEME_COLORS[color] ?? THEME_COLORS.slate;
+    const preset = THEME_COLORS[color] ?? THEME_COLORS.indigo;
     const root = document.documentElement;
 
     root.classList.toggle('dark', dark);
     root.style.setProperty('--primary', dark ? preset.dark : preset.light);
     // keep text on the primary colour readable
-    root.style.setProperty('--primary-foreground', dark && color === 'slate' ? '222.2 47.4% 11.2%' : '210 40% 98%');
+    root.style.setProperty('--primary-foreground', dark ? '215 45% 8%' : '0 0% 100%');
 }

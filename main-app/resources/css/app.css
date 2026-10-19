@@ -3,49 +3,51 @@
 @tailwind utilities;
 
 @layer base {
+    /* Design tokens follow the "Stripe-inspired" DESIGN.md from VoltAgent/awesome-design-md (MIT): indigo primary, navy ink,
+       cool hairlines, pill buttons, soft blue-tinted shadows, tabular numbers. */
     :root {
-        --background: 250 60% 98%;
-        --foreground: 240 30% 10%;
+        --background: 210 50% 98%;          /* canvas-soft  #f6f9fc */
+        --foreground: 209 65% 14%;          /* ink          #0d253d */
         --card: 0 0% 100%;
-        --card-foreground: 240 30% 10%;
+        --card-foreground: 209 65% 14%;
         --popover: 0 0% 100%;
-        --popover-foreground: 240 30% 10%;
-        --primary: 262.1 83.3% 57.8%;
-        --primary-foreground: 210 40% 98%;
-        --secondary: 250 70% 96%;
-        --secondary-foreground: 250 40% 25%;
-        --muted: 250 50% 96%;
-        --muted-foreground: 240 10% 42%;
-        --accent: 250 80% 95%;
-        --accent-foreground: 250 50% 25%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 210 40% 98%;
-        --border: 250 30% 90%;
-        --input: 250 25% 86%;
-        --ring: 262 83% 58%;
-        --radius: 0.75rem;
+        --popover-foreground: 209 65% 14%;
+        --primary: 248 98% 61%;             /* primary      #533afd */
+        --primary-foreground: 0 0% 100%;
+        --secondary: 210 40% 96%;
+        --secondary-foreground: 209 40% 25%; /* ink-secondary #273951 */
+        --muted: 210 40% 96%;
+        --muted-foreground: 217 17% 47%;    /* ink-mute     #64748d */
+        --accent: 248 90% 97%;
+        --accent-foreground: 248 70% 40%;
+        --destructive: 342 82% 52%;         /* ruby         #ea2261 */
+        --destructive-foreground: 0 0% 100%;
+        --border: 210 25% 91%;              /* hairline     #e3e8ee */
+        --input: 210 40% 80%;               /* hairline-input #a8c3de */
+        --ring: 248 98% 61%;
+        --radius: 0.5rem;
     }
 
     .dark {
-        --background: 240 30% 7%;
-        --foreground: 240 20% 96%;
-        --card: 240 25% 10.5%;
-        --card-foreground: 240 20% 96%;
-        --popover: 240 25% 10.5%;
-        --popover-foreground: 240 20% 96%;
-        --primary: 263.4 85% 66%;
-        --primary-foreground: 240 30% 8%;
-        --secondary: 240 20% 16%;
-        --secondary-foreground: 240 20% 96%;
-        --muted: 240 20% 14%;
-        --muted-foreground: 240 10% 66%;
-        --accent: 250 30% 20%;
-        --accent-foreground: 240 20% 96%;
-        --destructive: 0 70% 52%;
+        --background: 215 45% 8%;
+        --foreground: 210 30% 96%;
+        --card: 214 40% 11.5%;
+        --card-foreground: 210 30% 96%;
+        --popover: 214 40% 11.5%;
+        --popover-foreground: 210 30% 96%;
+        --primary: 248 100% 72%;
+        --primary-foreground: 215 45% 8%;
+        --secondary: 214 30% 17%;
+        --secondary-foreground: 210 30% 96%;
+        --muted: 214 30% 15%;
+        --muted-foreground: 213 18% 68%;
+        --accent: 248 35% 22%;
+        --accent-foreground: 210 30% 96%;
+        --destructive: 342 75% 55%;
         --destructive-foreground: 0 0% 100%;
-        --border: 240 15% 19%;
-        --input: 240 15% 24%;
-        --ring: 263 85% 66%;
+        --border: 214 25% 19%;
+        --input: 214 25% 26%;
+        --ring: 248 100% 72%;
     }
 
     * {
@@ -61,6 +63,12 @@
         @apply bg-background text-foreground;
     }
 
+    /* money and counts line up in columns */
+    table,
+    .tnum {
+        font-variant-numeric: tabular-nums;
+    }
+
     ::selection {
         background: hsl(var(--primary) / 0.25);
     }
@@ -69,6 +77,23 @@
     * {
         scrollbar-width: thin;
         scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+    }
+}
+
+@layer components {
+    /* dark navy app chrome (brand-dark-900) */
+    .bg-sidebar {
+        background: linear-gradient(180deg, #1f2160 0%, #1a1c55 50%, #12143d 100%);
+    }
+
+    /* the signature gradient mesh: indigo, magenta, ruby */
+    .bg-mesh {
+        background:
+            radial-gradient(at 12% 8%, #665efd 0, transparent 55%),
+            radial-gradient(at 88% 12%, #f96bee 0, transparent 48%),
+            radial-gradient(at 78% 92%, #ea2261 0, transparent 48%),
+            radial-gradient(at 8% 88%, #533afd 0, transparent 55%),
+            #4434d4;
     }
 }
 

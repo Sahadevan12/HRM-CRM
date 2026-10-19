@@ -27,9 +27,9 @@ function Item({ item, depth = 0 }: { item: NavItem; depth?: number }) {
 
     const Icon = item.icon;
     const base = cn(
-        'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+        'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-normal transition-colors',
         depth > 0 && 'pl-9',
-        active ? 'bg-white/20 text-white shadow-sm' : 'text-white/75 hover:bg-white/10 hover:text-white',
+        active ? 'bg-white/12 text-white ring-1 ring-inset ring-white/15' : 'text-white/70 hover:bg-white/8 hover:text-white',
     );
 
     if (item.children?.length) {
